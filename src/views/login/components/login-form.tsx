@@ -14,15 +14,8 @@ export function LoginForm() {
   return (
     <ConfigProvider
       theme={{
-        components: {
-          Button: {
-            colorPrimary: '#262626',
-            algorithm: true,
-          },
-          Input: {
-            colorPrimary: '#262626',
-            algorithm: true,
-          },
+        token: {
+          colorPrimary: '#262626',
         },
       }}
     >

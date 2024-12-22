@@ -17,6 +17,19 @@ export function PhotoGrid() {
       <Photo />
       <Photo />
       <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
+      <Photo />
     </div>
   )
 }
