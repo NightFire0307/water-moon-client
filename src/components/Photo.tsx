@@ -1,27 +1,38 @@
-import { Flex, Image, Tag } from 'antd'
+import { Flex, Image, Space, Tag } from 'antd'
 
-export function Photo() {
+interface PhotoProps {
+  src: string
+  name: string
+  types: string[]
+}
+
+export function Photo(props: PhotoProps) {
+  const { src, types, name } = props
+
   return (
     <div>
       <div className="relative bg-gray-400 overflow-hidden rounded-[10px] flex justify-center">
         <Image
-          src="https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp"
+          src={src}
           className="cursor-zoom-in object-contain"
           width={300}
           height={300}
           preview={{
             mask: null,
           }}
-          alt="这是一张图片"
         />
+
       </div>
-      <Flex gap="4px 0" align="center" wrap justify="center" className="mt-2">
-        <Tag bordered={false} color="gold">入册</Tag>
-        <Tag bordered={false} color="gold">摆台</Tag>
-        <Tag bordered={false} color="gold">大框</Tag>
-        <Tag bordered={false} color="gold">大框</Tag>
-        <span className="text-gray-900 font-medium">234234989.jpg</span>
-      </Flex>
+      <Space direction="vertical" className="w-full flex justify-center">
+        <Flex gap="4px 0" align="center" wrap justify="center" className="mt-2">
+          {
+            types.map((type, index) => (
+              <Tag bordered={false} color="gold" key={index}>{type}</Tag>
+            ))
+          }
+        </Flex>
+        <div className="text-gray-900 font-medium w-full text-center">{name}</div>
+      </Space>
     </div>
   )
 }

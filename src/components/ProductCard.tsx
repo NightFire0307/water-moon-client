@@ -1,4 +1,6 @@
-import { Card } from 'antd'
+import { Card, Progress, Typography } from 'antd'
+
+const { Text } = Typography
 
 interface ProductCardProps {
   title: string
@@ -12,25 +14,21 @@ export function ProductCard(props: ProductCardProps) {
   const { title, total, selected } = props
   return (
     <Card
-      title={title}
       size="small"
       bordered={false}
       className="w-[250px]"
     >
-      <div>
-        应选张数：
-        <span className="text-black-secondText font-bold">
-          {total}
-          张
-        </span>
-      </div>
-      <div>
-        已选张数：
-        <span className="text-black-secondText font-bold">
+      <div className="flex justify-between">
+        <Text>{title}</Text>
+        <Text
+          className="text-black-secondText font-bold"
+        >
           {selected}
-          张
-        </span>
+          /
+          {total}
+        </Text>
       </div>
+      <Progress showInfo={false} percent={(selected / total) * 100} />
     </Card>
   )
 }

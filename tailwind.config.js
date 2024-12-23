@@ -6,7 +6,7 @@ export default {
   ],
   theme: {
     colors: {
-      white: '#f0f2f5',
+      white: '#f9f9f9',
       black: {
         title: '#001529',
         firstText: '#000000E0',
