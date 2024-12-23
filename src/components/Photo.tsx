@@ -1,4 +1,10 @@
 import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
+import {
+  NoteEditIcon,
+  TagAddIcon,
+  TagRemoveAllIcon,
+  TagRemoveIcon,
+} from '../assets/svg/CustomIcon.tsx'
 
 interface PhotoProps {
   src: string
@@ -13,25 +19,51 @@ export function Photo(props: PhotoProps) {
     {
       label: '标记',
       key: '1',
+      icon: <TagAddIcon />,
       children: [
         {
-          label: '已选',
+          label: '入册',
           key: 'selected',
+        },
+        {
+          label: '组合框',
+          key: 'combine',
         },
       ],
     },
     {
       label: '移除标记',
       key: '2',
+      icon: <TagRemoveIcon />,
+      children: [
+        {
+          label: '入册',
+          key: 'selected',
+        },
+        {
+          label: '组合框',
+          key: 'combine',
+        },
+      ],
     },
     {
-      label: '删除',
-      key: 'delete',
+      label: '移除所有标记',
+      key: 'removeAll',
+      icon: <TagRemoveAllIcon />,
+    },
+    {
+      label: '添加备注',
+      key: '3',
+      icon: <NoteEditIcon />,
     },
   ]
 
+  function onClick(value) {
+    console.log(value)
+  }
+
   return (
-    <Dropdown menu={{ items }} trigger={['contextMenu']}>
+    <Dropdown menu={{ items, onClick }} trigger={['contextMenu']}>
       <div>
         <div
           className="
@@ -40,6 +72,7 @@ export function Photo(props: PhotoProps) {
           overflow-hidden
           rounded-[10px]
           flex
+          shadow-md
           justify-center"
         >
           <Image

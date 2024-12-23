@@ -1,4 +1,5 @@
-import { Card, Progress, Typography } from 'antd'
+import { Card, Progress, Space, Typography } from 'antd'
+import { CircleCheckBoxIcon } from '../assets/svg/CustomIcon.tsx'
 
 const { Text } = Typography
 
@@ -12,6 +13,7 @@ interface ProductCardProps {
 
 export function ProductCard(props: ProductCardProps) {
   const { title, total, selected } = props
+
   return (
     <Card
       size="small"
@@ -19,17 +21,27 @@ export function ProductCard(props: ProductCardProps) {
       className="w-[250px]"
       hoverable
     >
-      <div className="flex justify-between">
-        <Text>{title}</Text>
-        <Text
-          className="text-black-secondText font-bold"
-        >
-          {selected}
-          /
-          {total}
-        </Text>
-      </div>
-      <Progress showInfo={false} percent={(selected / total) * 100} />
+      <Space direction="vertical" className="w-full">
+        <div className=" flex justify-between">
+          <Text>{title}</Text>
+          {
+            selected === total ? <CircleCheckBoxIcon /> : null
+          }
+        </div>
+        <div className="flex justify-between">
+          <Text className="text-black-secondText">已选照片</Text>
+          <Text
+            className="text-black-firstText font-semibold "
+          >
+            {selected}
+            {' '}
+            /
+            {' '}
+            {total}
+          </Text>
+        </div>
+        <Progress showInfo={false} percent={(selected / total) * 100} />
+      </Space>
     </Card>
   )
 }
