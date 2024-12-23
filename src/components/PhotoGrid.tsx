@@ -15,7 +15,7 @@ export function PhotoGrid() {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 ">
       <Image.PreviewGroup>
         {photoItems.map((src, index) => (
-          <Photo src={src} name="1231323.jpg" key={index} types={[]} />
+          <Photo src={src} name="1231323.jpg" types={[]} key={index} />
         ))}
       </Image.PreviewGroup>
     </div>

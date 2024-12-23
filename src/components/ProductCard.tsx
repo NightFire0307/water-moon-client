@@ -17,6 +17,7 @@ export function ProductCard(props: ProductCardProps) {
       size="small"
       bordered={false}
       className="w-[250px]"
+      hoverable
     >
       <div className="flex justify-between">
         <Text>{title}</Text>

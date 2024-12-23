@@ -32,11 +32,10 @@ export function Page() {
           <Sider
             collapsed={collapsed}
             collapsedWidth={0}
-            trigger={<div>显示</div>}
             className="bg-white  "
             width={290}
           >
-            <div className="relative overflow-y-auto w-full flex justify-center p-4">
+            <div className="relative overflow-hidden overflow-y-auto w-full flex justify-center p-4">
               <Space direction="vertical" size="middle">
                 <Title level={3} className="text-black-title">产品列表</Title>
                 <ProductCard title="陌上花开14寸相册" total={30} selected={15} />
@@ -46,7 +45,7 @@ export function Page() {
               </Space>
             </div>
           </Sider>
-          <Content className="bg-[#f0f2f5] overflow-y-auto">
+          <Content className="bg-[#f0f2f5] overflow-y-auto" onContextMenu={e => e.preventDefault()}>
             <div className="flex-grow container mx-auto p-4">
               <Space direction="vertical" size="middle">
                 <Flex gap="middle">
