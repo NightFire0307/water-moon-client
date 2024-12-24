@@ -1,14 +1,15 @@
 import {
   LeftOutlined,
-  MessageOutlined,
   RightOutlined,
-  SelectOutlined,
+  TagOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
 } from '@ant-design/icons'
 import { Divider, Form, Image, Input, Modal, Space, Tooltip } from 'antd'
 import { useState } from 'react'
+import { PencilIcon } from '../assets/svg/CustomIcon.tsx'
 import { Photo } from './Photo.tsx'
+import { ProductSelectModal } from './ProductSelectModal.tsx'
 
 export function PhotoGrid() {
   const [photoItems, SetPhotoItems] = useState<string[]>(
@@ -19,6 +20,7 @@ export function PhotoGrid() {
     ],
   )
   const [visible, setVisible] = useState(false)
+  const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 ">
@@ -28,13 +30,16 @@ export function PhotoGrid() {
             <div className="bg-gray bg-opacity-10 pr-4 pl-4 pt-2 pb-2 rounded-[100px] text-gray-500">
               <Space size={14} className="toolbar-wrapper text-xl">
                 <Tooltip title="添加备注">
-                  <MessageOutlined
+                  <PencilIcon
                     className="hover:text-white cursor-pointer"
                     onClick={() => setVisible(true)}
                   />
                 </Tooltip>
                 <Tooltip title="选择产品">
-                  <SelectOutlined className="hover:text-white cursor-pointer" />
+                  <TagOutlined
+                    className="hover:text-white cursor-pointer"
+                    onClick={() => setProductSelectModalVisible(true)}
+                  />
                 </Tooltip>
                 <Divider type="vertical" className="border-[#bfbfbf]" />
                 <Tooltip title="上一张">
@@ -58,13 +63,24 @@ export function PhotoGrid() {
           <Photo src={src} name="1231323.jpg" types={[]} key={index} />
         ))}
       </Image.PreviewGroup>
-      <Modal centered open={visible} title="添加备注">
+      <Modal
+        centered
+        open={visible}
+        title="添加备注"
+        okText="保存"
+        onCancel={() => setVisible(false)}
+        zIndex={2000}
+      >
         <Form>
           <Form.Item>
             <Input.TextArea placeholder="请输入备注" />
           </Form.Item>
         </Form>
       </Modal>
+      <ProductSelectModal
+        open={productSelectModalVisible}
+        products={[{ id: 1, name: '陌上花开14寸相册' }, { id: 2, name: '陌上花开12寸相册' }, { id: 3, name: '7寸单片' }, { id: 4, name: '10寸摆台' }]}
+      />
     </div>
   )
 }
