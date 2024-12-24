@@ -2,7 +2,7 @@ import { LockOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/
 import { Button, Flex, FloatButton, Layout, Space, Typography } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PhotoGrid } from '../components/PhotoGrid.tsx'
 import { ProductCard } from '../components/ProductCard.tsx'
 import { ProductTypeTabs } from '../components/ProductTypeTabs.tsx'
@@ -10,42 +10,98 @@ import { UserProfile } from '../components/UserProfile.tsx'
 
 const { Title } = Typography
 
-interface IProduct {
+export interface IType {
   id: number
+  name: string
+}
+
+export interface IProduct {
+  productId: number
   title: string
   total: number
-  selected: number
+  selected: IPhoto[]
+  // 产品所属类别
+  type: string
+}
+
+export interface IPhoto {
+  photoId: number
+  src: string
+  name: string
 }
 
 export function Page() {
   const [collapsed, setCollapsed] = useState(false)
+  const [products, setProducts] = useState<IProduct[]>([])
+  const [photos, setPhotos] = useState<IPhoto[]>([])
 
-  const products: IProduct[] = [
-    {
-      id: 1,
-      title: '陌上花开14寸相册',
-      total: 30,
-      selected: 15,
-    },
-    {
-      id: 2,
-      title: '陌上花开12寸相册',
-      total: 25,
-      selected: 5,
-    },
-    {
-      id: 3,
-      title: '陌上花开10寸摆台',
-      total: 1,
-      selected: 1,
-    },
-    {
-      id: 4,
-      title: '陌上花开8寸摆台',
-      total: 1,
-      selected: 2,
-    },
-  ]
+  // 模拟获取产品列表
+  function fetchProducts() {
+    setTimeout(() => {
+      setProducts([
+        {
+          productId: 33,
+          title: '陌上花开48寸大框',
+          total: 1,
+          selected: [],
+          type: '主框',
+        },
+        {
+          productId: 44,
+          title: '陌上花开8寸摆台',
+          total: 1,
+          selected: [],
+          type: '摆台',
+        },
+      ])
+    }, 120)
+  }
+
+  // 模拟获取图片列表
+  function fetchPhotos() {
+    setTimeout(() => {
+      setPhotos([
+        {
+          photoId: 11,
+          src: 'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
+          name: '123.jpg',
+        },
+        {
+          photoId: 22,
+          src: 'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp',
+          name: '456.jpg',
+        },
+        {
+          photoId: 33,
+          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
+          name: '789.jpg',
+        },
+      ])
+    })
+  }
+
+  useEffect(() => {
+    fetchProducts()
+    fetchPhotos()
+  }, [])
+
+  function handleClick(photoId: number, productId: number) {
+    const photo = photos.find(photo => photo.photoId === photoId)
+    if (!photo)
+      return
+
+    setProducts((prevProducts) => {
+      return prevProducts.map((product) => {
+        if (product.productId === productId) {
+          return {
+            ...product,
+            selected: [...product.selected, photo],
+          }
+        }
+        return product
+      })
+    })
+  }
 
   return (
     <Layout className="h-screen overflow-hidden">
@@ -66,9 +122,9 @@ export function Page() {
               {
                 products.map(product => (
                   <ProductCard
-                    key={product.id}
+                    key={product.productId}
                     title={product.title}
-                    selected={product.selected}
+                    selected={product.selected.length}
                     total={product.total}
                   />
                 ))
@@ -83,7 +139,7 @@ export function Page() {
                 <Button icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)}></Button>
                 <ProductTypeTabs />
               </Flex>
-              <PhotoGrid />
+              <PhotoGrid photos={photos} products={products} onClick={handleClick} />
             </Space>
           </div>
         </Content>

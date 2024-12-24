@@ -7,49 +7,36 @@ import {
 } from '../assets/svg/CustomIcon.tsx'
 
 interface PhotoProps {
+  photoId: number
   src: string
   name: string
   types: string[]
+  productsMenu: MenuProps['items']
+  onDropDownClick?: (photoId: number, { key }: { key: string }) => void
 }
 
 export function Photo(props: PhotoProps) {
-  const { src, types, name } = props
+  const { photoId, src, types, name, productsMenu, onDropDownClick } = props
 
   const items: MenuProps['items'] = [
     {
       label: '标记',
       key: '1',
       icon: <TagAddIcon />,
-      children: [
-        {
-          label: '入册',
-          key: 'selected',
-        },
-        {
-          label: '组合框',
-          key: 'combine',
-        },
-      ],
+      children: productsMenu,
     },
     {
       label: '移除标记',
       key: '2',
       icon: <TagRemoveIcon />,
-      children: [
-        {
-          label: '入册',
-          key: 'selected',
-        },
-        {
-          label: '组合框',
-          key: 'combine',
-        },
-      ],
+      disabled: true,
+      children: [],
     },
     {
       label: '移除所有标记',
       key: 'removeAll',
       icon: <TagRemoveAllIcon />,
+      disabled: true,
     },
     {
       label: '添加备注',
@@ -58,12 +45,8 @@ export function Photo(props: PhotoProps) {
     },
   ]
 
-  function onClick(value) {
-    console.log(value)
-  }
-
   return (
-    <Dropdown menu={{ items, onClick }} trigger={['contextMenu']}>
+    <Dropdown menu={{ items, onClick: e => onDropDownClick?.(photoId, e) }} trigger={['contextMenu']}>
       <div>
         <div
           className="

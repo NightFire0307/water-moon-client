@@ -1,3 +1,4 @@
+import type { IPhoto, IProduct } from '../views/page.tsx'
 import {
   LeftOutlined,
   RightOutlined,
@@ -5,22 +6,38 @@ import {
   ZoomInOutlined,
   ZoomOutOutlined,
 } from '@ant-design/icons'
-import { Divider, Form, Image, Input, Modal, Space, Tooltip } from 'antd'
-import { useState } from 'react'
+import { Divider, Form, Image, Input, type MenuProps, Modal, Space, Tooltip } from 'antd'
+import { useEffect, useState } from 'react'
 import { PencilIcon } from '../assets/svg/CustomIcon.tsx'
 import { Photo } from './Photo.tsx'
 import { ProductSelectModal } from './ProductSelectModal.tsx'
 
-export function PhotoGrid() {
-  const [photoItems, SetPhotoItems] = useState<string[]>(
-    [
-      'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
-      'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp',
-      'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-    ],
-  )
+interface PhotoGridProps {
+  photos: IPhoto[]
+  products: IProduct[]
+  onClick?: (photoId: number, productId: number) => void
+}
+
+export function PhotoGrid(props: PhotoGridProps) {
+  const { photos, products, onClick } = props
   const [visible, setVisible] = useState(false)
   const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
+  const [dropDownMenu, setDropDownMenu] = useState<MenuProps['items']>([])
+
+  function generateMenu(products: IProduct[]): MenuProps['items'] {
+    return products.map(product => ({
+      label: product.title,
+      key: product.productId.toString(),
+    }))
+  }
+
+  useEffect(() => {
+    setDropDownMenu(generateMenu(products))
+  }, [products])
+
+  function handleDropDownClick(id: number, { key }: { key: string }) {
+    onClick?.(id, +key)
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 ">
@@ -59,8 +76,16 @@ export function PhotoGrid() {
           ),
         }}
       >
-        {photoItems.map((src, index) => (
-          <Photo src={src} name="1231323.jpg" types={[]} key={index} />
+        {photos.map(photo => (
+          <Photo
+            photoId={photo.photoId}
+            src={photo.src}
+            name={photo.name}
+            types={[]}
+            key={photo.photoId}
+            productsMenu={dropDownMenu}
+            onDropDownClick={handleDropDownClick}
+          />
         ))}
       </Image.PreviewGroup>
       <Modal
