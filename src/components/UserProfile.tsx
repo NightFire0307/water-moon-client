@@ -1,6 +1,6 @@
 import type { MenuProps } from 'antd'
-import { LockOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
-import { Avatar, Button, Dropdown } from 'antd'
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { Avatar, Dropdown } from 'antd'
 
 export function UserProfile() {
   const items: MenuProps['items'] = [
@@ -22,11 +22,8 @@ export function UserProfile() {
   ]
 
   return (
-    <div className="flex items-center gap-2">
-      <Dropdown menu={{ items }}>
-        <Avatar size={32} icon={<UserOutlined />} />
-      </Dropdown>
-      <Button icon={<LockOutlined />} type="primary">锁定提交</Button>
-    </div>
+    <Dropdown menu={{ items }} trigger={['click']}>
+      <Avatar size={32} icon={<UserOutlined />} className="cursor-pointer" />
+    </Dropdown>
   )
 }

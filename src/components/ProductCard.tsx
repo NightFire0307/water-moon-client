@@ -1,5 +1,5 @@
-import { Card, Progress, Space, Typography } from 'antd'
-import { CircleCheckBoxIcon } from '../assets/svg/CustomIcon.tsx'
+import { Card, Progress, Space, Tooltip, Typography } from 'antd'
+import { CircleCheckBoxIcon, WarningIcon } from '../assets/svg/CustomIcon.tsx'
 
 const { Text } = Typography
 
@@ -25,7 +25,16 @@ export function ProductCard(props: ProductCardProps) {
         <div className=" flex justify-between">
           <Text>{title}</Text>
           {
-            selected === total ? <CircleCheckBoxIcon /> : null
+            selected === total ? <CircleCheckBoxIcon className="text-xl" /> : null
+          }
+          {
+            selected > total
+              ? (
+                  <Tooltip title="超出限定张数">
+                    <WarningIcon className="text-xl text-[#fadb14]" />
+                  </Tooltip>
+                )
+              : null
           }
         </div>
         <div className="flex justify-between">
@@ -40,7 +49,7 @@ export function ProductCard(props: ProductCardProps) {
             {total}
           </Text>
         </div>
-        <Progress showInfo={false} percent={(selected / total) * 100} />
+        <Progress showInfo={false} percent={(selected / total) * 100} strokeColor={selected > total ? '#fadb14' : ''} />
       </Space>
     </Card>
   )

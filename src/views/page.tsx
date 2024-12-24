@@ -1,5 +1,5 @@
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
-import { Button, Flex, Layout, Space, Typography } from 'antd'
+import { LockOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
+import { Button, Flex, FloatButton, Layout, Space, Typography } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import { useState } from 'react'
@@ -38,6 +38,12 @@ export function Page() {
       title: '陌上花开10寸摆台',
       total: 1,
       selected: 1,
+    },
+    {
+      id: 4,
+      title: '陌上花开8寸摆台',
+      total: 1,
+      selected: 2,
     },
   ]
 
@@ -82,6 +88,11 @@ export function Page() {
           </div>
         </Content>
       </Layout>
+
+      <FloatButton.Group shape="circle" style={{ insetInlineEnd: 60 }}>
+        <FloatButton.BackTop tooltip="返回顶部" />
+        <FloatButton type="primary" tooltip="提交选片结果" icon={<LockOutlined />}></FloatButton>
+      </FloatButton.Group>
     </Layout>
   )
 }
