@@ -1,42 +1,65 @@
-import type { IPhoto, IProduct } from '../stores/productsStore.tsx'
+import type { MenuItemType } from 'antd/es/menu/interface'
 import {
+  CheckOutlined,
   LeftOutlined,
   RightOutlined,
   TagOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
 } from '@ant-design/icons'
-import { Divider, Form, Image, Input, type MenuProps, Modal, Space, Tooltip } from 'antd'
+import { Divider, Form, Image, Input, message, Modal, Space, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 import { PencilIcon } from '../assets/svg/CustomIcon.tsx'
+import { usePhotosStore } from '../stores/photosStore.tsx'
 import { useProductsStore } from '../stores/productsStore.tsx'
 import { Photo } from './Photo.tsx'
 import { ProductSelectModal } from './ProductSelectModal.tsx'
 
-interface PhotoGridProps {
-  photos: IPhoto[]
-}
-
-export function PhotoGrid(props: PhotoGridProps) {
-  const { photos } = props
+export function PhotoGrid() {
   const [visible, setVisible] = useState(false)
   const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
   const { products, updateProductSelected } = useProductsStore()
+  const { photos, updatePhotoDropdownMenus, removeAllPhotoDropdownMenus } = usePhotosStore()
 
-  function generateMenu(products: IProduct[]): MenuProps['items'] {
-    console.log(photos)
-    return products.map(product => ({
-      label: product.title,
-      key: product.productId.toString(),
-      icon: '',
-      disabled: false,
-    }))
+  // 生成图片右键标记产品菜单
+  function generateMenu() {
+    for (const photo of photos) {
+      const dropdownMenus: MenuItemType[] = []
+      for (const product of products) {
+        const isSelect = product.selected.includes(photo.photoId)
+        dropdownMenus.push({
+          label: product.title,
+          key: product.productId.toString(),
+          disabled: isSelect,
+          icon: isSelect ? <CheckOutlined /> : '',
+        })
+      }
+      updatePhotoDropdownMenus(photo.photoId, dropdownMenus)
+    }
   }
 
   useEffect(() => {
-    generateMenu(products)
+    generateMenu()
   }, [products])
 
+  function handleDropDownClick(key: string[], photoId: number) {
+    const actionType = key[1] ?? key[0]
+
+    switch (actionType) {
+      case 'addTag':
+        updateProductSelected(Number(key[0]), photoId)
+        break
+      case 'removeTag':
+        break
+      case 'removeAllTag':
+        removeAllPhotoDropdownMenus(photoId)
+        break
+      case 'add_note':
+        break
+      default:
+        message.error('未知操作')
+    }
+  }
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 ">
       <Image.PreviewGroup
@@ -82,7 +105,7 @@ export function PhotoGrid(props: PhotoGridProps) {
             types={photo.markedProductTypes}
             key={photo.photoId}
             productsMenu={photo.dropdownMenus}
-            onDropDownClick={updateProductSelected}
+            onDropDownClick={handleDropDownClick}
           />
         ))}
       </Image.PreviewGroup>

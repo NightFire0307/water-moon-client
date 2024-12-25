@@ -7,7 +7,6 @@ import { PhotoGrid } from '../components/PhotoGrid.tsx'
 import { ProductCard } from '../components/ProductCard.tsx'
 import { ProductTypeTabs } from '../components/ProductTypeTabs.tsx'
 import { UserProfile } from '../components/UserProfile.tsx'
-import { usePhotosStore } from '../stores/photosStore.tsx'
 import { useProductsStore } from '../stores/productsStore.tsx'
 
 const { Title } = Typography
@@ -15,7 +14,6 @@ const { Title } = Typography
 export function Page() {
   const [collapsed, setCollapsed] = useState(false)
   const { products } = useProductsStore()
-  const { photos } = usePhotosStore()
 
   return (
     <Layout className="h-screen overflow-hidden">
@@ -53,7 +51,7 @@ export function Page() {
                 <Button icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)}></Button>
                 <ProductTypeTabs />
               </Flex>
-              <PhotoGrid photos={photos} />
+              <PhotoGrid />
             </Space>
           </div>
         </Content>

@@ -1,4 +1,6 @@
+import type { MenuItemType } from 'antd/es/menu/interface'
 import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
+import { useEffect, useState } from 'react'
 import {
   NoteEditIcon,
   TagAddIcon,
@@ -11,12 +13,27 @@ interface PhotoProps {
   src: string
   name: string
   types: string[]
-  productsMenu: MenuProps['items']
-  onDropDownClick?: (productId: number, photoId: number) => void
+  productsMenu: MenuItemType[]
+  onDropDownClick?: (keyPay: string[], photoId: number) => void
 }
 
 export function Photo(props: PhotoProps) {
   const { photoId, src, types, name, productsMenu, onDropDownClick } = props
+  const [removeAllDisabled, setRemoveAllDisabled] = useState<boolean>(true)
+
+  useEffect(() => {
+    if (productsMenu) {
+      for (const product of productsMenu) {
+        if (product.disabled) {
+          setRemoveAllDisabled(false)
+          break
+        }
+        else {
+          setRemoveAllDisabled(true)
+        }
+      }
+    }
+  }, [productsMenu])
 
   const items: MenuProps['items'] = [
     {
@@ -36,7 +53,7 @@ export function Photo(props: PhotoProps) {
       label: '移除所有标记',
       key: 'removeAllTag',
       icon: <TagRemoveAllIcon />,
-      disabled: true,
+      disabled: removeAllDisabled,
     },
     {
       label: '添加备注',
@@ -49,7 +66,7 @@ export function Photo(props: PhotoProps) {
     <Dropdown
       menu={{
         items,
-        onClick: ({ key }) => onDropDownClick?.(+key, photoId),
+        onClick: ({ keyPath }) => onDropDownClick?.(keyPath, photoId),
       }}
       trigger={['contextMenu']}
     >

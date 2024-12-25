@@ -22,6 +22,7 @@ interface ProductStore {
 
 interface ProductAction {
   updateProductSelected: (productId: number, photoId: number) => void
+  removeSelectedByPhotoId: (productId: number, photoId: number) => void
 }
 
 export const useProductsStore = create<ProductStore & ProductAction>()(
@@ -60,6 +61,15 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
           return { products: [...state.products] }
         })
       ),
+      removeSelectedByPhotoId: (productId: number, photoId: number) => {
+        set((state) => {
+          const product = state.products.find(item => item.productId === productId)
+          if (!product)
+            return {}
+          product.selected = product.selected.filter(id => id !== photoId)
+          return { products: [...state.products] }
+        })
+      },
     }),
     {
       name: 'products-store',

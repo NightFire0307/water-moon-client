@@ -1,13 +1,14 @@
-import type { MenuProps } from 'antd'
+import type { MenuItemType } from 'antd/es/menu/interface'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import { useProductsStore } from './productsStore.tsx'
 
 export interface IPhoto {
   photoId: number
   src: string
   name: string
   markedProductTypes: string[]
-  dropdownMenus: MenuProps['items']
+  dropdownMenus: MenuItemType[]
 }
 
 interface PhotosStore {
@@ -16,7 +17,8 @@ interface PhotosStore {
 
 interface PhotosAction {
   updatePhotoMarkedProductTypes: (photoId: number, productType: string) => void
-  updatePhotoDropdownMenus: (photoId: number, productsMenu: MenuProps['items']) => void
+  updatePhotoDropdownMenus: (photoId: number, productsMenu: MenuItemType[]) => void
+  removeAllPhotoDropdownMenus: (photoId: number) => void
 }
 
 export const usePhotosStore = create<PhotosStore & PhotosAction>()(
@@ -46,7 +48,32 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
         },
       ],
       updatePhotoMarkedProductTypes: (photoId: number, productType: string) => ({}),
-      updatePhotoDropdownMenus: (photoId: number, productsMenu: MenuProps['items']) => ({}),
+      updatePhotoDropdownMenus: (photoId: number, productsMenu: MenuItemType[]) => (
+        set((state) => {
+          const photo = state.photos.find(photo => photo.photoId === photoId)
+          if (photo) {
+            photo.dropdownMenus = productsMenu
+          }
+
+          return { photos: state.photos }
+        })
+      ),
+      removeAllPhotoDropdownMenus: (photoId: number) => {
+        set((state) => {
+          const removeSelectedByPhotoId = useProductsStore.getState().removeSelectedByPhotoId
+          const photo = state.photos.find(photo => photo.photoId === photoId)
+          if (photo) {
+            for (const menus of photo.dropdownMenus) {
+              menus.disabled = false
+              menus.icon = ''
+
+              removeSelectedByPhotoId(Number(menus.key), photoId)
+            }
+          }
+
+          return { photos: [...state.photos] }
+        })
+      },
     }),
     {
       name: 'photos-store',
