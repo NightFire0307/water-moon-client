@@ -28,6 +28,7 @@ export function PhotoGrid(props: PhotoGridProps) {
     return products.map(product => ({
       label: product.title,
       key: product.productId.toString(),
+      icon: '',
     }))
   }
 
@@ -81,7 +82,7 @@ export function PhotoGrid(props: PhotoGridProps) {
             photoId={photo.photoId}
             src={photo.src}
             name={photo.name}
-            types={[]}
+            types={photo.markedProductTypes}
             key={photo.photoId}
             productsMenu={dropDownMenu}
             onDropDownClick={handleDropDownClick}

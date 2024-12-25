@@ -1,3 +1,4 @@
+import type { IPhoto } from '../stores/productsStore.tsx'
 import { LockOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import { Button, Flex, FloatButton, Layout, Space, Typography } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
@@ -7,55 +8,14 @@ import { PhotoGrid } from '../components/PhotoGrid.tsx'
 import { ProductCard } from '../components/ProductCard.tsx'
 import { ProductTypeTabs } from '../components/ProductTypeTabs.tsx'
 import { UserProfile } from '../components/UserProfile.tsx'
+import { useProductsStore } from '../stores/productsStore.tsx'
 
 const { Title } = Typography
 
-export interface IType {
-  id: number
-  name: string
-}
-
-export interface IProduct {
-  productId: number
-  title: string
-  total: number
-  selected: IPhoto[]
-  // 产品所属类别
-  type: string
-}
-
-export interface IPhoto {
-  photoId: number
-  src: string
-  name: string
-}
-
 export function Page() {
   const [collapsed, setCollapsed] = useState(false)
-  const [products, setProducts] = useState<IProduct[]>([])
   const [photos, setPhotos] = useState<IPhoto[]>([])
-
-  // 模拟获取产品列表
-  function fetchProducts() {
-    setTimeout(() => {
-      setProducts([
-        {
-          productId: 33,
-          title: '陌上花开48寸大框',
-          total: 1,
-          selected: [],
-          type: '主框',
-        },
-        {
-          productId: 44,
-          title: '陌上花开8寸摆台',
-          total: 1,
-          selected: [],
-          type: '摆台',
-        },
-      ])
-    }, 120)
-  }
+  const { products, updateProductSelected } = useProductsStore()
 
   // 模拟获取图片列表
   function fetchPhotos() {
@@ -65,40 +25,44 @@ export function Page() {
           photoId: 11,
           src: 'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
           name: '123.jpg',
+          markedProductTypes: [],
         },
         {
           photoId: 22,
           src: 'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp',
           name: '456.jpg',
+          markedProductTypes: [],
         },
         {
           photoId: 33,
           src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
           name: '789.jpg',
+          markedProductTypes: [],
         },
       ])
     })
   }
 
   useEffect(() => {
-    fetchProducts()
     fetchPhotos()
   }, [])
 
   function handleClick(photoId: number, productId: number) {
+    updateProductSelected(productId, photoId)
     const photo = photos.find(photo => photo.photoId === photoId)
     if (!photo)
       return
 
-    setProducts((prevProducts) => {
-      return prevProducts.map((product) => {
-        if (product.productId === productId) {
+    setPhotos((prevPhotos) => {
+      return prevPhotos.map((photo) => {
+        if (photo.photoId === photoId) {
+          const productType = products.find(product => product.productId === productId)?.type || ''
           return {
-            ...product,
-            selected: [...product.selected, photo],
+            ...photo,
+            markedProductTypes: [...photo.markedProductTypes, productType],
           }
         }
-        return product
+        return photo
       })
     })
   }

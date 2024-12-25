@@ -20,27 +20,27 @@ export function Photo(props: PhotoProps) {
 
   const items: MenuProps['items'] = [
     {
-      label: '标记',
-      key: '1',
+      label: '添加标记',
+      key: 'addTag',
       icon: <TagAddIcon />,
       children: productsMenu,
     },
     {
       label: '移除标记',
-      key: '2',
+      key: 'removeTag',
       icon: <TagRemoveIcon />,
       disabled: true,
       children: [],
     },
     {
       label: '移除所有标记',
-      key: 'removeAll',
+      key: 'removeAllTag',
       icon: <TagRemoveAllIcon />,
       disabled: true,
     },
     {
       label: '添加备注',
-      key: '3',
+      key: 'add_note',
       icon: <NoteEditIcon />,
     },
   ]
