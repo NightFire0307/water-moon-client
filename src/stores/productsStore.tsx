@@ -15,13 +15,6 @@ export interface IProduct {
   type: string
 }
 
-export interface IPhoto {
-  photoId: number
-  src: string
-  name: string
-  markedProductTypes: string[]
-}
-
 interface ProductStore {
   products: IProduct[]
 

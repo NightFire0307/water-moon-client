@@ -1,71 +1,21 @@
-import type { IPhoto } from '../stores/productsStore.tsx'
 import { LockOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import { Button, Flex, FloatButton, Layout, Space, Typography } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PhotoGrid } from '../components/PhotoGrid.tsx'
 import { ProductCard } from '../components/ProductCard.tsx'
 import { ProductTypeTabs } from '../components/ProductTypeTabs.tsx'
 import { UserProfile } from '../components/UserProfile.tsx'
+import { usePhotosStore } from '../stores/photosStore.tsx'
 import { useProductsStore } from '../stores/productsStore.tsx'
 
 const { Title } = Typography
 
 export function Page() {
   const [collapsed, setCollapsed] = useState(false)
-  const [photos, setPhotos] = useState<IPhoto[]>([])
-  const { products, updateProductSelected } = useProductsStore()
-
-  // 模拟获取图片列表
-  function fetchPhotos() {
-    setTimeout(() => {
-      setPhotos([
-        {
-          photoId: 11,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
-          name: '123.jpg',
-          markedProductTypes: [],
-        },
-        {
-          photoId: 22,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp',
-          name: '456.jpg',
-          markedProductTypes: [],
-        },
-        {
-          photoId: 33,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-          name: '789.jpg',
-          markedProductTypes: [],
-        },
-      ])
-    })
-  }
-
-  useEffect(() => {
-    fetchPhotos()
-  }, [])
-
-  function handleClick(photoId: number, productId: number) {
-    updateProductSelected(productId, photoId)
-    const photo = photos.find(photo => photo.photoId === photoId)
-    if (!photo)
-      return
-
-    setPhotos((prevPhotos) => {
-      return prevPhotos.map((photo) => {
-        if (photo.photoId === photoId) {
-          const productType = products.find(product => product.productId === productId)?.type || ''
-          return {
-            ...photo,
-            markedProductTypes: [...photo.markedProductTypes, productType],
-          }
-        }
-        return photo
-      })
-    })
-  }
+  const { products } = useProductsStore()
+  const { photos } = usePhotosStore()
 
   return (
     <Layout className="h-screen overflow-hidden">
@@ -103,7 +53,7 @@ export function Page() {
                 <Button icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)}></Button>
                 <ProductTypeTabs />
               </Flex>
-              <PhotoGrid photos={photos} products={products} onClick={handleClick} />
+              <PhotoGrid photos={photos} />
             </Space>
           </div>
         </Content>

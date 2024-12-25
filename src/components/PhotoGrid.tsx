@@ -1,4 +1,4 @@
-import type { IPhoto, IProduct } from '../views/page.tsx'
+import type { IPhoto, IProduct } from '../stores/productsStore.tsx'
 import {
   LeftOutlined,
   RightOutlined,
@@ -9,36 +9,33 @@ import {
 import { Divider, Form, Image, Input, type MenuProps, Modal, Space, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 import { PencilIcon } from '../assets/svg/CustomIcon.tsx'
+import { useProductsStore } from '../stores/productsStore.tsx'
 import { Photo } from './Photo.tsx'
 import { ProductSelectModal } from './ProductSelectModal.tsx'
 
 interface PhotoGridProps {
   photos: IPhoto[]
-  products: IProduct[]
-  onClick?: (photoId: number, productId: number) => void
 }
 
 export function PhotoGrid(props: PhotoGridProps) {
-  const { photos, products, onClick } = props
+  const { photos } = props
   const [visible, setVisible] = useState(false)
   const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
-  const [dropDownMenu, setDropDownMenu] = useState<MenuProps['items']>([])
+  const { products, updateProductSelected } = useProductsStore()
 
   function generateMenu(products: IProduct[]): MenuProps['items'] {
+    console.log(photos)
     return products.map(product => ({
       label: product.title,
       key: product.productId.toString(),
       icon: '',
+      disabled: false,
     }))
   }
 
   useEffect(() => {
-    setDropDownMenu(generateMenu(products))
+    generateMenu(products)
   }, [products])
-
-  function handleDropDownClick(id: number, { key }: { key: string }) {
-    onClick?.(id, +key)
-  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 ">
@@ -84,8 +81,8 @@ export function PhotoGrid(props: PhotoGridProps) {
             name={photo.name}
             types={photo.markedProductTypes}
             key={photo.photoId}
-            productsMenu={dropDownMenu}
-            onDropDownClick={handleDropDownClick}
+            productsMenu={photo.dropdownMenus}
+            onDropDownClick={updateProductSelected}
           />
         ))}
       </Image.PreviewGroup>

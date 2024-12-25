@@ -12,7 +12,7 @@ interface PhotoProps {
   name: string
   types: string[]
   productsMenu: MenuProps['items']
-  onDropDownClick?: (photoId: number, { key }: { key: string }) => void
+  onDropDownClick?: (productId: number, photoId: number) => void
 }
 
 export function Photo(props: PhotoProps) {
@@ -46,7 +46,13 @@ export function Photo(props: PhotoProps) {
   ]
 
   return (
-    <Dropdown menu={{ items, onClick: e => onDropDownClick?.(photoId, e) }} trigger={['contextMenu']}>
+    <Dropdown
+      menu={{
+        items,
+        onClick: ({ key }) => onDropDownClick?.(+key, photoId),
+      }}
+      trigger={['contextMenu']}
+    >
       <div>
         <div
           className="
