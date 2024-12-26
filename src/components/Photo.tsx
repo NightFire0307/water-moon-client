@@ -1,4 +1,5 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
+import type { IProduct } from '../stores/productsStore.tsx'
 import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 import {
@@ -12,48 +13,39 @@ interface PhotoProps {
   photoId: number
   src: string
   name: string
-  types: string[]
-  productsMenu: MenuItemType[]
+  products: IProduct[]
+  addProductsMenus: MenuItemType[]
+  removeProductsMenus: MenuItemType[]
   onDropDownClick?: (keyPay: string[], photoId: number) => void
 }
 
 export function Photo(props: PhotoProps) {
-  const { photoId, src, types, name, productsMenu, onDropDownClick } = props
-  const [removeAllDisabled, setRemoveAllDisabled] = useState<boolean>(true)
+  const { photoId, src, products, name, addProductsMenus, removeProductsMenus, onDropDownClick } = props
+  const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
 
   useEffect(() => {
-    if (productsMenu) {
-      for (const product of productsMenu) {
-        if (product.disabled) {
-          setRemoveAllDisabled(false)
-          break
-        }
-        else {
-          setRemoveAllDisabled(true)
-        }
-      }
-    }
-  }, [productsMenu])
+    products.length > 0 ? setRemoveDisabled(false) : setRemoveDisabled(true)
+  }, [products])
 
   const items: MenuProps['items'] = [
     {
       label: '添加标记',
       key: 'addTag',
       icon: <TagAddIcon />,
-      children: productsMenu,
+      children: addProductsMenus,
     },
     {
       label: '移除标记',
       key: 'removeTag',
       icon: <TagRemoveIcon />,
-      disabled: true,
-      children: [],
+      disabled: removeDisabled,
+      children: removeProductsMenus,
     },
     {
       label: '移除所有标记',
       key: 'removeAllTag',
       icon: <TagRemoveAllIcon />,
-      disabled: removeAllDisabled,
+      disabled: removeDisabled,
     },
     {
       label: '添加备注',
@@ -95,8 +87,8 @@ export function Photo(props: PhotoProps) {
         <Space direction="vertical" className="w-full flex justify-center">
           <Flex gap="4px 0" align="center" wrap justify="center" className="mt-2">
             {
-              types.map((type, index) => (
-                <Tag bordered={false} color="gold" key={index}>{type}</Tag>
+              products.map(product => (
+                <Tag bordered={false} color="gold" key={product.productId}>{product.type}</Tag>
               ))
             }
           </Flex>

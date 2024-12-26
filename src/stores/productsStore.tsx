@@ -17,7 +17,6 @@ export interface IProduct {
 
 interface ProductStore {
   products: IProduct[]
-
 }
 
 interface ProductAction {

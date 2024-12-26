@@ -1,6 +1,4 @@
-import type { MenuItemType } from 'antd/es/menu/interface'
 import {
-  CheckOutlined,
   LeftOutlined,
   RightOutlined,
   TagOutlined,
@@ -18,29 +16,19 @@ import { ProductSelectModal } from './ProductSelectModal.tsx'
 export function PhotoGrid() {
   const [visible, setVisible] = useState(false)
   const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
-  const { products, updateProductSelected } = useProductsStore()
-  const { photos, updatePhotoDropdownMenus, removeAllPhotoDropdownMenus } = usePhotosStore()
-
-  // 生成图片右键标记产品菜单
-  function generateMenu() {
-    for (const photo of photos) {
-      const dropdownMenus: MenuItemType[] = []
-      for (const product of products) {
-        const isSelect = product.selected.includes(photo.photoId)
-        dropdownMenus.push({
-          label: product.title,
-          key: product.productId.toString(),
-          disabled: isSelect,
-          icon: isSelect ? <CheckOutlined /> : '',
-        })
-      }
-      updatePhotoDropdownMenus(photo.photoId, dropdownMenus)
-    }
-  }
+  const { updateProductSelected } = useProductsStore()
+  const {
+    photos,
+    updatePhotoAddTagMenus,
+    removeAllPhotoTagMenus,
+    updatePhotoRemoveTagMenus,
+    updatePhotoMarkedProductTypes,
+    generateAddTagMenu,
+  } = usePhotosStore()
 
   useEffect(() => {
-    generateMenu()
-  }, [products])
+    generateAddTagMenu()
+  }, [])
 
   function handleDropDownClick(key: string[], photoId: number) {
     const actionType = key[1] ?? key[0]
@@ -48,13 +36,17 @@ export function PhotoGrid() {
     switch (actionType) {
       case 'addTag':
         updateProductSelected(Number(key[0]), photoId)
+        updatePhotoAddTagMenus(photoId, Number(key[0]))
+        updatePhotoRemoveTagMenus(photoId, Number(key[0]))
+        updatePhotoMarkedProductTypes(photoId, Number(key[0]))
         break
       case 'removeTag':
         break
       case 'removeAllTag':
-        removeAllPhotoDropdownMenus(photoId)
+        removeAllPhotoTagMenus(photoId)
         break
       case 'add_note':
+        setVisible(true)
         break
       default:
         message.error('未知操作')
@@ -102,9 +94,10 @@ export function PhotoGrid() {
             photoId={photo.photoId}
             src={photo.src}
             name={photo.name}
-            types={photo.markedProductTypes}
+            products={photo.markedProducts}
             key={photo.photoId}
-            productsMenu={photo.dropdownMenus}
+            addProductsMenus={photo.addTagMenus}
+            removeProductsMenus={photo.removeTagMenus}
             onDropDownClick={handleDropDownClick}
           />
         ))}
