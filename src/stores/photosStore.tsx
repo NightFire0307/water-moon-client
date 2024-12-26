@@ -23,7 +23,8 @@ interface PhotosAction {
   updatePhotoMarkedProductTypes: (photoId: number, productId: number) => void
   updatePhotoAddTagMenus: (photoId: number, productId: number) => void
   updatePhotoRemoveTagMenus: (photoId: number, productId: number) => void
-  removeAllPhotoTagMenus: (photoId: number) => void
+  removeMarkedProductByPhotoId: (photoId: number, productId: number) => void
+  removeAllMarkedProduct: (photoId: number) => void
 }
 
 export const usePhotosStore = create<PhotosStore & PhotosAction>()(
@@ -115,18 +116,45 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           return { photos: [...state.photos] }
         })
       ),
-      removeAllPhotoTagMenus: (photoId: number) => {
+      removeMarkedProductByPhotoId: (photoId: number, productId: number) => (
+        set((state) => {
+          const photo = state.photos.find(photo => photo.photoId === photoId)
+          if (photo) {
+            // 移除已标记的产品
+            photo.markedProducts = photo.markedProducts.filter(product => product.productId !== productId)
+
+            // 重置添加标签菜单
+            for (const menus of photo.addTagMenus) {
+              if (Number(menus.key) === productId) {
+                menus.disabled = false
+                menus.icon = ''
+              }
+            }
+          }
+
+          return { photos: [...state.photos] }
+        })
+      ),
+      removeAllMarkedProduct: (photoId: number) => {
         set((state) => {
           const removeSelectedByPhotoId = useProductsStore.getState().removeSelectedByPhotoId
           const photo = state.photos.find(photo => photo.photoId === photoId)
+          const productId: number[] = []
           if (photo) {
+            for (const product of photo.markedProducts) {
+              productId.push(product.productId)
+            }
+            // 清空已标记的产品
+            photo.markedProducts = []
+
+            // 重置添加标签菜单
             for (const menus of photo.addTagMenus) {
               menus.disabled = false
               menus.icon = ''
-
-              removeSelectedByPhotoId(Number(menus.key), photoId)
             }
           }
+
+          removeSelectedByPhotoId(productId, photoId)
 
           return { photos: [...state.photos] }
         })

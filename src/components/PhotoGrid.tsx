@@ -20,7 +20,8 @@ export function PhotoGrid() {
   const {
     photos,
     updatePhotoAddTagMenus,
-    removeAllPhotoTagMenus,
+    removeAllMarkedProduct,
+    removeMarkedProductByPhotoId,
     updatePhotoRemoveTagMenus,
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
@@ -31,19 +32,28 @@ export function PhotoGrid() {
   }, [])
 
   function handleDropDownClick(key: string[], photoId: number) {
-    const actionType = key[1] ?? key[0]
+    let productId: number = -1
+    let actionType: string
+    if (key.length > 1) {
+      productId = Number(key[0])
+      actionType = key[1]
+    }
+    else {
+      actionType = key[0]
+    }
 
     switch (actionType) {
       case 'addTag':
-        updateProductSelected(Number(key[0]), photoId)
-        updatePhotoAddTagMenus(photoId, Number(key[0]))
-        updatePhotoRemoveTagMenus(photoId, Number(key[0]))
-        updatePhotoMarkedProductTypes(photoId, Number(key[0]))
+        updateProductSelected(productId, photoId)
+        updatePhotoAddTagMenus(photoId, productId)
+        updatePhotoRemoveTagMenus(photoId, productId)
+        updatePhotoMarkedProductTypes(photoId, productId)
         break
       case 'removeTag':
+        removeMarkedProductByPhotoId(photoId, productId)
         break
       case 'removeAllTag':
-        removeAllPhotoTagMenus(photoId)
+        removeAllMarkedProduct(photoId)
         break
       case 'add_note':
         setVisible(true)
