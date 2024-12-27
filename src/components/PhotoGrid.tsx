@@ -44,6 +44,7 @@ export function PhotoGrid() {
         break
       case 'removeTag':
         removePhotoRemoveTagMenus(photoId, +productId)
+        updatePhotoAddTagMenus(photoId, +productId, false)
         removeMarkedProductByPhotoId(photoId, +productId)
         break
       case 'removeAllTag':

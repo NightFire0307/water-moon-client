@@ -21,7 +21,7 @@ interface PhotosStore {
 interface PhotosAction {
   generateAddTagMenu: () => void
   updatePhotoMarkedProductTypes: (photoId: number, productId: number) => void
-  updatePhotoAddTagMenus: (photoId: number, productId: number) => void
+  updatePhotoAddTagMenus: (photoId: number, productId: number, disable?: boolean) => void
   updatePhotoRemoveTagMenus: (photoId: number, productId: number) => void
   removePhotoRemoveTagMenus: (photoId: number, productId: number) => void
   removeMarkedProductByPhotoId: (photoId: number, productId: number) => void
@@ -87,14 +87,15 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           return { photos: [...state.photos] }
         })
       ),
-      updatePhotoAddTagMenus: (photoId: number, productId: number) => (
+      updatePhotoAddTagMenus: (photoId: number, productId: number, disable?: boolean) => (
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
           if (photo) {
             for (const menu of photo.addTagMenus) {
-              if (Number(menu.key) === productId) {
-                menu.disabled = true
-                menu.icon = <CheckOutlined />
+              const key = (menu.key as string).split('_')[1]
+              if (Number(key) === productId) {
+                menu.disabled = disable ?? true
+                menu.icon = disable === undefined ? <CheckOutlined /> : ''
               }
             }
           }
