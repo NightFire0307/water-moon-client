@@ -16,7 +16,7 @@ interface PhotoProps {
   products: IProduct[]
   addProductsMenus: MenuItemType[]
   removeProductsMenus: MenuItemType[]
-  onDropDownClick?: (keyPay: string[], photoId: number) => void
+  onDropDownClick?: (key: string, photoId: number) => void
 }
 
 export function Photo(props: PhotoProps) {
@@ -58,7 +58,7 @@ export function Photo(props: PhotoProps) {
     <Dropdown
       menu={{
         items,
-        onClick: ({ keyPath }) => onDropDownClick?.(keyPath, photoId),
+        onClick: ({ key }) => onDropDownClick?.(key, photoId),
       }}
       trigger={['contextMenu']}
     >

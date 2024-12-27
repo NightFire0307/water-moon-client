@@ -23,6 +23,7 @@ interface PhotosAction {
   updatePhotoMarkedProductTypes: (photoId: number, productId: number) => void
   updatePhotoAddTagMenus: (photoId: number, productId: number) => void
   updatePhotoRemoveTagMenus: (photoId: number, productId: number) => void
+  removePhotoRemoveTagMenus: (photoId: number, productId: number) => void
   removeMarkedProductByPhotoId: (photoId: number, productId: number) => void
   removeAllMarkedProduct: (photoId: number) => void
 }
@@ -65,7 +66,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
               const isSelect = product.selected.includes(photo.photoId)
               dropdownMenus.push({
                 label: product.title,
-                key: product.productId.toString(),
+                key: `addTag_${product.productId}`,
                 disabled: isSelect,
                 icon: isSelect ? <CheckOutlined /> : '',
               })
@@ -107,12 +108,29 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
 
           if (photo) {
             for (const menu of photo.addTagMenus) {
-              if (productId === Number(menu.key)) {
-                photo.removeTagMenus.push({ ...menu, disabled: false, icon: '' })
+              const key = (menu.key as string).split('_')[1]
+              if (productId === Number(key)) {
+                photo.removeTagMenus.push({ ...menu, disabled: false, icon: '', key: `removeTag_${productId}` })
                 break
               }
             }
           }
+          return { photos: [...state.photos] }
+        })
+      ),
+      removePhotoRemoveTagMenus: (photoId: number, productId: number) => (
+        set((state) => {
+          const removeSelectedByPhotoId = useProductsStore.getState().removeSelectedByPhotoId
+          const photo = state.photos.find(photo => photo.photoId === photoId)
+          if (photo) {
+            photo.removeTagMenus = photo.removeTagMenus.filter((menu) => {
+              const key = (menu.key as string).split('_')[1]
+              return productId !== Number(key)
+            })
+
+            removeSelectedByPhotoId(productId, photoId)
+          }
+
           return { photos: [...state.photos] }
         })
       ),

@@ -23,6 +23,7 @@ export function PhotoGrid() {
     removeAllMarkedProduct,
     removeMarkedProductByPhotoId,
     updatePhotoRemoveTagMenus,
+    removePhotoRemoveTagMenus,
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
   } = usePhotosStore()
@@ -31,26 +32,19 @@ export function PhotoGrid() {
     generateAddTagMenu()
   }, [])
 
-  function handleDropDownClick(key: string[], photoId: number) {
-    let productId: number = -1
-    let actionType: string
-    if (key.length > 1) {
-      productId = Number(key[0])
-      actionType = key[1]
-    }
-    else {
-      actionType = key[0]
-    }
+  function handleDropDownClick(key: string, photoId: number) {
+    const [actionType, productId] = key.split('_')
 
     switch (actionType) {
       case 'addTag':
-        updateProductSelected(productId, photoId)
-        updatePhotoAddTagMenus(photoId, productId)
-        updatePhotoRemoveTagMenus(photoId, productId)
-        updatePhotoMarkedProductTypes(photoId, productId)
+        updateProductSelected(+productId, photoId)
+        updatePhotoAddTagMenus(photoId, +productId)
+        updatePhotoRemoveTagMenus(photoId, +productId)
+        updatePhotoMarkedProductTypes(photoId, +productId)
         break
       case 'removeTag':
-        removeMarkedProductByPhotoId(photoId, productId)
+        removePhotoRemoveTagMenus(photoId, +productId)
+        removeMarkedProductByPhotoId(photoId, +productId)
         break
       case 'removeAllTag':
         removeAllMarkedProduct(photoId)
