@@ -7,10 +7,11 @@ import {
   MenuUnfoldOutlined,
   WarningOutlined,
 } from '@ant-design/icons'
+import { animated, config, useTrail } from '@react-spring/web'
 import { Button, Flex, FloatButton, Layout, Modal, Space, Typography } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PhotoGrid } from '../../components/PhotoGrid.tsx'
 import { ProductCard } from '../../components/ProductCard.tsx'
 import { Tabs } from '../../components/Tabs.tsx'
@@ -23,6 +24,14 @@ export function Home() {
   const [collapsed, setCollapsed] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const { products } = useProductsStore()
+  const [trail, api] = useTrail(
+    products.length,
+    () => ({ from: { opacity: 0, scale: 0.5 }, config: config.default }),
+  )
+
+  useEffect(() => {
+    api.start({ opacity: 1, scale: 1 })
+  }, [])
 
   return (
     <Layout className="h-screen overflow-hidden">
@@ -36,13 +45,14 @@ export function Home() {
           <Space direction="vertical" size="middle">
             <Title level={3} className="text-black-title">产品列表</Title>
             {
-              products.map(product => (
-                <ProductCard
-                  key={product.productId}
-                  title={product.title}
-                  selected={product.selected.length}
-                  total={product.total}
-                />
+              trail.map((style, index) => (
+                <animated.div key={products[index].productId} style={style}>
+                  <ProductCard
+                    title={products[index].title}
+                    selected={products[index].selected.length}
+                    total={products[index].total}
+                  />
+                </animated.div>
               ))
             }
           </Space>
