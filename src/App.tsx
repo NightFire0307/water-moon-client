@@ -1,8 +1,8 @@
-import { Page } from './views/page.tsx'
+import { Home } from './views/home/home.tsx'
 import './App.css'
 
 function App() {
-  return <Page />
+  return <Home />
 }
 
 export default App
