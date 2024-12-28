@@ -8,7 +8,6 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   (config) => {
-    config.headers['apifox-token'] = 'jOWPle3VNCvdXJbo0jyh9KW24rbJUPaY'
     return config
   },
   (error) => {
@@ -20,17 +19,7 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   (response) => {
-    // const res = response.data;
-    // if (res.success == true) {
-    //   return res;
-    // } else {
-    //   Message.error({
-    //     content: res.errorMessage,
-    //     duration: 3000,
-    //   });
-    //   return Promise.reject(new Error(res.errorMessage));
-    // }
-    return response.data
+    return response
   },
   (error) => {
     return Promise.reject(error)
