@@ -16,10 +16,18 @@ export interface IPhoto {
 
 interface PhotosStore {
   photos: IPhoto[]
+  selectedFilter: FILTER_TYPE
+}
+
+export enum FILTER_TYPE {
+  ALL = 'all',
+  SELECTED = 'selected',
+  UNSELECTED = 'unselected',
 }
 
 interface PhotosAction {
   generateAddTagMenu: () => void
+  filterPhotos: (value: FILTER_TYPE) => void
   updatePhotoMarkedProductTypes: (photoId: number, productId: number) => void
   updatePhotoAddTagMenus: (photoId: number, productId: number, disable?: boolean) => void
   updatePhotoRemoveTagMenus: (photoId: number, productId: number) => void
@@ -56,7 +64,33 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           addTagMenus: [],
           removeTagMenus: [],
         },
+        {
+          photoId: 44,
+          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
+          name: 'photo1.jpg',
+          markedProducts: [],
+          addTagMenus: [],
+          removeTagMenus: [],
+        },
+        {
+          photoId: 55,
+          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
+          name: 'photo1.jpg',
+          markedProducts: [],
+          addTagMenus: [],
+          removeTagMenus: [],
+        },
+        {
+          photoId: 66,
+          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
+          name: 'photo1.jpg',
+          markedProducts: [],
+          addTagMenus: [],
+          removeTagMenus: [],
+        },
       ],
+      selectedFilter: FILTER_TYPE.ALL,
+      filterPhotos: (value: FILTER_TYPE) => (set({ selectedFilter: value })),
       generateAddTagMenu: () => (
         set((state) => {
           const products = useProductsStore.getState().products

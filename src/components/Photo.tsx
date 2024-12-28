@@ -71,13 +71,15 @@ export function Photo(props: PhotoProps) {
           rounded-[10px]
           flex
           shadow-md
-          justify-center"
+          justify-center
+          items-center
+          h-[250px]
+          object-contain
+          "
         >
           <Image
+            className="max-w-[250px] max-h-[250px] w-auto h-auto"
             src={src}
-            className="object-contain"
-            width={300}
-            height={300}
             preview={{
               mask: null,
             }}

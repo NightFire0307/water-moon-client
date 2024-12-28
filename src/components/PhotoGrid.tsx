@@ -19,6 +19,7 @@ export function PhotoGrid() {
   const { updateProductSelected } = useProductsStore()
   const {
     photos,
+    selectedFilter,
     updatePhotoAddTagMenus,
     removeAllMarkedProduct,
     removeMarkedProductByPhotoId,
@@ -27,6 +28,14 @@ export function PhotoGrid() {
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
   } = usePhotosStore()
+
+  const filterPhotos = photos.filter((photo) => {
+    if (selectedFilter === 'selected')
+      return photo.markedProducts.length > 0
+    if (selectedFilter === 'unselected')
+      return photo.markedProducts.length === 0
+    return true
+  })
 
   useEffect(() => {
     generateAddTagMenu()
@@ -58,7 +67,7 @@ export function PhotoGrid() {
     }
   }
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 ">
+    <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-10 gap-4 ">
       <Image.PreviewGroup
         preview={{
           toolbarRender: (_, { transform: { scale }, actions: { onActive, onZoomIn, onZoomOut } }) => (
@@ -94,7 +103,7 @@ export function PhotoGrid() {
           ),
         }}
       >
-        {photos.map(photo => (
+        {filterPhotos.map(photo => (
           <Photo
             photoId={photo.photoId}
             src={photo.src}
