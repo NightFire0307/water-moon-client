@@ -1,6 +1,5 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
 import type { IProduct } from '../stores/productsStore.tsx'
-import { animated, config, useSpring } from '@react-spring/web'
 import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 import {
@@ -23,11 +22,6 @@ interface PhotoProps {
 export function Photo(props: PhotoProps) {
   const { photoId, src, products, name, addProductsMenus, removeProductsMenus, onDropDownClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
-  const springs = useSpring({
-    from: { scale: 0.5, opacity: 0 },
-    to: { scale: 1, opacity: 1 },
-    config: config.gentle,
-  })
 
   useEffect(() => {
     products.length > 0 ? setRemoveDisabled(false) : setRemoveDisabled(true)
@@ -68,7 +62,7 @@ export function Photo(props: PhotoProps) {
       }}
       trigger={['contextMenu']}
     >
-      <animated.div style={springs}>
+      <div>
         <div
           className="
           relative
@@ -102,7 +96,7 @@ export function Photo(props: PhotoProps) {
           </Flex>
           <div className="text-gray-900 font-medium w-full text-center">{name}</div>
         </Space>
-      </animated.div>
+      </div>
 
     </Dropdown>
   )

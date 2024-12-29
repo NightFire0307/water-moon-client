@@ -26,7 +26,7 @@ export function Home() {
   const { products } = useProductsStore()
   const [trail, api] = useTrail(
     products.length,
-    () => ({ from: { opacity: 0, scale: 0.5 }, config: config.default }),
+    () => ({ from: { opacity: 0, scale: 0.5 }, config: config.gentle }),
   )
 
   useEffect(() => {

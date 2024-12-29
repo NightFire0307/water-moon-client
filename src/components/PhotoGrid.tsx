@@ -5,6 +5,7 @@ import {
   ZoomInOutlined,
   ZoomOutOutlined,
 } from '@ant-design/icons'
+import { animated, config, useTrail } from '@react-spring/web'
 import { Divider, Form, Image, Input, message, Modal, Space, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 import { PencilIcon } from '../assets/svg/CustomIcon.tsx'
@@ -28,6 +29,14 @@ export function PhotoGrid() {
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
   } = usePhotosStore()
+  const [trail, api] = useTrail(photos.length, () => ({
+    from: { opacity: 0 },
+    config: config.gentle,
+  }))
+
+  useEffect(() => {
+    api.start({ opacity: 1 })
+  }, [])
 
   const filterPhotos = photos.filter((photo) => {
     if (selectedFilter === 'selected')
@@ -103,17 +112,19 @@ export function PhotoGrid() {
           ),
         }}
       >
-        {filterPhotos.map(photo => (
-          <Photo
-            photoId={photo.photoId}
-            src={photo.src}
-            name={photo.name}
-            products={photo.markedProducts}
-            key={photo.photoId}
-            addProductsMenus={photo.addTagMenus}
-            removeProductsMenus={photo.removeTagMenus}
-            onDropDownClick={handleDropDownClick}
-          />
+
+        {trail.map((style, index) => (
+          <animated.div key={filterPhotos[index].photoId} style={style}>
+            <Photo
+              photoId={filterPhotos[index].photoId}
+              src={filterPhotos[index].src}
+              name={filterPhotos[index].name}
+              products={filterPhotos[index].markedProducts}
+              addProductsMenus={filterPhotos[index].addTagMenus}
+              removeProductsMenus={filterPhotos[index].removeTagMenus}
+              onDropDownClick={handleDropDownClick}
+            />
+          </animated.div>
         ))}
       </Image.PreviewGroup>
       <Modal
