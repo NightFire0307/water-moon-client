@@ -5,7 +5,7 @@ import {
   ZoomInOutlined,
   ZoomOutOutlined,
 } from '@ant-design/icons'
-import { animated, config, useTrail } from '@react-spring/web'
+import { animated, useTransition } from '@react-spring/web'
 import { Divider, Form, Image, Input, message, Modal, Space, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 import { PencilIcon } from '../assets/svg/CustomIcon.tsx'
@@ -29,14 +29,6 @@ export function PhotoGrid() {
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
   } = usePhotosStore()
-  const [trail, api] = useTrail(photos.length, () => ({
-    from: { opacity: 0 },
-    config: config.gentle,
-  }))
-
-  useEffect(() => {
-    api.start({ opacity: 1 })
-  }, [])
 
   const filterPhotos = photos.filter((photo) => {
     if (selectedFilter === 'selected')
@@ -45,6 +37,18 @@ export function PhotoGrid() {
       return photo.markedProducts.length === 0
     return true
   })
+
+  const [transitions, api] = useTransition(filterPhotos, () => ({
+    from: { opacity: 0, transform: 'translateX(50%) scale(0.8)' },
+    enter: { opacity: 1, transform: 'translateX(0%) scale(1)', position: 'relative' },
+    leave: { opacity: 0, transform: 'translateX(-50%) scale(0.8)', position: 'absolute' },
+    keys: photo => photo.photoId,
+    config: { mass: 1, tension: 280, friction: 60 },
+  }))
+
+  useEffect(() => {
+    api.start()
+  }, [filterPhotos])
 
   useEffect(() => {
     generateAddTagMenu()
@@ -76,7 +80,7 @@ export function PhotoGrid() {
     }
   }
   return (
-    <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-10 gap-4 ">
+    <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-10 gap-4 relative">
       <Image.PreviewGroup
         preview={{
           toolbarRender: (_, { transform: { scale }, actions: { onActive, onZoomIn, onZoomOut } }) => (
@@ -112,21 +116,23 @@ export function PhotoGrid() {
           ),
         }}
       >
-
-        {trail.map((style, index) => (
-          <animated.div key={filterPhotos[index].photoId} style={style}>
-            <Photo
-              photoId={filterPhotos[index].photoId}
-              src={filterPhotos[index].src}
-              name={filterPhotos[index].name}
-              products={filterPhotos[index].markedProducts}
-              addProductsMenus={filterPhotos[index].addTagMenus}
-              removeProductsMenus={filterPhotos[index].removeTagMenus}
-              onDropDownClick={handleDropDownClick}
-            />
-          </animated.div>
-        ))}
+        {
+          transitions((style, photo) => (
+            <animated.div key={photo.photoId} style={{ ...style }}>
+              <Photo
+                photoId={photo.photoId}
+                src={photo.src}
+                name={photo.name}
+                products={photo.markedProducts}
+                addProductsMenus={photo.addTagMenus}
+                removeProductsMenus={photo.removeTagMenus}
+                onDropDownClick={handleDropDownClick}
+              />
+            </animated.div>
+          ))
+        }
       </Image.PreviewGroup>
+
       <Modal
         centered
         open={visible}
