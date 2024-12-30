@@ -18,11 +18,20 @@ import { ConfirmModal } from './components/ConfirmModal.tsx'
 export function Home() {
   const [collapsed, setCollapsed] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmLoading, setConfirmLoading] = useState(false)
   const { products } = useProductsStore()
   const [trail, api] = useTrail(
     products.length,
     () => ({ from: { opacity: 0, scale: 0.5 }, config: config.gentle }),
   )
+
+  function handleSubmit() {
+    setConfirmLoading(true)
+    setTimeout(() => {
+      setConfirmOpen(false)
+      setConfirmLoading(false)
+    }, 2000)
+  }
 
   useEffect(() => {
     api.start({ opacity: 1, scale: 1 })
@@ -82,7 +91,12 @@ export function Home() {
         </FloatButton>
       </FloatButton.Group>
 
-      <ConfirmModal open={confirmOpen} onCancel={() => setConfirmOpen(false)} onSubmit={() => {}} />
+      <ConfirmModal
+        open={confirmOpen}
+        confirmLoading={confirmLoading}
+        onCancel={() => setConfirmOpen(false)}
+        onSubmit={handleSubmit}
+      />
     </Layout>
   )
 }

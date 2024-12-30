@@ -1,3 +1,4 @@
+import { LoadingOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Modal } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import { useProductsStore } from '../../../stores/productsStore.tsx'
@@ -5,12 +6,13 @@ import { ValidationResult } from './ValidationResult.tsx'
 
 interface ConfirmModalProps {
   open: boolean
+  confirmLoading: boolean
   onSubmit: () => void
   onCancel: () => void
 }
 
 export function ConfirmModal(props: ConfirmModalProps) {
-  const { open, onCancel, onSubmit } = props
+  const { open, onCancel, onSubmit, confirmLoading } = props
   // 倒计时
   const [countDown, setCountDown] = useState(5)
   const [allSelect, setAllSelect] = useState(false)
@@ -78,7 +80,12 @@ export function ConfirmModal(props: ConfirmModalProps) {
 
         <div className="bg-white flex gap-4 justify-end p-6 rounded-b-2xl">
           <Button onClick={onCancel}>取消</Button>
-          <Button type="primary" disabled={countDown !== 0}>
+          <Button
+            type="primary"
+            disabled={countDown !== 0 || confirmLoading}
+            onClick={onSubmit}
+            icon={confirmLoading ? <LoadingOutlined /> : null}
+          >
             确认提交
             {' '}
             {

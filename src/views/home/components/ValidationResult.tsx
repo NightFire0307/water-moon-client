@@ -37,7 +37,7 @@ export function ValidationResult(props: ValidationResultProps) {
                 status={overLimitProducts.length > 0 ? 'warning' : 'success'}
                 title="所有产品选片校验成功"
                 subTitle={<div className="font-bold text-[#f5222d]">注：提交选片结果后将无法更改，是否确认提交？</div>}
-                extra={(
+                extra={overLimitProducts.length > 0 && (
                   <Alert
                     type="warning"
                     message={(
