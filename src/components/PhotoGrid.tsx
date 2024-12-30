@@ -17,6 +17,7 @@ import { ProductSelectModal } from './ProductSelectModal.tsx'
 export function PhotoGrid() {
   const [visible, setVisible] = useState(false)
   const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
+  const [currentPhotoId, setCurrentPhotoId] = useState<number>(-1)
   const { updateProductSelected } = useProductsStore()
   const {
     photos,
@@ -79,11 +80,17 @@ export function PhotoGrid() {
         message.error('未知操作')
     }
   }
+
+  function findImageIdByUrl(url: string) {
+    const photo = photos.find(photo => photo.src === url)
+    return photo?.photoId
+  }
+
   return (
     <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-10 gap-4 relative">
       <Image.PreviewGroup
         preview={{
-          toolbarRender: (_, { transform: { scale }, actions: { onActive, onZoomIn, onZoomOut } }) => (
+          toolbarRender: (_, { transform: { scale }, actions: { onActive, onZoomIn, onZoomOut }, image }) => (
             <div className="bg-gray bg-opacity-10 pr-4 pl-4 pt-2 pb-2 rounded-[100px] text-gray-500">
               <Space size={14} className="toolbar-wrapper text-xl">
                 <Tooltip title="添加备注">
@@ -95,7 +102,11 @@ export function PhotoGrid() {
                 <Tooltip title="选择产品">
                   <TagOutlined
                     className="hover:text-white cursor-pointer"
-                    onClick={() => setProductSelectModalVisible(true)}
+                    onClick={() => {
+                      const photoId = findImageIdByUrl(image.url)
+                      setCurrentPhotoId(photoId!)
+                      setProductSelectModalVisible(true)
+                    }}
                   />
                 </Tooltip>
                 <Divider type="vertical" className="border-[#bfbfbf]" />
@@ -147,9 +158,12 @@ export function PhotoGrid() {
           </Form.Item>
         </Form>
       </Modal>
+
       <ProductSelectModal
         open={productSelectModalVisible}
-        products={[{ id: 1, name: '陌上花开14寸相册' }, { id: 2, name: '陌上花开12寸相册' }, { id: 3, name: '7寸单片' }, { id: 4, name: '10寸摆台' }]}
+        photoId={currentPhotoId}
+        onSubmit={() => {}}
+        onClose={() => setProductSelectModalVisible(false)}
       />
     </div>
   )
