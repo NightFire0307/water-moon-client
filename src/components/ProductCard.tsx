@@ -23,7 +23,7 @@ export function ProductCard(props: ProductCardProps) {
     <Card
       size="small"
       bordered={false}
-      className="w-[250px]"
+      className="w-full"
       hoverable
       onClick={handleCardClick}
     >

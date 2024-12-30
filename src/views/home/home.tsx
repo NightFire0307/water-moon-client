@@ -37,8 +37,8 @@ export function Home() {
         width={290}
       >
         <div className="text-2xl font-bold p-4 mb-4">产品选片状态</div>
-        <div className="flex overflow-hidden overflow-y-auto h-full w-full p-4">
-          <Space direction="vertical" size="middle">
+        <div className="flex justify-center overflow-hidden overflow-y-auto h-full w-full pr-4 pl-4">
+          <Space direction="vertical" size="middle" className="w-full">
             {
               trail.map((style, index) => (
                 <animated.div key={products[index].productId} style={style}>
