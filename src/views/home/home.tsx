@@ -1,14 +1,10 @@
 import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  LoadingOutlined,
   LockOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  WarningOutlined,
 } from '@ant-design/icons'
 import { animated, config, useTrail } from '@react-spring/web'
-import { Button, Flex, FloatButton, Layout, Modal, Space, Typography } from 'antd'
+import { Button, Flex, FloatButton, Layout, Space, Typography } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import { useEffect, useState } from 'react'
@@ -17,6 +13,7 @@ import { ProductCard } from '../../components/ProductCard.tsx'
 import { Tabs } from '../../components/Tabs.tsx'
 import { UserProfile } from '../../components/UserProfile.tsx'
 import { useProductsStore } from '../../stores/productsStore.tsx'
+import { ConfirmModal } from './components/ConfirmModal.tsx'
 
 const { Title } = Typography
 
@@ -86,48 +83,7 @@ export function Home() {
         </FloatButton>
       </FloatButton.Group>
 
-      <Modal
-        title="确认提交"
-        open={confirmOpen}
-        okText="确认提交"
-        onCancel={() => setConfirmOpen(false)}
-      >
-        {/* <p className="text-[red] font-bold">提交选片结果后将无法更改，是否确认提交？</p> */}
-        <div>选片校验结果</div>
-        <Space direction="vertical" className="w-full text-base mt-4">
-          <Flex justify="space-between">
-            <div>产品1</div>
-            <Flex gap={8}>
-              <div className="font-bold">应选：3张 / 实选：5张</div>
-              <LoadingOutlined className="text-xl" />
-            </Flex>
-          </Flex>
-
-          <Flex justify="space-between">
-            <div>产品2</div>
-            <Flex gap={8}>
-              <div className="font-bold">应选：6张 / 实选：5张</div>
-              <WarningOutlined className="text-xl text-gold-700" />
-            </Flex>
-          </Flex>
-
-          <Flex justify="space-between">
-            <div>产品3</div>
-            <Flex gap={8}>
-              <div className="font-bold">应选：5张 / 实选：5张</div>
-              <CheckCircleOutlined className="text-xl text-[#52c41a]" />
-            </Flex>
-          </Flex>
-
-          <Flex justify="space-between">
-            <div>产品4</div>
-            <Flex gap={8}>
-              <div className="font-bold">应选：3张 / 实选：5张</div>
-              <CloseCircleOutlined className="text-xl text-[red]" />
-            </Flex>
-          </Flex>
-        </Space>
-      </Modal>
+      <ConfirmModal open={confirmOpen} onCancel={() => setConfirmOpen(false)} onSubmit={() => {}} />
     </Layout>
   )
 }

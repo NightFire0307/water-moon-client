@@ -90,7 +90,7 @@ export function Photo(props: PhotoProps) {
           <Flex gap="4px 0" align="center" wrap justify="center" className="mt-2">
             {
               products.map(product => (
-                <Tag bordered={false} color="gold" key={product.productId}>{product.type}</Tag>
+                <Tag bordered={false} color="#597ef7" key={product.productId}>{product.type}</Tag>
               ))
             }
           </Flex>
