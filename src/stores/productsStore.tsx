@@ -42,34 +42,6 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
           selected: [],
           type: '摆台',
         },
-        {
-          productId: 3,
-          title: '陌上花开组合框',
-          total: 3,
-          selected: [],
-          type: '组合框',
-        },
-        {
-          productId: 4,
-          title: '缘定今生14寸相册',
-          total: 25,
-          selected: [],
-          type: '大册',
-        },
-        {
-          productId: 5,
-          title: '缘定今生12寸相册',
-          total: 20,
-          selected: [],
-          type: '小册',
-        },
-        {
-          productId: 6,
-          title: '80寸海报',
-          total: 1,
-          selected: [],
-          type: '海报',
-        },
       ],
       updateProductSelected: (productId: number, photoId: number) => (
         set((state) => {

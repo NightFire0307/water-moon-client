@@ -4,6 +4,7 @@ import { BoxVariantIconIcon, CircleCheckBoxIcon, WarningIcon } from '../assets/s
 const { Text } = Typography
 
 interface ProductCardProps {
+  productId: number
   title: string
   // 应选张数
   total: number
@@ -12,7 +13,11 @@ interface ProductCardProps {
 }
 
 export function ProductCard(props: ProductCardProps) {
-  const { title, total, selected } = props
+  const { productId, title, total, selected } = props
+
+  function handleCardClick() {
+    console.log(productId)
+  }
 
   return (
     <Card
@@ -20,11 +25,12 @@ export function ProductCard(props: ProductCardProps) {
       bordered={false}
       className="w-[250px]"
       hoverable
+      onClick={handleCardClick}
     >
       <div className="flex justify-between">
         <div className="flex items-center">
           <div className="bg-black-title w-[30px] h-[30px] bg-geekBlue-200 rounded-[50%] flex justify-center items-center mr-2">
-            <BoxVariantIconIcon className="text-xl text-[#2f54eb]" />
+            <BoxVariantIconIcon className="text-xl text-geekBlue-600" />
           </div>
           <div>{title}</div>
         </div>

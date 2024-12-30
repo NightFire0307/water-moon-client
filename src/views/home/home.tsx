@@ -4,7 +4,7 @@ import {
   MenuUnfoldOutlined,
 } from '@ant-design/icons'
 import { animated, config, useTrail } from '@react-spring/web'
-import { Button, Flex, FloatButton, Layout, Space, Typography } from 'antd'
+import { Button, Flex, FloatButton, Layout, Space } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import { useEffect, useState } from 'react'
@@ -14,8 +14,6 @@ import { Tabs } from '../../components/Tabs.tsx'
 import { UserProfile } from '../../components/UserProfile.tsx'
 import { useProductsStore } from '../../stores/productsStore.tsx'
 import { ConfirmModal } from './components/ConfirmModal.tsx'
-
-const { Title } = Typography
 
 export function Home() {
   const [collapsed, setCollapsed] = useState(false)
@@ -38,13 +36,14 @@ export function Home() {
         className="bg-white"
         width={290}
       >
-        <div className="relative overflow-hidden overflow-y-auto w-full flex justify-center p-4">
+        <div className="text-2xl font-bold p-4 mb-4">产品选片状态</div>
+        <div className="flex overflow-hidden overflow-y-auto h-full w-full p-4">
           <Space direction="vertical" size="middle">
-            <Title level={3} className="text-black-title">产品列表</Title>
             {
               trail.map((style, index) => (
                 <animated.div key={products[index].productId} style={style}>
                   <ProductCard
+                    productId={products[index].productId}
                     title={products[index].title}
                     selected={products[index].selected.length}
                     total={products[index].total}
