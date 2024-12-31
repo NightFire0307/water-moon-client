@@ -4,10 +4,11 @@ import {
   MenuUnfoldOutlined,
 } from '@ant-design/icons'
 import { animated, config, useTrail } from '@react-spring/web'
-import { Button, Flex, FloatButton, Layout, Space } from 'antd'
+import { Alert, Button, Flex, FloatButton, Layout, Space } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { PreviewModeContext } from '../../App.tsx'
 import { PhotoGrid } from '../../components/PhotoGrid.tsx'
 import { ProductCard } from '../../components/ProductCard.tsx'
 import { Tabs } from '../../components/Tabs.tsx'
@@ -19,6 +20,7 @@ export function Home() {
   const [collapsed, setCollapsed] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const previewMode = useContext(PreviewModeContext)
   const { products } = useProductsStore()
   const [trail, api] = useTrail(
     products.length,
@@ -67,6 +69,9 @@ export function Home() {
       <Layout>
         <Header className="bg-white select-none shadow-sm z-10 flex justify-between items-center pl-4 pr-4">
           <Button icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)}></Button>
+          {
+            previewMode ? <Alert message="当前为预览模式，无法进行编辑操作" type="warning" /> : null
+          }
           <UserProfile />
         </Header>
         <Content className="bg-[#f0f2f5] overflow-y-auto p-4 " onContextMenu={e => e.preventDefault()}>

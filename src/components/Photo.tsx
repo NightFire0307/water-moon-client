@@ -2,7 +2,8 @@ import type { MenuItemType } from 'antd/es/menu/interface'
 import type { IProduct } from '../stores/productsStore.tsx'
 import { CommentOutlined } from '@ant-design/icons'
 import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { PreviewModeContext } from '../App.tsx'
 import {
   NoteEditIcon,
   TagAddIcon,
@@ -25,6 +26,7 @@ interface PhotoProps {
 export function Photo(props: PhotoProps) {
   const { photoId, src, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
+  const previewMode = useContext(PreviewModeContext)
 
   useEffect(() => {
     products.length > 0 ? setRemoveDisabled(false) : setRemoveDisabled(true)
@@ -63,7 +65,7 @@ export function Photo(props: PhotoProps) {
         items,
         onClick: ({ key }) => onDropDownClick?.(key, photoId),
       }}
-      trigger={['contextMenu']}
+      trigger={previewMode ? [] : ['contextMenu']}
       className="mt-4"
     >
       <div className="w-full">

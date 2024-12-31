@@ -7,7 +7,8 @@ import {
 } from '@ant-design/icons'
 import { animated, useTransition } from '@react-spring/web'
 import { Divider, Image, message, Space, Tooltip } from 'antd'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { PreviewModeContext } from '../App.tsx'
 import { PencilIcon } from '../assets/svg/CustomIcon.tsx'
 import { usePhotosStore } from '../stores/photosStore.tsx'
 import { useProductsStore } from '../stores/productsStore.tsx'
@@ -16,6 +17,7 @@ import { ProductSelectModal } from './ProductSelectModal.tsx'
 import { RemarkModal } from './RemarkModal.tsx'
 
 export function PhotoGrid() {
+  const previewMode = useContext(PreviewModeContext)
   const [visible, setVisible] = useState(false)
   const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
   const [currentPhotoId, setCurrentPhotoId] = useState<number>(-1)
@@ -101,23 +103,32 @@ export function PhotoGrid() {
           toolbarRender: (_, { transform: { scale }, actions: { onActive, onZoomIn, onZoomOut }, image }) => (
             <div className="bg-gray bg-opacity-10 pr-4 pl-4 pt-2 pb-2 rounded-[100px] text-gray-500">
               <Space size={14} className="toolbar-wrapper text-xl">
-                <Tooltip title="添加备注">
-                  <PencilIcon
-                    className="hover:text-white cursor-pointer"
-                    onClick={() => setVisible(true)}
-                  />
-                </Tooltip>
-                <Tooltip title="选择产品">
-                  <TagOutlined
-                    className="hover:text-white cursor-pointer"
-                    onClick={() => {
-                      const photoId = findImageIdByUrl(image.url)
-                      setCurrentPhotoId(photoId!)
-                      setProductSelectModalVisible(true)
-                    }}
-                  />
-                </Tooltip>
-                <Divider type="vertical" className="border-[#bfbfbf]" />
+                {
+                  previewMode
+                    ? null
+                    : (
+                        <>
+                          <Tooltip title="添加备注">
+                            <PencilIcon
+                              className="hover:text-white cursor-pointer"
+                              onClick={() => setVisible(true)}
+                            />
+                          </Tooltip>
+                          <Tooltip title="选择产品">
+                            <TagOutlined
+                              className="hover:text-white cursor-pointer"
+                              onClick={() => {
+                                const photoId = findImageIdByUrl(image.url)
+                                setCurrentPhotoId(photoId!)
+                                setProductSelectModalVisible(true)
+                              }}
+                            />
+                          </Tooltip>
+                          <Divider type="vertical" className="border-[#bfbfbf]" />
+                        </>
+                      )
+                }
+
                 <Tooltip title="上一张">
                   <LeftOutlined className="hover:text-white" onClick={() => onActive?.(-1)} />
                 </Tooltip>
