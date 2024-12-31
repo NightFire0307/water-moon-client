@@ -1,5 +1,6 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
 import type { IProduct } from '../stores/productsStore.tsx'
+import { CommentOutlined } from '@ant-design/icons'
 import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 import {
@@ -13,14 +14,16 @@ interface PhotoProps {
   photoId: number
   src: string
   name: string
+  remark: string
   products: IProduct[]
   addProductsMenus: MenuItemType[]
   removeProductsMenus: MenuItemType[]
   onDropDownClick?: (key: string, photoId: number) => void
+  onRemarkClick?: (photoId: number) => void
 }
 
 export function Photo(props: PhotoProps) {
-  const { photoId, src, products, name, addProductsMenus, removeProductsMenus, onDropDownClick } = props
+  const { photoId, src, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
 
   useEffect(() => {
@@ -49,7 +52,7 @@ export function Photo(props: PhotoProps) {
     },
     {
       label: '添加备注',
-      key: 'add_note',
+      key: 'addNote',
       icon: <NoteEditIcon />,
     },
   ]
@@ -61,32 +64,29 @@ export function Photo(props: PhotoProps) {
         onClick: ({ key }) => onDropDownClick?.(key, photoId),
       }}
       trigger={['contextMenu']}
+      className="mt-4"
     >
-      <div>
-        <div
-          className="
-          relative
-          bg-gray-400
-          overflow-hidden
-          rounded-[10px]
-          flex
-          shadow-md
-          justify-center
-          items-center
-          h-[250px]
-          object-contain
-          "
-        >
+      <div className="w-full">
+        <div className="relative bg-gray-400 overflow-hidden rounded-[10px] flex shadow-md justify-center items-center h-[290px] object-contain ">
+          {
+            remark && (
+              <div
+                className="cursor-pointer rounded-2xl flex justify-center items-center absolute top-2 right-2 text-base text-geekBlue-600 w-[30px] h-[30px] bg-geekBlue-200"
+                onClick={() => onRemarkClick?.(photoId)}
+              >
+                <CommentOutlined />
+              </div>
+            )
+          }
           <Image
-            className="max-w-[250px] max-h-[250px] w-auto h-auto"
+            className="max-w-[300px] max-h-[300px] w-auto h-auto"
             src={src}
             preview={{
               mask: null,
             }}
           />
-
         </div>
-        <Space direction="vertical" className="w-full flex justify-center">
+        <Space direction="vertical" className="flex justify-center">
           <Flex gap="4px 0" align="center" wrap justify="center" className="mt-2">
             {
               products.map(product => (
@@ -94,7 +94,7 @@ export function Photo(props: PhotoProps) {
               ))
             }
           </Flex>
-          <div className="text-gray-900 font-medium w-full text-center">{name}</div>
+          <div className="text-gray-900 font-medium text-center">{name}</div>
         </Space>
       </div>
 

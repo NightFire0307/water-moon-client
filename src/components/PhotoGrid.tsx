@@ -6,13 +6,14 @@ import {
   ZoomOutOutlined,
 } from '@ant-design/icons'
 import { animated, useTransition } from '@react-spring/web'
-import { Divider, Form, Image, Input, message, Modal, Space, Tooltip } from 'antd'
+import { Divider, Image, message, Space, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 import { PencilIcon } from '../assets/svg/CustomIcon.tsx'
 import { usePhotosStore } from '../stores/photosStore.tsx'
 import { useProductsStore } from '../stores/productsStore.tsx'
 import { Photo } from './Photo.tsx'
 import { ProductSelectModal } from './ProductSelectModal.tsx'
+import { RemarkModal } from './RemarkModal.tsx'
 
 export function PhotoGrid() {
   const [visible, setVisible] = useState(false)
@@ -29,6 +30,7 @@ export function PhotoGrid() {
     removePhotoRemoveTagMenus,
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
+    updatePhotoRemark,
   } = usePhotosStore()
 
   const filterPhotos = photos.filter((photo) => {
@@ -73,8 +75,9 @@ export function PhotoGrid() {
       case 'removeAllTag':
         removeAllMarkedProduct(photoId)
         break
-      case 'add_note':
+      case 'addNote':
         setVisible(true)
+        setCurrentPhotoId(photoId)
         break
       default:
         message.error('未知操作')
@@ -86,8 +89,13 @@ export function PhotoGrid() {
     return photo?.photoId
   }
 
+  function handleRemarkClick(photoId: number) {
+    setCurrentPhotoId(photoId)
+    setVisible(true)
+  }
+
   return (
-    <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-10 gap-4 relative">
+    <div className="grid grid-cols-[repeat(auto-fit,_minmax(280px,_1fr))] gap-4 relative">
       <Image.PreviewGroup
         preview={{
           toolbarRender: (_, { transform: { scale }, actions: { onActive, onZoomIn, onZoomOut }, image }) => (
@@ -135,29 +143,23 @@ export function PhotoGrid() {
                 src={photo.src}
                 name={photo.name}
                 products={photo.markedProducts}
+                remark={photo.remark}
                 addProductsMenus={photo.addTagMenus}
                 removeProductsMenus={photo.removeTagMenus}
                 onDropDownClick={handleDropDownClick}
+                onRemarkClick={handleRemarkClick}
               />
             </animated.div>
           ))
         }
       </Image.PreviewGroup>
 
-      <Modal
-        centered
+      <RemarkModal
+        photoId={currentPhotoId}
         open={visible}
-        title="添加备注"
-        okText="保存"
-        onCancel={() => setVisible(false)}
-        zIndex={2000}
-      >
-        <Form>
-          <Form.Item>
-            <Input.TextArea placeholder="请输入备注" />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onClose={() => setVisible(false)}
+        onSave={remark => updatePhotoRemark(currentPhotoId, remark)}
+      />
 
       <ProductSelectModal
         open={productSelectModalVisible}

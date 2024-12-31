@@ -9,6 +9,7 @@ export interface IPhoto {
   photoId: number
   src: string
   name: string
+  remark: string
   markedProducts: IProduct[]
   addTagMenus: MenuItemType[]
   removeTagMenus: MenuItemType[]
@@ -34,6 +35,7 @@ interface PhotosAction {
   removePhotoRemoveTagMenus: (photoId: number, productId: number) => void
   removeMarkedProductByPhotoId: (photoId: number, productId: number) => void
   removeAllMarkedProduct: (photoId: number) => void
+  updatePhotoRemark: (photoId: number, remark: string) => void
 }
 
 export const usePhotosStore = create<PhotosStore & PhotosAction>()(
@@ -47,6 +49,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           markedProducts: [],
           addTagMenus: [],
           removeTagMenus: [],
+          remark: '',
         },
         {
           photoId: 22,
@@ -55,6 +58,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           markedProducts: [],
           addTagMenus: [],
           removeTagMenus: [],
+          remark: '',
         },
         {
           photoId: 33,
@@ -63,6 +67,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           markedProducts: [],
           addTagMenus: [],
           removeTagMenus: [],
+          remark: '',
         },
         {
           photoId: 44,
@@ -71,6 +76,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           markedProducts: [],
           addTagMenus: [],
           removeTagMenus: [],
+          remark: '',
         },
         {
           photoId: 55,
@@ -79,6 +85,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           markedProducts: [],
           addTagMenus: [],
           removeTagMenus: [],
+          remark: '',
         },
         {
           photoId: 66,
@@ -87,6 +94,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           markedProducts: [],
           addTagMenus: [],
           removeTagMenus: [],
+          remark: '',
         },
       ],
       selectedFilter: FILTER_TYPE.ALL,
@@ -212,6 +220,15 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           return { photos: [...state.photos] }
         })
       },
+      updatePhotoRemark: (photoId: number, remark: string) => (
+        set((state) => {
+          const photo = state.photos.find(photo => photo.photoId === photoId)
+          if (photo) {
+            photo.remark = remark
+          }
+          return ({ photos: [...state.photos] })
+        })
+      ),
     }),
     {
       name: 'photos-store',

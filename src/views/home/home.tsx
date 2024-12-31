@@ -70,13 +70,11 @@ export function Home() {
           <UserProfile />
         </Header>
         <Content className="bg-[#f0f2f5] overflow-y-auto p-4 " onContextMenu={e => e.preventDefault()}>
-          <div className="flex-grow container">
-            <Space direction="vertical" size="middle">
-              <Flex gap="middle" justify="space-between">
-                <Tabs />
-              </Flex>
-              <PhotoGrid />
-            </Space>
+          <div>
+            <Flex gap="middle" justify="space-between">
+              <Tabs />
+            </Flex>
+            <PhotoGrid />
           </div>
         </Content>
       </Layout>
