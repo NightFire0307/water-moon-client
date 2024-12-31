@@ -1,6 +1,6 @@
 import { Checkbox, Form, Modal, Space } from 'antd'
 import { useForm } from 'antd/es/form/Form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useProductsStore } from '../stores/productsStore.tsx'
 
 interface ProductSelectModalProps {
@@ -26,6 +26,14 @@ export function ProductSelectModal(props: ProductSelectModalProps) {
     onClose()
   }
 
+  useEffect(() => {
+    if (open) {
+      const productsSelectedIds = products.filter(product => product.selected.includes(photoId))
+        .map(product => product.productId)
+      form.setFieldsValue({ productIds: productsSelectedIds })
+    }
+  }, [open])
+
   return (
     <Modal
       width={450}
@@ -40,7 +48,7 @@ export function ProductSelectModal(props: ProductSelectModalProps) {
         <div className="text-xl font-bold">请选择要制作的产品</div>
         <p className="text-sm text-black-secondText">您可以选择多个产品来制作，选择完成后点击确认。</p>
       </Space>
-      <Form form={form} layout="vertical" className="mt-4">
+      <Form form={form} layout="vertical" className="mt-4" initialValues={{ productIds: [] }}>
         <Form.Item name="productIds" className="mb-0">
           <Checkbox.Group>
             {
