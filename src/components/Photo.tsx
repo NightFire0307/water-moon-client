@@ -79,7 +79,7 @@ export function Photo(props: PhotoProps) {
             )
           }
           <Image
-            className="max-w-[300px] max-h-[300px] w-auto h-auto"
+            className="max-w-[300px] max-h-[300px] w-auto h-auto cursor-pointer"
             src={src}
             preview={{
               mask: null,
