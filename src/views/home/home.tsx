@@ -84,15 +84,19 @@ export function Home() {
         </Content>
       </Layout>
 
-      <FloatButton.Group shape="circle" style={{ insetInlineEnd: 60 }}>
-        <FloatButton.BackTop tooltip="返回顶部" />
-        <FloatButton
-          tooltip="提交选片结果"
-          icon={<LockOutlined />}
-          onClick={() => setConfirmOpen(true)}
-        >
-        </FloatButton>
-      </FloatButton.Group>
+      {
+        !previewMode && (
+          <FloatButton.Group shape="circle" style={{ insetInlineEnd: 60 }}>
+            <FloatButton.BackTop tooltip="返回顶部" />
+            <FloatButton
+              tooltip="提交选片结果"
+              icon={<LockOutlined />}
+              onClick={() => setConfirmOpen(true)}
+            >
+            </FloatButton>
+          </FloatButton.Group>
+        )
+      }
 
       <ConfirmModal
         open={confirmOpen}
