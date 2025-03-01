@@ -1,9 +1,9 @@
+import ShareInit from '@/views/shareInit/shareInit.tsx'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import App from './App.tsx'
-import { Login } from './views/login'
 import './index.css'
 import './assets/normal.css'
 
@@ -14,8 +14,8 @@ createRoot(document.getElementById('root')!).render(
     >
       <Routes>
         <Route path="/">
-          <Route path=":token" element={<App />} />
-          <Route path="login" element={<Login />} />
+          <Route path="share/init" element={<ShareInit />} />
+          <Route path="s/:short_url" element={<App />} />
         </Route>
       </Routes>
     </ConfigProvider>

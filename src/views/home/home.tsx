@@ -1,3 +1,9 @@
+import { PreviewModeContext } from '@/App.tsx'
+import { PhotoGrid } from '@/components/PhotoGrid.tsx'
+import { ProductCard } from '@/components/ProductCard.tsx'
+import { Tabs } from '@/components/Tabs.tsx'
+import { UserProfile } from '@/components/UserProfile.tsx'
+import { useProductsStore } from '@/stores/productsStore.tsx'
 import {
   LockOutlined,
   MenuFoldOutlined,
@@ -8,12 +14,7 @@ import { Alert, Button, Flex, FloatButton, Layout, Space } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import { useContext, useEffect, useState } from 'react'
-import { PreviewModeContext } from '../../App.tsx'
-import { PhotoGrid } from '../../components/PhotoGrid.tsx'
-import { ProductCard } from '../../components/ProductCard.tsx'
-import { Tabs } from '../../components/Tabs.tsx'
-import { UserProfile } from '../../components/UserProfile.tsx'
-import { useProductsStore } from '../../stores/productsStore.tsx'
+import { useParams } from 'react-router'
 import { ConfirmModal } from './components/ConfirmModal.tsx'
 
 export function Home() {
@@ -26,6 +27,7 @@ export function Home() {
     products.length,
     () => ({ from: { opacity: 0, scale: 0.5 }, config: config.gentle }),
   )
+  const { short_url } = useParams()
 
   function handleSubmit() {
     setConfirmLoading(true)
@@ -37,6 +39,8 @@ export function Home() {
 
   useEffect(() => {
     api.start({ opacity: 1, scale: 1 })
+
+    console.log(short_url)
   }, [])
 
   return (
