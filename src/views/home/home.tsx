@@ -70,7 +70,7 @@ export function Home() {
         <Header className="bg-white select-none shadow-sm z-10 flex justify-between items-center pl-4 pr-4">
           <Button icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)}></Button>
           {
-            previewMode ? <Alert message="当前为预览模式，无法进行编辑操作" type="warning" /> : null
+            previewMode ? <Alert message="当前为预览模式，无法进行编辑操作" type="warning" /> : <Alert message="当前为选片模式" type="info" />
           }
           <UserProfile />
         </Header>
