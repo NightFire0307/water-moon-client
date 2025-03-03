@@ -1,9 +1,11 @@
+import type { IProduct } from '@/stores/productsStore.tsx'
+import { validSurlAndToken } from '@/apis/login.ts'
+import { getOrderInfo } from '@/apis/order.ts'
 import { PreviewModeContext } from '@/App.tsx'
 import { PhotoGrid } from '@/components/PhotoGrid.tsx'
 import { ProductCard } from '@/components/ProductCard.tsx'
 import { Tabs } from '@/components/Tabs.tsx'
 import { UserProfile } from '@/components/UserProfile.tsx'
-import { useProductsStore } from '@/stores/productsStore.tsx'
 import {
   LockOutlined,
   MenuFoldOutlined,
@@ -14,7 +16,7 @@ import { Alert, Button, Flex, FloatButton, Layout, Space } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { ConfirmModal } from './components/ConfirmModal.tsx'
 
 export function Home() {
@@ -22,12 +24,14 @@ export function Home() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
   const previewMode = useContext(PreviewModeContext)
-  const { products } = useProductsStore()
+  const [products, setProducts] = useState<IProduct[]>([])
+
   const [trail, api] = useTrail(
     products.length,
     () => ({ from: { opacity: 0, scale: 0.5 }, config: config.gentle }),
   )
   const { short_url } = useParams()
+  const navigate = useNavigate()
 
   function handleSubmit() {
     setConfirmLoading(true)
@@ -37,11 +41,47 @@ export function Home() {
     }, 2000)
   }
 
+  async function verify(surl: string) {
+    try {
+      const res = await validSurlAndToken(surl)
+      console.log(res)
+    }
+    catch {
+      navigate('/')
+    }
+  }
+
+  async function fetchOrderInfo(surl: string) {
+    const { data } = await getOrderInfo(surl)
+
+    setProducts(data.order_products.map((product) => {
+      return {
+        productId: product.id,
+        title: product.product.name,
+        total: product.quantity,
+        selected: product.product.select_photos,
+        product_type: '未分类',
+      }
+    }))
+  }
+
+  useEffect(() => {
+    if (short_url) {
+      (async () => {
+        try {
+          await verify(short_url)
+          await fetchOrderInfo(short_url)
+        }
+        catch {
+          navigate('/')
+        }
+      })()
+    }
+  }, [short_url])
+
   useEffect(() => {
     api.start({ opacity: 1, scale: 1 })
-
-    console.log(short_url)
-  }, [])
+  }, [products])
 
   return (
     <Layout className="h-screen overflow-hidden">

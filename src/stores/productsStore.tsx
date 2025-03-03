@@ -11,8 +11,7 @@ export interface IProduct {
   title: string
   total: number
   selected: number[]
-  // 产品所属类别
-  type: string
+  product_type: string
 }
 
 interface ProductStore {
@@ -33,14 +32,14 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
           title: '陌上花开48寸大框',
           total: 1,
           selected: [],
-          type: '主框',
+          product_type: '主框',
         },
         {
           productId: 2,
           title: '陌上花开8寸摆台',
           total: 1,
           selected: [],
-          type: '摆台',
+          product_type: '摆台',
         },
       ],
       updateProductSelected: (productId: number | number[], photoId: number) => (

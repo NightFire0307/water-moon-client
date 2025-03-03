@@ -1,6 +1,6 @@
 import { login } from '@/apis/login.ts'
 import { useCustomStore } from '@/stores/customStore.tsx'
-import { Button, ConfigProvider, Form, Input, message } from 'antd'
+import { Button, ConfigProvider, Form, Input } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
@@ -16,22 +16,20 @@ export function Login({ surl, pwd }: LoginProps) {
   const { updateAccessToken } = useCustomStore()
   const navigate = useNavigate()
 
-  async function handleSubmit() {
+  function handleSubmit() {
     setIsLoading(true)
-    try {
-      await form.validateFields()
-      const { password } = form.getFieldsValue()
-      const { data } = await login({ short_url: surl, password })
-      updateAccessToken(data.access_token)
-      navigate(`/s/${surl}`)
-    }
-    catch {
-      message.error('请输入密码')
-    }
-    finally {
-      form.resetFields()
-      setIsLoading(false)
-    }
+    form.validateFields()
+      .then(async ({ password }) => {
+        const { data } = await login({ short_url: surl, password })
+        if (data) {
+          updateAccessToken(data.access_token)
+          navigate(`/s/${surl}`)
+        }
+      })
+      .catch((errorInfo) => {
+        console.error(errorInfo)
+      })
+      .finally(() => setIsLoading(false))
   }
 
   useEffect(() => {
@@ -63,8 +61,8 @@ export function Login({ surl, pwd }: LoginProps) {
             }}
           >
             <Form form={form} layout="vertical" requiredMark={false} autoComplete="off">
-              <Form.Item name="password" label="密码" rules={[{ required: true, message: '请输入密码' }]}>
-                <Input placeholder="请输入您的密码"></Input>
+              <Form.Item name="password" label="密码" rules={[{ required: true, message: '请输入登录密码' }]}>
+                <Input placeholder="请输入您的登录密码"></Input>
               </Form.Item>
               <Button type="primary" block loading={isLoading} onClick={handleSubmit}>登录</Button>
             </Form>
@@ -73,7 +71,7 @@ export function Login({ surl, pwd }: LoginProps) {
       </div>
 
       {/* Right side - Image */}
-      <div className="hidden md:block md:w-1/2 relative">
+      <div className="hidden md:block md:w-1/2 relative bg-gray-500">
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="text-white text-center">
             <h1 className="text-4xl font-bold mb-4">捕捉精彩瞬间</h1>

@@ -11,8 +11,12 @@ interface CustomAction {
 
 export const useCustomStore = create<CustomStore & CustomAction>()(
   devtools(set => ({
-    access_token: '',
-    updateAccessToken: (token: string) => set({ access_token: token }),
+    access_token: sessionStorage.getItem('access_token') || '',
+    updateAccessToken: (token: string) => set(() => {
+      // 更新 Session Storage
+      sessionStorage.setItem('access_token', token)
+      return { access_token: token }
+    }),
   }), {
     name: 'custom-store',
     enabled: true,

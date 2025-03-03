@@ -1,5 +1,13 @@
+import type { AxiosError } from 'axios'
 import { useCustomStore } from '@/stores/customStore.tsx'
+import { message } from 'antd'
 import axios from 'axios'
+
+interface ErrorResponse {
+  error: string
+  message: string
+  statusCode: number
+}
 
 // create an axios instance
 const service = axios.create({
@@ -9,11 +17,11 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   (config) => {
-    const accessToken = useCustomStore.getState().access_token
+    const { access_token } = useCustomStore.getState()
 
     // 设置请求头部 Authorization
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`
+    if (access_token) {
+      config.headers.Authorization = `Bearer ${access_token}`
     }
     return config
   },
@@ -28,8 +36,23 @@ service.interceptors.response.use(
   (response) => {
     return response.data
   },
-  (error) => {
-    return Promise.reject(error)
+  (error: AxiosError<ErrorResponse>) => {
+    if (error.response) {
+      switch (error.response.status) {
+        case 500:
+          message.error('服务器错误，请稍后再试')
+          break
+        case 401:
+          message.error(error.response.data.message)
+          break
+        case (400):
+          message.error(error.response.data.message || '请求错误，请稍后再试')
+          break
+        default:
+          message.error('未知错误，请稍后再试')
+      }
+    }
+    return Promise.resolve({ data: null, error: true, message: '请求失败' })
   },
 )
 
