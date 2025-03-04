@@ -1,3 +1,4 @@
+import type { IRefreshTokenResponse } from '@/types/login.ts'
 import request from '@/utils/request.ts'
 
 export function login(data: { short_url: string, password: string }) {
@@ -12,6 +13,14 @@ export function login(data: { short_url: string, password: string }) {
 export function validSurlAndToken(surl: string) {
   return request({
     url: `/api/selection/verify/${surl}`,
+    method: 'POST',
+  })
+}
+
+// 刷新access_token
+export function refreshToken(surl: string): IRefreshTokenResponse {
+  return request({
+    url: `/api/selection/refresh/${surl}`,
     method: 'POST',
   })
 }

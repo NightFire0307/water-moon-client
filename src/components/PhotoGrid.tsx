@@ -25,6 +25,7 @@ export function PhotoGrid() {
   const {
     photos,
     selectedFilter,
+    fetchPhotos,
     updatePhotoAddTagMenus,
     removeAllMarkedProduct,
     removeMarkedProductByPhotoId,
@@ -56,6 +57,7 @@ export function PhotoGrid() {
   }, [filterPhotos])
 
   useEffect(() => {
+    fetchPhotos()
     generateAddTagMenu()
   }, [])
 

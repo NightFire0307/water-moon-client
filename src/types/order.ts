@@ -1,3 +1,5 @@
+import type { ResponsePromise } from '@/types/common.ts'
+
 interface IOrder {
   id: number
   customer_name: string
@@ -21,10 +23,4 @@ interface IProduct {
   select_photos: number[]
 }
 
-export interface Response<T> {
-  code: number
-  msg: string
-  data: T
-}
-
-export type IOrderResponse = Promise<Response<IOrder>>
+export type IOrderResponse = ResponsePromise<IOrder>

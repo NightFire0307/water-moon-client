@@ -1,11 +1,12 @@
 import type { IProduct } from '@/stores/productsStore.tsx'
-import { validSurlAndToken } from '@/apis/login.ts'
+import { refreshToken, validSurlAndToken } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import { PreviewModeContext } from '@/App.tsx'
 import { PhotoGrid } from '@/components/PhotoGrid.tsx'
 import { ProductCard } from '@/components/ProductCard.tsx'
 import { Tabs } from '@/components/Tabs.tsx'
 import { UserProfile } from '@/components/UserProfile.tsx'
+import { useCustomStore } from '@/stores/customStore.tsx'
 import {
   LockOutlined,
   MenuFoldOutlined,
@@ -25,6 +26,8 @@ export function Home() {
   const [confirmLoading, setConfirmLoading] = useState(false)
   const previewMode = useContext(PreviewModeContext)
   const [products, setProducts] = useState<IProduct[]>([])
+  const access_Token = useCustomStore(state => state.access_token)
+  const updateAccessToken = useCustomStore(state => state.updateAccessToken)
 
   const [trail, api] = useTrail(
     products.length,
@@ -68,12 +71,24 @@ export function Home() {
   useEffect(() => {
     if (short_url) {
       (async () => {
+        // 刷新 access_token
+        if (!access_Token) {
+          try {
+            const { data } = await refreshToken(short_url)
+            updateAccessToken(data.access_token)
+          }
+          catch {
+            navigate('/')
+          }
+        }
+
+        // 验证短链和 token
         try {
           await verify(short_url)
           await fetchOrderInfo(short_url)
         }
         catch {
-          navigate('/')
+          navigate('/404')
         }
       })()
     }

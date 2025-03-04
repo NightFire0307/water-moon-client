@@ -1,5 +1,6 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
 import type { IProduct } from './productsStore.tsx'
+import { getOrderPhotos } from '@/apis/order.ts'
 import { CheckOutlined } from '@ant-design/icons'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
@@ -27,6 +28,7 @@ export enum FILTER_TYPE {
 }
 
 interface PhotosAction {
+  fetchPhotos: () => Promise<void>
   generateAddTagMenu: () => void
   filterPhotos: (value: FILTER_TYPE) => void
   updatePhotoMarkedProductTypes: (photoId: number, productId: number) => void
@@ -41,63 +43,25 @@ interface PhotosAction {
 export const usePhotosStore = create<PhotosStore & PhotosAction>()(
   devtools<PhotosStore & PhotosAction>(
     set => ({
-      photos: [
-        {
-          photoId: 11,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
-          name: '123.jpg',
-          markedProducts: [],
-          addTagMenus: [],
-          removeTagMenus: [],
-          remark: '',
-        },
-        {
-          photoId: 22,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp',
-          name: '456.jpg',
-          markedProducts: [],
-          addTagMenus: [],
-          removeTagMenus: [],
-          remark: '',
-        },
-        {
-          photoId: 33,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-          name: '789.jpg',
-          markedProducts: [],
-          addTagMenus: [],
-          removeTagMenus: [],
-          remark: '',
-        },
-        {
-          photoId: 44,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-          name: 'photo1.jpg',
-          markedProducts: [],
-          addTagMenus: [],
-          removeTagMenus: [],
-          remark: '',
-        },
-        {
-          photoId: 55,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-          name: 'photo1.jpg',
-          markedProducts: [],
-          addTagMenus: [],
-          removeTagMenus: [],
-          remark: '',
-        },
-        {
-          photoId: 66,
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-          name: 'photo1.jpg',
-          markedProducts: [],
-          addTagMenus: [],
-          removeTagMenus: [],
-          remark: '',
-        },
-      ],
+      photos: [],
       selectedFilter: FILTER_TYPE.ALL,
+      fetchPhotos: async () => {
+        const { data } = await getOrderPhotos()
+
+        const photos: IPhoto[] = data.map((photo) => {
+          return {
+            photoId: photo.id,
+            src: photo.thumbnail_url,
+            name: photo.file_name,
+            remark: photo.remark || '',
+            markedProducts: [],
+            addTagMenus: [],
+            removeTagMenus: [],
+          }
+        })
+
+        set({ photos })
+      },
       filterPhotos: (value: FILTER_TYPE) => (set({ selectedFilter: value })),
       generateAddTagMenu: () => (
         set((state) => {

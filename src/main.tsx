@@ -16,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/">
           <Route path="share/init" element={<ShareInit />} />
           <Route path="s/:short_url" element={<App />} />
+          <Route path="/404" element={<div>404</div>} />
         </Route>
       </Routes>
     </ConfigProvider>
