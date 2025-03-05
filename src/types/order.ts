@@ -9,7 +9,7 @@ interface IOrder {
   order_products: IOrderProduct[]
 }
 
-interface IOrderProduct {
+export interface IOrderProduct {
   id: number
   quantity: number
   allow_extra_photos: boolean
@@ -20,6 +20,9 @@ interface IOrderProduct {
 interface IProduct {
   id: number
   name: string
+  product_type: {
+    name: string
+  }
   select_photos: number[]
 }
 

@@ -1,4 +1,3 @@
-import type { IProduct } from '@/stores/productsStore.tsx'
 import { refreshToken, validSurlAndToken } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import { PreviewModeContext } from '@/App.tsx'
@@ -7,6 +6,8 @@ import { ProductCard } from '@/components/ProductCard.tsx'
 import { Tabs } from '@/components/Tabs.tsx'
 import { UserProfile } from '@/components/UserProfile.tsx'
 import { useCustomStore } from '@/stores/customStore.tsx'
+import { usePhotosStore } from '@/stores/photosStore.tsx'
+import { useProductsStore } from '@/stores/productsStore.tsx'
 import {
   LockOutlined,
   MenuFoldOutlined,
@@ -25,9 +26,11 @@ export function Home() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
   const previewMode = useContext(PreviewModeContext)
-  const [products, setProducts] = useState<IProduct[]>([])
   const access_Token = useCustomStore(state => state.access_token)
+  const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
+  const generateProducts = useProductsStore(state => state.generateProducts)
   const updateAccessToken = useCustomStore(state => state.updateAccessToken)
+  const products = useProductsStore(state => state.products)
 
   const [trail, api] = useTrail(
     products.length,
@@ -56,16 +59,7 @@ export function Home() {
 
   async function fetchOrderInfo(surl: string) {
     const { data } = await getOrderInfo(surl)
-
-    setProducts(data.order_products.map((product) => {
-      return {
-        productId: product.id,
-        title: product.product.name,
-        total: product.quantity,
-        selected: product.product.select_photos,
-        product_type: '未分类',
-      }
-    }))
+    generateProducts(data.order_products)
   }
 
   useEffect(() => {
@@ -86,6 +80,7 @@ export function Home() {
         try {
           await verify(short_url)
           await fetchOrderInfo(short_url)
+          await fetchPhotos()
         }
         catch {
           navigate('/404')

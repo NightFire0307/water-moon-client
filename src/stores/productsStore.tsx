@@ -1,3 +1,4 @@
+import type { IOrderProduct } from '@/types/order.ts'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
@@ -19,30 +20,30 @@ interface ProductStore {
 }
 
 interface ProductAction {
-  updateProductSelected: (productId: number | number[], photoId: number) => void
+  generateProducts: (orderProducts: IOrderProduct[]) => void
+  updateProductSelected: (photoId: number, productId: number | number[]) => void
   removeSelectedByPhotoId: (productId: number | number[], photoId: number) => void
+  saveSelected: () => void
 }
 
 export const useProductsStore = create<ProductStore & ProductAction>()(
-  devtools<ProductStore & ProductAction>(
+  devtools(
     set => ({
-      products: [
-        {
-          productId: 1,
-          title: '陌上花开48寸大框',
-          total: 1,
-          selected: [],
-          product_type: '主框',
-        },
-        {
-          productId: 2,
-          title: '陌上花开8寸摆台',
-          total: 1,
-          selected: [],
-          product_type: '摆台',
-        },
-      ],
-      updateProductSelected: (productId: number | number[], photoId: number) => (
+      products: [],
+      generateProducts: (orderProducts) => {
+        const products = orderProducts.map((orderProduct) => {
+          return {
+            productId: orderProduct.id,
+            title: orderProduct.product.name,
+            total: orderProduct.quantity,
+            selected: orderProduct.product.select_photos,
+            product_type: orderProduct.product.product_type.name,
+          }
+        })
+
+        set({ products: [...products] })
+      },
+      updateProductSelected: (photoId: number, productId: number | number[]) => (
         set((state) => {
           if (Array.isArray(productId)) {
             for (const product of state.products) {
@@ -78,6 +79,9 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
           }
           return { products: [...state.products] }
         })
+      },
+      saveSelected: () => {
+
       },
     }),
     {

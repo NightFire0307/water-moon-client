@@ -41,24 +41,31 @@ interface PhotosAction {
 }
 
 export const usePhotosStore = create<PhotosStore & PhotosAction>()(
-  devtools<PhotosStore & PhotosAction>(
+  devtools(
     set => ({
       photos: [],
       selectedFilter: FILTER_TYPE.ALL,
       fetchPhotos: async () => {
+        const products = useProductsStore.getState().products
         const { data } = await getOrderPhotos()
+        const photos: IPhoto[] = []
 
-        const photos: IPhoto[] = data.map((photo) => {
-          return {
+        for (const photo of data) {
+          photos.push({
             photoId: photo.id,
             src: photo.thumbnail_url,
             name: photo.file_name,
-            remark: photo.remark || '',
+            remark: '',
             markedProducts: [],
-            addTagMenus: [],
+            addTagMenus: products.map(product => ({
+              label: product.title,
+              key: `addTag_${product.productId}`,
+              icon: '',
+              disabled: false,
+            })),
             removeTagMenus: [],
-          }
-        })
+          })
+        }
 
         set({ photos })
       },
