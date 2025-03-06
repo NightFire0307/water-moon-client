@@ -3,7 +3,7 @@ import request from '@/utils/request.ts'
 
 export function login(data: { short_url: string, password: string }) {
   return request({
-    url: '/api/selection/validate',
+    url: '/api/selection/auth',
     method: 'post',
     data,
   })
@@ -12,7 +12,7 @@ export function login(data: { short_url: string, password: string }) {
 // 校验短链和token
 export function validSurlAndToken(surl: string) {
   return request({
-    url: `/api/selection/verify/${surl}`,
+    url: `/api/selection/auth/verify/${surl}`,
     method: 'POST',
   })
 }
@@ -20,7 +20,7 @@ export function validSurlAndToken(surl: string) {
 // 刷新access_token
 export function refreshToken(surl: string): IRefreshTokenResponse {
   return request({
-    url: `/api/selection/refresh/${surl}`,
+    url: `/api/selection/auth/refresh/${surl}`,
     method: 'POST',
   })
 }
