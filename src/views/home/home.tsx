@@ -110,7 +110,7 @@ export function Home() {
                   <ProductCard
                     productId={products[index].productId}
                     title={products[index].title}
-                    selected={products[index].selected.length}
+                    selected={products[index].selected_photos.length}
                     total={products[index].total}
                   />
                 </animated.div>

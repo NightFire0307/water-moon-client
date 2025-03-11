@@ -47,6 +47,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
       selectedFilter: FILTER_TYPE.ALL,
       fetchPhotos: async () => {
         const products = useProductsStore.getState().products
+        console.log(products)
         const { data } = await getOrderPhotos()
         const photos: IPhoto[] = []
 
@@ -55,7 +56,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
             photoId: photo.id,
             src: photo.thumbnail_url,
             name: photo.file_name,
-            remark: '',
+            remark: photo.remark ?? '',
             markedProducts: [],
             addTagMenus: products.map(product => ({
               label: product.title,
@@ -76,7 +77,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           for (const photo of state.photos) {
             const dropdownMenus: MenuItemType[] = []
             for (const product of products) {
-              const isSelect = product.selected.includes(photo.photoId)
+              const isSelect = product.selected_photos.includes(photo.photoId)
               dropdownMenus.push({
                 label: product.title,
                 key: `addTag_${product.productId}`,

@@ -1,4 +1,5 @@
 import type { IOrderProduct } from '@/types/order.ts'
+import { updateOrderPhotos } from '@/apis/order.ts'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
@@ -11,7 +12,7 @@ export interface IProduct {
   productId: number
   title: string
   total: number
-  selected: number[]
+  selected_photos: number[]
   product_type: string
 }
 
@@ -21,14 +22,14 @@ interface ProductStore {
 
 interface ProductAction {
   generateProducts: (orderProducts: IOrderProduct[]) => void
-  updateProductSelected: (photoId: number, productId: number | number[]) => void
+  updateProductSelected: (photoId: number, productId: number | number[]) => Promise<void>
   removeSelectedByPhotoId: (productId: number | number[], photoId: number) => void
   saveSelected: () => void
 }
 
 export const useProductsStore = create<ProductStore & ProductAction>()(
   devtools(
-    set => ({
+    (set, get) => ({
       products: [],
       generateProducts: (orderProducts) => {
         const products = orderProducts.map((orderProduct) => {
@@ -36,38 +37,38 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
             productId: orderProduct.id,
             title: orderProduct.product.name,
             total: orderProduct.quantity,
-            selected: orderProduct.product.select_photos,
-            product_type: orderProduct.product.product_type.name,
+            selected_photos: orderProduct.selected_photos ?? [],
+            product_type: orderProduct.product.product_type,
           }
         })
 
         set({ products: [...products] })
       },
-      updateProductSelected: (photoId: number, productId: number | number[]) => (
-        set((state) => {
-          if (Array.isArray(productId)) {
-            for (const product of state.products) {
-              if (productId.includes(product.productId)) {
-                product.selected = [...product.selected, photoId]
-              }
-            }
-          }
-          else {
-            const product = state.products.find(item => item.productId === productId)
-            if (!product)
-              return {}
-            product.selected = [...product.selected, photoId]
-          }
+      updateProductSelected: async (photoId: number, orderProductId: number) => {
+        const product = get().products.find(item => item.productId === orderProductId)
+        if (!product)
+          return
 
-          return { products: [...state.products] }
+        const { data } = await updateOrderPhotos({ orderProductId, photoIds: [photoId, ...product.selected_photos] })
+
+        // 更新产品照片
+        set((state) => {
+          const updatedProducts = state.products.map((product) => {
+            if (product.productId === orderProductId) {
+              return { ...product, selected_photos: [...data.selected_photos] }
+            }
+            return product
+          })
+
+          return { products: updatedProducts }
         })
-      ),
+      },
       removeSelectedByPhotoId: (productId: number | number[], photoId: number) => {
         set((state) => {
           if (Array.isArray(productId)) {
             for (const product of state.products) {
               if (productId.includes(product.productId)) {
-                product.selected = product.selected.filter(id => id !== photoId)
+                product.selected_photos = product.selected_photos.filter(id => id !== photoId)
               }
             }
           }
@@ -75,7 +76,7 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
             const product = state.products.find(item => item.productId === productId)
             if (!product)
               return {}
-            product.selected = product.selected.filter(id => id !== photoId)
+            product.selected_photos = product.selected_photos.filter(id => id !== photoId)
           }
           return { products: [...state.products] }
         })

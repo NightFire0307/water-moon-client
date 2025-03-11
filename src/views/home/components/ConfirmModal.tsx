@@ -1,7 +1,7 @@
+import { useProductsStore } from '@/stores/productsStore.tsx'
 import { LoadingOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Modal } from 'antd'
 import { useEffect, useRef, useState } from 'react'
-import { useProductsStore } from '../../../stores/productsStore.tsx'
 import { ValidationResult } from './ValidationResult.tsx'
 
 interface ConfirmModalProps {
@@ -16,13 +16,13 @@ export function ConfirmModal(props: ConfirmModalProps) {
   // 倒计时
   const [countDown, setCountDown] = useState(5)
   const [allSelect, setAllSelect] = useState(false)
-  const timer = useRef(0)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const products = useProductsStore(state => state.products)
 
   // 校验产品是否全部选片
   function checkAllSelected() {
     for (let i = 0; i < products.length; i++) {
-      if (products[i].selected.length < products[i].total) {
+      if (products[i].selected_photos.length < products[i].total) {
         return false
       }
     }
@@ -49,7 +49,9 @@ export function ConfirmModal(props: ConfirmModalProps) {
     }
 
     return () => {
-      clearTimeout(timer.current)
+      if (timer.current) {
+        clearTimeout(timer.current)
+      }
     }
   }, [allSelect, countDown])
 

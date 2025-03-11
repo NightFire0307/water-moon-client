@@ -15,15 +15,20 @@ export interface IOrderProduct {
   allow_extra_photos: boolean
   custom_photo_limit: number
   product: IProduct
+  selected_photos: number[]
+  remark: string
 }
 
 interface IProduct {
   id: number
   name: string
-  product_type: {
-    name: string
-  }
-  select_photos: number[]
+  product_type: string
+}
+
+interface IOrderProductSelectedPhoto {
+  orderProductId: number
+  selected_photos: number[]
 }
 
 export type IOrderResponse = ResponsePromise<IOrder>
+export type IOrderProductSelectedPhotoResponse = ResponsePromise<IOrderProductSelectedPhoto>
