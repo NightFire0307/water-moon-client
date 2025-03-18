@@ -10,8 +10,9 @@ export interface IType {
 
 export interface IProduct {
   productId: number
+  count: number
   title: string
-  total: number
+  photo_limit: number
   selected_photos: number[]
   product_type: string
 }
@@ -36,9 +37,10 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
           return {
             productId: orderProduct.id,
             title: orderProduct.product.name,
-            total: orderProduct.quantity,
             selected_photos: orderProduct.selected_photos ?? [],
             product_type: orderProduct.product.product_type,
+            photo_limit: orderProduct.product.photo_limit,
+            count: orderProduct.count,
           }
         })
 

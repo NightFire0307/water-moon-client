@@ -1,13 +1,14 @@
+import type { IOrder } from '@/types/order.ts'
 import { refreshToken, validSurlAndToken } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import { PreviewModeContext } from '@/App.tsx'
 import { PhotoGrid } from '@/components/PhotoGrid.tsx'
-import { ProductCard } from '@/components/ProductCard.tsx'
 import { Tabs } from '@/components/Tabs.tsx'
 import { UserProfile } from '@/components/UserProfile.tsx'
 import { useCustomStore } from '@/stores/customStore.tsx'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
+import { ProductCard } from '@/views/home/components/ProductCard.tsx'
 import {
   LockOutlined,
   MenuFoldOutlined,
@@ -25,6 +26,7 @@ export function Home() {
   const [collapsed, setCollapsed] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const [orderInfo, setOrderInfo] = useState<IOrder>({})
   const previewMode = useContext(PreviewModeContext)
   const access_Token = useCustomStore(state => state.access_token)
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
@@ -59,6 +61,8 @@ export function Home() {
 
   async function fetchOrderInfo(surl: string) {
     const { data } = await getOrderInfo(surl)
+    console.log(data)
+    setOrderInfo(data)
     generateProducts(data.order_products)
   }
 
@@ -110,8 +114,10 @@ export function Home() {
                   <ProductCard
                     productId={products[index].productId}
                     title={products[index].title}
-                    selected={products[index].selected_photos.length}
-                    total={products[index].total}
+                    selectedCount={products[index].selected_photos.length}
+                    count={products[index].count}
+                    photoLimit={products[index].photo_limit !== 0 ? products[index].photo_limit * products[index].count : orderInfo.max_select_photos || 0}
+                    type={products[index].product_type}
                   />
                 </animated.div>
               ))

@@ -111,6 +111,17 @@ function BoxVariantIcon() {
   )
 }
 
+function Camera() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor">
+        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z" />
+        <circle cx="12" cy="13" r="3" />
+      </g>
+    </svg>
+  )
+}
+
 export function TagAddIcon(props: CustomIconComponentProps) {
   return <Icon component={TagAdd} {...props} />
 }
@@ -153,4 +164,8 @@ export function PencilIcon(props: CustomIconComponentProps) {
 
 export function BoxVariantIconIcon(props: CustomIconComponentProps) {
   return <Icon component={BoxVariantIcon} {...props} />
+}
+
+export function CameraIcon(props: CustomIconComponentProps) {
+  return <Icon component={Camera} {...props} />
 }
