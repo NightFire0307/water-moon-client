@@ -21,7 +21,7 @@ export function PhotoGrid() {
   const [visible, setVisible] = useState(false)
   const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
   const [currentPhotoId, setCurrentPhotoId] = useState<number>(-1)
-  const { updateProductSelected } = useProductsStore()
+  const { updateProductSelected, removeSelectedByPhotoId } = useProductsStore()
   const {
     photos,
     selectedFilter,
@@ -66,12 +66,13 @@ export function PhotoGrid() {
       case 'addTag':
         updateProductSelected(photoId, +productId)
         updatePhotoAddTagMenus(photoId, +productId)
-        updatePhotoRemoveTagMenus(photoId, +productId)
+        updatePhotoRemoveTagMenus(photoId, +productId, false)
         updatePhotoMarkedProductTypes(photoId, +productId)
         break
       case 'removeTag':
-        removePhotoRemoveTagMenus(photoId, +productId)
+        removeSelectedByPhotoId(photoId, +productId)
         updatePhotoAddTagMenus(photoId, +productId, false)
+        updatePhotoRemoveTagMenus(photoId, +productId)
         removeMarkedProductByPhotoId(photoId, +productId)
         break
       case 'removeAllTag':

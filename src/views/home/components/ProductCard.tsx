@@ -48,7 +48,7 @@ export function ProductCard(props: ProductCardProps) {
   return (
     <Card
       size="small"
-      bordered={false}
+      variant="borderless"
       className="w-full"
       title={<ProductTitle title={title} count={count} />}
       styles={{
@@ -67,7 +67,9 @@ export function ProductCard(props: ProductCardProps) {
             selectedCount > photoLimit
               ? (
                   <Tooltip title="超出规定张数">
-                    <WarningIcon className="text-xl text-[#fadb14]" />
+                    <span>
+                      <WarningIcon className="text-xl text-[#fadb14]" />
+                    </span>
                   </Tooltip>
                 )
               : null

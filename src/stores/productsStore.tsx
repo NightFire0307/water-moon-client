@@ -23,8 +23,8 @@ interface ProductStore {
 
 interface ProductAction {
   generateProducts: (orderProducts: IOrderProduct[]) => void
-  updateProductSelected: (photoId: number, productId: number | number[]) => Promise<void>
-  removeSelectedByPhotoId: (productId: number | number[], photoId: number) => void
+  updateProductSelected: (photoId: number, orderProductId: number) => Promise<void>
+  removeSelectedByPhotoId: (photoId: number, orderProductId: number) => void
   saveSelected: () => void
 }
 
@@ -65,22 +65,21 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
           return { products: updatedProducts }
         })
       },
-      removeSelectedByPhotoId: (productId: number | number[], photoId: number) => {
+      removeSelectedByPhotoId: async (photoId: number, orderProductId: number) => {
+        const product = get().products.find(item => item.productId === orderProductId)
+        if (!product)
+          return
+
+        const { data } = await updateOrderPhotos({ orderProductId, photoIds: product.selected_photos.filter(item => item !== photoId) })
+
         set((state) => {
-          if (Array.isArray(productId)) {
-            for (const product of state.products) {
-              if (productId.includes(product.productId)) {
-                product.selected_photos = product.selected_photos.filter(id => id !== photoId)
-              }
+          const updatedProducts = state.products.map((product) => {
+            if (product.productId === orderProductId) {
+              return { ...product, selected_photos: [...data.selected_photos] }
             }
-          }
-          else {
-            const product = state.products.find(item => item.productId === productId)
-            if (!product)
-              return {}
-            product.selected_photos = product.selected_photos.filter(id => id !== photoId)
-          }
-          return { products: [...state.products] }
+            return product
+          })
+          return { products: updatedProducts }
         })
       },
       saveSelected: () => {

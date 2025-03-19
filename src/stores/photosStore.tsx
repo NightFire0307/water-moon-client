@@ -1,6 +1,6 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
 import type { IProduct } from './productsStore.tsx'
-import { getOrderPhotos } from '@/apis/order.ts'
+import { getOrderPhotos, updateOrderPhotos } from '@/apis/order.ts'
 import { CheckOutlined } from '@ant-design/icons'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
@@ -31,23 +31,28 @@ interface PhotosAction {
   fetchPhotos: () => Promise<void>
   generateAddTagMenu: () => void
   filterPhotos: (value: FILTER_TYPE) => void
+  // 更新照片制作产品的类型
   updatePhotoMarkedProductTypes: (photoId: number, productId: number) => void
+  // 更新标签菜单
   updatePhotoAddTagMenus: (photoId: number, productId: number, disable?: boolean) => void
-  updatePhotoRemoveTagMenus: (photoId: number, productId: number) => void
+  // 更新标签菜单
+  updatePhotoRemoveTagMenus: (photoId: number, productId: number, disable?: boolean) => void
+  // 移除已标记的产品
   removePhotoRemoveTagMenus: (photoId: number, productId: number) => void
+  // 移除照片制作产品的类型
   removeMarkedProductByPhotoId: (photoId: number, productId: number) => void
+  // 移除当前照片所有已标记的产品
   removeAllMarkedProduct: (photoId: number) => void
   updatePhotoRemark: (photoId: number, remark: string) => void
 }
 
 export const usePhotosStore = create<PhotosStore & PhotosAction>()(
   devtools(
-    set => ({
+    (set, get) => ({
       photos: [],
       selectedFilter: FILTER_TYPE.ALL,
       fetchPhotos: async () => {
         const products = useProductsStore.getState().products
-        console.log(products)
         const { data } = await getOrderPhotos()
         const photos: IPhoto[] = []
 
@@ -57,14 +62,17 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
             src: photo.thumbnail_url,
             name: photo.file_name,
             remark: photo.remark ?? '',
-            markedProducts: [],
+            markedProducts: products.filter(product => product.selected_photos.includes(photo.id)),
             addTagMenus: products.map(product => ({
               label: product.title,
               key: `addTag_${product.productId}`,
-              icon: '',
-              disabled: false,
+              disabled: product.selected_photos.includes(photo.id),
             })),
-            removeTagMenus: [],
+            removeTagMenus: products.map(product => ({
+              label: product.title,
+              key: `removeTag_${product.productId}`,
+              disabled: !product.selected_photos.includes(photo.id),
+            })),
           })
         }
 
@@ -117,15 +125,15 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           return { photos: [...state.photos] }
         })
       ),
-      updatePhotoRemoveTagMenus: (photoId: number, productId: number) => (
+      updatePhotoRemoveTagMenus: (photoId: number, productId: number, disable?: boolean) => (
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
 
           if (photo) {
-            for (const menu of photo.addTagMenus) {
+            for (const menu of photo.removeTagMenus) {
               const key = (menu.key as string).split('_')[1]
-              if (productId === Number(key)) {
-                photo.removeTagMenus.push({ ...menu, disabled: false, icon: '', key: `removeTag_${productId}` })
+              if (Number(key) === productId) {
+                menu.disabled = disable ?? true
                 break
               }
             }
@@ -135,15 +143,12 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
       ),
       removePhotoRemoveTagMenus: (photoId: number, productId: number) => (
         set((state) => {
-          const removeSelectedByPhotoId = useProductsStore.getState().removeSelectedByPhotoId
           const photo = state.photos.find(photo => photo.photoId === photoId)
           if (photo) {
             photo.removeTagMenus = photo.removeTagMenus.filter((menu) => {
               const key = (menu.key as string).split('_')[1]
               return productId !== Number(key)
             })
-
-            removeSelectedByPhotoId(productId, photoId)
           }
 
           return { photos: [...state.photos] }
@@ -168,29 +173,9 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           return { photos: [...state.photos] }
         })
       ),
-      removeAllMarkedProduct: (photoId: number) => {
-        set((state) => {
-          const removeSelectedByPhotoId = useProductsStore.getState().removeSelectedByPhotoId
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-          const productId: number[] = []
-          if (photo) {
-            for (const product of photo.markedProducts) {
-              productId.push(product.productId)
-            }
-            // 清空已标记的产品
-            photo.markedProducts = []
+      removeAllMarkedProduct: async (photoId: number) => {
+        // 找到当前照片所有的产品Id
 
-            // 重置添加标签菜单
-            for (const menus of photo.addTagMenus) {
-              menus.disabled = false
-              menus.icon = ''
-            }
-          }
-
-          removeSelectedByPhotoId(productId, photoId)
-
-          return { photos: [...state.photos] }
-        })
       },
       updatePhotoRemark: (photoId: number, remark: string) => (
         set((state) => {
