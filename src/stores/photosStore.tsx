@@ -1,6 +1,6 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
 import type { IProduct } from './productsStore.tsx'
-import { getOrderPhotos, updateOrderPhotos } from '@/apis/order.ts'
+import { getOrderPhotos, removeAllTags, updateOrderPhotos } from '@/apis/order.ts'
 import { CheckOutlined } from '@ant-design/icons'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
@@ -174,8 +174,22 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
         })
       ),
       removeAllMarkedProduct: async (photoId: number) => {
-        // 找到当前照片所有的产品Id
+        const removeSelectedByPhotoId = useProductsStore.getState().removeSelectedByPhotoId
+        // 移除当前照片所有已标记的产品
+        await removeAllTags(photoId)
 
+        set((state) => {
+          const photo = state.photos.find(photo => photo.photoId === photoId)
+
+          if (photo) {
+            for (const markedProduct of photo.markedProducts) {
+              removeSelectedByPhotoId(photoId, markedProduct.productId)
+              get().updatePhotoAddTagMenus(photoId, markedProduct.productId, false)
+            }
+            photo.markedProducts = []
+          }
+          return { photos: [...state.photos] }
+        })
       },
       updatePhotoRemark: (photoId: number, remark: string) => (
         set((state) => {

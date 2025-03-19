@@ -26,3 +26,11 @@ export function updateOrderPhotos(data: { photoIds: number[], orderProductId: nu
     data,
   })
 }
+
+// 移除照片的所有产品选择
+export function removeAllTags(photoId: number) {
+  return request({
+    url: `/api/selection/photos/${photoId}/remove-all-tag`,
+    method: 'PATCH',
+  })
+}
