@@ -7,7 +7,7 @@ import {
   TagRemoveIcon,
 } from '@/assets/icon'
 import { CommentOutlined } from '@ant-design/icons'
-import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
+import { Dropdown, Image, type MenuProps, Tag } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import { PreviewModeContext } from '../App.tsx'
 
@@ -68,7 +68,14 @@ export function Photo(props: PhotoProps) {
       trigger={previewMode ? [] : ['contextMenu']}
       className="mt-4"
     >
-      <div className="w-full">
+      <div className="w-full relative">
+        <div className="absolute top-2 left-2 z-[999]">
+          {
+            products.map(product => (
+              <Tag bordered={false} color="#324054" key={product.productId}>{product.product_type}</Tag>
+            ))
+          }
+        </div>
         <div className="relative bg-gray-400 overflow-hidden rounded-[10px] flex shadow-md justify-center items-center h-[290px] object-contain ">
           {
             remark && (
@@ -88,16 +95,7 @@ export function Photo(props: PhotoProps) {
             }}
           />
         </div>
-        <Space direction="vertical" className="flex justify-center">
-          <Flex gap="4px 0" align="center" wrap justify="center" className="mt-2">
-            {
-              products.map(product => (
-                <Tag bordered={false} color="#597ef7" key={product.productId}>{product.product_type}</Tag>
-              ))
-            }
-          </Flex>
-          <div className="text-gray-900 font-medium text-center">{name}</div>
-        </Space>
+        <div className="mt-2 text-gray-900 font-medium text-center">{name}</div>
       </div>
 
     </Dropdown>
