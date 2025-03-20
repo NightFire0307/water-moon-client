@@ -1,3 +1,4 @@
+import Error404 from '@/views/errorPage/404.tsx'
 import ShareInit from '@/views/shareInit/shareInit.tsx'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
@@ -16,7 +17,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/">
           <Route path="share/init" element={<ShareInit />} />
           <Route path="s/:short_url" element={<App />} />
-          <Route path="/404" element={<div>404</div>} />
+          <Route path="/404" element={<Error404 />} />
         </Route>
       </Routes>
     </ConfigProvider>

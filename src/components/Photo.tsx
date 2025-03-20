@@ -1,15 +1,15 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
 import type { IProduct } from '../stores/productsStore.tsx'
-import { CommentOutlined } from '@ant-design/icons'
-import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
-import { useContext, useEffect, useState } from 'react'
-import { PreviewModeContext } from '../App.tsx'
 import {
   NoteEditIcon,
   TagAddIcon,
   TagRemoveAllIcon,
   TagRemoveIcon,
-} from '../assets/svg/CustomIcon.tsx'
+} from '@/assets/icon'
+import { CommentOutlined } from '@ant-design/icons'
+import { Dropdown, Flex, Image, type MenuProps, Space, Tag } from 'antd'
+import { useContext, useEffect, useState } from 'react'
+import { PreviewModeContext } from '../App.tsx'
 
 interface PhotoProps {
   photoId: number

@@ -1,9 +1,9 @@
-import type { IProduct } from '../../../stores/productsStore.tsx'
+import type { IProduct } from '@/stores/productsStore.tsx'
+import { BoxVariantIcon } from '@/assets/icon'
+import { useProductsStore } from '@/stores/productsStore.tsx'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { Alert, Flex, Result, Space } from 'antd'
 import { useEffect, useState } from 'react'
-import { BoxVariantIconIcon } from '../../../assets/svg/CustomIcon.tsx'
-import { useProductsStore } from '../../../stores/productsStore.tsx'
 
 interface ValidationResultProps {
   allSelect: boolean
@@ -76,7 +76,7 @@ export function ValidationResult(props: ValidationResultProps) {
                         message={(
                           <Flex justify="space-between" className="m-2">
                             <div className="flex gap-2">
-                              <BoxVariantIconIcon className="text-base" />
+                              <BoxVariantIcon className="text-base" />
                               <div className="font-semibold">
                                 {product.title}
                               </div>
