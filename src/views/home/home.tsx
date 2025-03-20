@@ -8,14 +8,14 @@ import { UserProfile } from '@/components/UserProfile.tsx'
 import { useCustomStore } from '@/stores/customStore.tsx'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
-import { ProductCard } from '@/views/home/components/ProductCard.tsx'
+import { ProductCardGroup } from '@/views/home/components/ProductCardGroup.tsx'
 import {
   LockOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons'
-import { animated, config, useTrail } from '@react-spring/web'
-import { Alert, Button, Flex, FloatButton, Layout, Space } from 'antd'
+import { config, useTrail } from '@react-spring/web'
+import { Alert, Button, Flex, FloatButton, Layout } from 'antd'
 import { Content, Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import { useContext, useEffect, useState } from 'react'
@@ -93,10 +93,6 @@ export function Home() {
     }
   }, [short_url])
 
-  useEffect(() => {
-    api.start({ opacity: 1, scale: 1 })
-  }, [products])
-
   return (
     <Layout className="h-screen overflow-hidden">
       <Sider
@@ -106,24 +102,7 @@ export function Home() {
         width={290}
       >
         <div className="text-2xl font-bold p-4 mb-4">产品选片状态</div>
-        <div className="flex justify-center overflow-hidden overflow-y-auto h-full w-full pr-4 pl-4">
-          <Space direction="vertical" size="middle" className="w-full">
-            {
-              trail.map((style, index) => (
-                <animated.div key={products[index].productId} style={style}>
-                  <ProductCard
-                    productId={products[index].productId}
-                    title={products[index].title}
-                    selectedCount={products[index].selected_photos.length}
-                    count={products[index].count}
-                    photoLimit={products[index].photo_limit !== 0 ? products[index].photo_limit * products[index].count : orderInfo.max_select_photos || 0}
-                    type={products[index].product_type}
-                  />
-                </animated.div>
-              ))
-            }
-          </Space>
-        </div>
+        <ProductCardGroup maxSelectPhotos={orderInfo.max_select_photos} />
       </Sider>
 
       <Layout>

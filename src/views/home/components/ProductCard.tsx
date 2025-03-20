@@ -1,6 +1,7 @@
 import type { FC } from 'react'
 import { CameraIcon, CircleCheckIcon, WarningIcon } from '@/assets/icon'
 import { Card, Progress, Tooltip, Typography } from 'antd'
+import cs from 'classnames'
 
 const { Text } = Typography
 
@@ -18,6 +19,7 @@ interface ProductCardProps {
   // 产品类型
   type: string
   onClick?: (productId: number) => void
+  className?: string
 }
 
 interface ProductTitleProps {
@@ -41,7 +43,7 @@ const ProductTitle: FC<ProductTitleProps> = ({ title, count }) => {
 }
 
 export function ProductCard(props: ProductCardProps) {
-  const { productId, title, count, selectedCount, photoLimit, type, onClick } = props
+  const { productId, title, count, selectedCount, photoLimit, type, onClick, className } = props
 
   function handleCardClick() {
     onClick && onClick(productId)
@@ -51,13 +53,12 @@ export function ProductCard(props: ProductCardProps) {
     <Card
       size="small"
       variant="borderless"
-      className="w-full"
+      className={cs('w-full cursor-pointer transition duration-150 ease-in-out hover:shadow-lg', className)}
       title={<ProductTitle title={title} count={count} />}
       styles={{
         header: { background: 'linear-gradient(90deg, #1e293b, #324054)', color: '#fff' },
         body: { background: '#f9fbfd' },
       }}
-      hoverable
       onClick={handleCardClick}
     >
       <div className="flex flex-col gap-3">
