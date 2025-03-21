@@ -68,7 +68,7 @@ export function Photo(props: PhotoProps) {
       trigger={previewMode ? [] : ['contextMenu']}
       className="mt-4"
     >
-      <div className="w-full relative">
+      <div className="w-full relative overflow-hidden rounded-xl">
         <div className="absolute top-2 left-2 z-[999]">
           {
             products.map(product => (
@@ -76,7 +76,7 @@ export function Photo(props: PhotoProps) {
             ))
           }
         </div>
-        <div className="relative bg-gray-400 overflow-hidden rounded-[10px] flex shadow-md justify-center items-center h-[290px] object-contain ">
+        <div className="relative bg-gray-400 flex shadow-md justify-center items-center h-[290px] object-contain">
           {
             remark && (
               <div
@@ -95,7 +95,18 @@ export function Photo(props: PhotoProps) {
             }}
           />
         </div>
-        <div className="mt-2 text-gray-900 font-medium text-center">{name}</div>
+        <div
+          className="absolute p-2 flex justify-between items-center
+          bottom-0 left-0 right-0 h-[35px]
+          bg-gradient-to-r from-darkBlueGray-1000 to-darkBlueGray-900
+          text-white font-mono"
+        >
+          <div>
+            IMG_
+            {name}
+          </div>
+          <div className="text-sm text-darkBlueGray-500">1.3MB</div>
+        </div>
       </div>
 
     </Dropdown>

@@ -104,7 +104,7 @@ export function ProductCard(props: ProductCardProps) {
         <div>
           <div className="flex justify-between">
             <div className="text-[12px]">完成进度</div>
-            <div>
+            <div className="text-[12px] font-medium">
               {(selectedCount / photoLimit) * 100 > 100 ? 100 : (selectedCount / photoLimit) * 100 }
               %
             </div>
