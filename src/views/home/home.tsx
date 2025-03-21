@@ -1,26 +1,70 @@
 import type { IOrder } from '@/types/order.ts'
+import type { FC } from 'react'
 import { refreshToken, validSurlAndToken } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import { PreviewModeContext } from '@/App.tsx'
 import { PhotoGrid } from '@/components/PhotoGrid.tsx'
-import { Tabs } from '@/components/Tabs.tsx'
-import { UserProfile } from '@/components/UserProfile.tsx'
 import { useCustomStore } from '@/stores/customStore.tsx'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
 import { ProductCardGroup } from '@/views/home/components/ProductCardGroup.tsx'
 import {
+  AppstoreOutlined,
+  CameraOutlined,
+  LeftOutlined,
   LockOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
+  RightOutlined,
 } from '@ant-design/icons'
-import { config, useTrail } from '@react-spring/web'
-import { Alert, Button, Flex, FloatButton, Layout } from 'antd'
-import { Content, Header } from 'antd/es/layout/layout'
+import { animated, useTrail } from '@react-spring/web'
+import { Button, ConfigProvider, Divider, FloatButton, Layout, Space, Tooltip } from 'antd'
+import { Content } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { ConfirmModal } from './components/ConfirmModal.tsx'
+
+const CollapseButton: FC = () => {
+  const products = useProductsStore(state => state.products)
+  const trail = useTrail(products.length, {
+    opacity: 1,
+    scale: 1,
+    from: { opacity: 0, scale: 0.5 },
+  })
+
+  return (
+    <ConfigProvider theme={{
+      components: {
+        Button: {
+          defaultBg: '#1e293b',
+          defaultColor: '#f1f5f9',
+          defaultBorderColor: '#464c54',
+          defaultHoverBg: '#324054',
+          defaultHoverBorderColor: '#2a364a',
+          defaultHoverColor: '#fff',
+        },
+      },
+    }}
+    >
+      <Tooltip title="全部照片" placement="right">
+        <Button className="h-10" block icon={<AppstoreOutlined />} />
+      </Tooltip>
+      <Divider />
+      <Space direction="vertical" className="w-full">
+        {
+          trail.map((style, index) => (
+            <animated.div style={style} key={products[index].productId}>
+              <Tooltip title={products[index].title} placement="right">
+                <Button className="h-10 rounded-md text-darkBlueGray-500" block icon={<CameraOutlined />}>
+                  {products[index].productId}
+                </Button>
+              </Tooltip>
+            </animated.div>
+          ))
+        }
+      </Space>
+    </ConfigProvider>
+  )
+}
 
 export function Home() {
   const [collapsed, setCollapsed] = useState(false)
@@ -32,12 +76,7 @@ export function Home() {
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
   const updateAccessToken = useCustomStore(state => state.updateAccessToken)
-  const products = useProductsStore(state => state.products)
 
-  const [trail, api] = useTrail(
-    products.length,
-    () => ({ from: { opacity: 0, scale: 0.5 }, config: config.gentle }),
-  )
   const { short_url } = useParams()
   const navigate = useNavigate()
 
@@ -94,34 +133,46 @@ export function Home() {
   }, [short_url])
 
   return (
-    <Layout className="h-screen overflow-hidden">
+    <Layout className="h-screen bg-gray-500 p-4">
       <Sider
         collapsed={collapsed}
-        collapsedWidth={0}
-        className="bg-white"
+        collapsedWidth={65}
+        className="bg-white rounded-xl shadow-md p-4"
         width={290}
       >
-        <div className="text-2xl font-bold p-4 mb-4">产品选片状态</div>
-        <ProductCardGroup maxSelectPhotos={orderInfo.max_select_photos} />
+        <div className="flex justify-between  items-center mb-4">
+          {
+            !collapsed && (
+              <div className="flex items-center gap-2">
+                <div className="w-[4px] h-5 bg-darkBlueGray-800 rounded-lg" />
+                <div className="text-xl font-bold text-darkBlueGray-800">产品列表</div>
+              </div>
+            )
+          }
+          <Button
+            type="text"
+            block
+            className="max-w-[50px]"
+            icon={!collapsed ? <LeftOutlined className="text-darkBlueGray-900" /> : <RightOutlined className="text-darkBlueGray-900" />}
+            onClick={() => setCollapsed(!collapsed)}
+          >
+          </Button>
+        </div>
+        {
+          !collapsed
+            ? <ProductCardGroup maxSelectPhotos={orderInfo.max_select_photos} />
+            : <CollapseButton />
+        }
       </Sider>
 
-      <Layout>
-        <Header className="bg-white select-none shadow-sm z-10 flex justify-between items-center pl-4 pr-4">
-          <Button icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)}></Button>
-          {
-            previewMode ? <Alert message="当前为预览模式，无法进行编辑操作" type="warning" /> : <Alert message="当前为选片模式" type="info" />
-          }
-          <UserProfile />
-        </Header>
-        <Content className="bg-[#f0f2f5] overflow-y-auto p-4 " onContextMenu={e => e.preventDefault()}>
-          <div>
-            <Flex gap="middle" justify="space-between">
-              <Tabs />
-            </Flex>
-            <PhotoGrid />
-          </div>
-        </Content>
-      </Layout>
+      <Content className="bg-white overflow-y-auto ml-4 mr-4 rounded-xl p-4 shadow-md" onContextMenu={e => e.preventDefault()}>
+        <div className="flex items-center gap-2">
+          <div className="w-[4px] h-5 bg-darkBlueGray-800 rounded-lg" />
+          <div className="text-xl font-bold text-darkBlueGray-800">全部照片库</div>
+          <div className="text-darkBlueGray-600 font-medium">(13 张照片)</div>
+        </div>
+        <PhotoGrid />
+      </Content>
 
       {
         !previewMode && (

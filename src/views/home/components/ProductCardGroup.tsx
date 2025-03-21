@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { useProductsStore } from '@/stores/productsStore.tsx'
 import { ProductCard } from '@/views/home/components/ProductCard.tsx'
-import { animated, config, useTrail } from '@react-spring/web'
+import { animated, useTrail } from '@react-spring/web'
 import { Space } from 'antd'
 import cs from 'classnames'
 import { useEffect, useState } from 'react'
@@ -17,7 +17,7 @@ export const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 
 
   const [trail, api] = useTrail(
     products.length,
-    () => ({ from: { opacity: 0, scale: 0.5 }, config: config.gentle }),
+    () => ({ from: { opacity: 0, scale: 0.5 } }),
   )
 
   function handleCardClick(index: number, productId: number) {
@@ -30,7 +30,7 @@ export const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 
   }, [products])
 
   return (
-    <div className="flex justify-center overflow-hidden overflow-y-auto h-full w-full pr-4 pl-4">
+    <div className="flex justify-center">
       <Space direction="vertical" size="middle" className="w-full">
         {
           trail.map((style, index) => (
@@ -44,7 +44,7 @@ export const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 
                 type={products[index].product_type}
                 onClick={() => handleCardClick(index, products[index].productId)}
                 className={
-                  cs('p-0.5 border-2 rounded-xl border-current transition duration-300 ease-in-out', curIndex === index && 'border-darkBlueGray-600')
+                  cs('p-0.5 border-2 border-current rounded-xl transition duration-300 ease-in-out', curIndex === index && 'border-darkBlueGray-600')
                 }
               />
             </animated.div>

@@ -6,8 +6,9 @@ import {
   TagRemoveAllIcon,
   TagRemoveIcon,
 } from '@/assets/icon'
-import { CommentOutlined } from '@ant-design/icons'
+import { CommentOutlined, ZoomInOutlined } from '@ant-design/icons'
 import { Dropdown, Image, type MenuProps, Tag } from 'antd'
+import cs from 'classnames'
 import { useContext, useEffect, useState } from 'react'
 import { PreviewModeContext } from '../App.tsx'
 
@@ -26,6 +27,7 @@ interface PhotoProps {
 export function Photo(props: PhotoProps) {
   const { photoId, src, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
+  const [isHovered, setIsHovered] = useState<boolean>(false)
   const previewMode = useContext(PreviewModeContext)
 
   useEffect(() => {
@@ -68,7 +70,11 @@ export function Photo(props: PhotoProps) {
       trigger={previewMode ? [] : ['contextMenu']}
       className="mt-4"
     >
-      <div className="w-full relative overflow-hidden rounded-xl">
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="w-full relative overflow-hidden rounded-xl"
+      >
         <div className="absolute top-2 left-2 z-[999]">
           {
             products.map(product => (
@@ -76,7 +82,7 @@ export function Photo(props: PhotoProps) {
             ))
           }
         </div>
-        <div className="relative bg-gray-400 flex shadow-md justify-center items-center h-[290px] object-contain">
+        <div className="relative bg-darkBlueGray-400 overflow-hidden rounded-xl flex shadow-md justify-center items-center h-[290px] object-contain">
           {
             remark && (
               <div
@@ -97,7 +103,7 @@ export function Photo(props: PhotoProps) {
         </div>
         <div
           className="absolute p-2 flex justify-between items-center
-          bottom-0 left-0 right-0 h-[35px]
+          bottom-0 left-0 right-0 h-10
           bg-gradient-to-r from-darkBlueGray-1000 to-darkBlueGray-900
           text-white font-mono"
         >
@@ -107,8 +113,17 @@ export function Photo(props: PhotoProps) {
           </div>
           <div className="text-sm text-darkBlueGray-500">1.3MB</div>
         </div>
-      </div>
 
+        {/* Mask */}
+        <div className={
+          cs('absolute top-0 left-0 right-0 bottom-10 bg-darkBlueGray-1000/70 flex justify-center items-center transition duration-300 ease-in-out cursor-pointer', isHovered ? 'opacity-100' : 'opacity-0')
+        }
+        >
+          <div className="w-10 h-10 rounded-md bg-white text-xl flex justify-center items-center">
+            <ZoomInOutlined />
+          </div>
+        </div>
+      </div>
     </Dropdown>
   )
 }
