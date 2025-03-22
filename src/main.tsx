@@ -1,10 +1,11 @@
-import Error404 from '@/views/errorPage/404.tsx'
-import ShareInit from '@/views/shareInit/shareInit.tsx'
+import AuthLayout from '@/Layout/AuthLayout.tsx'
+import MainLayout from '@/Layout/MainLayout.tsx'
+import Home from '@/views/home/home.tsx'
+import Login from '@/views/login/login.tsx'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
-import App from './App.tsx'
 import './index.css'
 import './assets/normal.css'
 
@@ -14,10 +15,12 @@ createRoot(document.getElementById('root')!).render(
       locale={zhCN}
     >
       <Routes>
-        <Route path="/">
-          <Route path="share/init" element={<ShareInit />} />
-          <Route path="s/:short_url" element={<App />} />
-          <Route path="/404" element={<Error404 />} />
+        <Route path="/s/:surl" element={<MainLayout />}>
+          <Route index element={<Home />} />
+        </Route>
+
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route index element={<Login />} />
         </Route>
       </Routes>
     </ConfigProvider>

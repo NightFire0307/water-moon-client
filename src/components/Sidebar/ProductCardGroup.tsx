@@ -1,6 +1,6 @@
 import type { FC } from 'react'
+import { ProductCard } from '@/components/Sidebar/ProductCard.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
-import { ProductCard } from '@/views/home/components/ProductCard.tsx'
 import { animated, useTrail } from '@react-spring/web'
 import { Space } from 'antd'
 import cs from 'classnames'
@@ -11,7 +11,7 @@ interface ProductCardGroupProps {
   onChange?: (productId: number) => void
 }
 
-export const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 0, onChange }) => {
+const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 0, onChange }) => {
   const products = useProductsStore(state => state.products)
   const [curIndex, setCurIndex] = useState(-1)
 
@@ -54,3 +54,5 @@ export const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 
     </div>
   )
 }
+
+export default ProductCardGroup

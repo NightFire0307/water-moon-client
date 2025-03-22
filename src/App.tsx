@@ -1,5 +1,4 @@
 import { createContext, useState } from 'react'
-import { Home } from './views/home/home.tsx'
 import './App.css'
 
 // 当前模式是否为预览模式上下文
@@ -10,7 +9,7 @@ function App() {
 
   return (
     <PreviewModeContext.Provider value={previewMode}>
-      <Home />
+
     </PreviewModeContext.Provider>
   )
 }

@@ -1,4 +1,5 @@
 import type { AxiosError } from 'axios'
+import { refreshToken } from '@/apis/login.ts'
 import { useCustomStore } from '@/stores/customStore.tsx'
 import { message } from 'antd'
 import axios from 'axios'
@@ -13,6 +14,14 @@ interface ErrorResponse {
 const service = axios.create({
   timeout: 8000,
 })
+
+let isRefreshing = false
+
+// 刷新 Access_token
+async function refreshAccessToken() {
+  const { data } = await refreshToken()
+  useCustomStore.getState().updateAccessToken(data.access_token)
+}
 
 // request interceptor
 service.interceptors.request.use(
@@ -36,7 +45,7 @@ service.interceptors.response.use(
   (response) => {
     return response.data
   },
-  (error: AxiosError<ErrorResponse>) => {
+  async (error: AxiosError<ErrorResponse>) => {
     if (error.response) {
       switch (error.response.status) {
         case 500:
@@ -47,6 +56,17 @@ service.interceptors.response.use(
           break
         case (400):
           message.error(error.response.data.message || '请求错误，请稍后再试')
+          isRefreshing = true
+
+          try {
+            await refreshAccessToken()
+          }
+          catch (e) {
+            return Promise.reject(e)
+          }
+          finally {
+            isRefreshing = false
+          }
           break
         default:
           message.error('未知错误，请稍后再试')

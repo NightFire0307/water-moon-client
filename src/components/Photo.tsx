@@ -75,7 +75,7 @@ export function Photo(props: PhotoProps) {
         onMouseLeave={() => setIsHovered(false)}
         className="w-full relative overflow-hidden rounded-xl"
       >
-        <div className="absolute top-2 left-2 z-[999]">
+        <div className="absolute top-2 left-2 z-10">
           {
             products.map(product => (
               <Tag bordered={false} color="#324054" key={product.productId}>{product.product_type}</Tag>
@@ -116,7 +116,7 @@ export function Photo(props: PhotoProps) {
 
         {/* Mask */}
         <div className={
-          cs('absolute top-0 left-0 right-0 bottom-10 bg-darkBlueGray-1000/70 flex justify-center items-center transition duration-300 ease-in-out cursor-pointer', isHovered ? 'opacity-100' : 'opacity-0')
+          cs('absolute top-0 left-0 right-0 bottom-10 bg-darkBlueGray-1000/50 flex justify-center items-center transition duration-300 ease-in-out cursor-pointer', isHovered ? 'opacity-100' : 'opacity-0')
         }
         >
           <div className="w-10 h-10 rounded-md bg-white text-xl flex justify-center items-center">

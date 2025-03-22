@@ -18,9 +18,9 @@ export function validSurlAndToken(surl: string) {
 }
 
 // 刷新access_token
-export function refreshToken(surl: string): IRefreshTokenResponse {
+export function refreshToken(): IRefreshTokenResponse {
   return request({
-    url: `/api/selection/auth/refresh/${surl}`,
+    url: `/api/selection/auth/refresh`,
     method: 'POST',
   })
 }
