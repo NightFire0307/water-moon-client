@@ -8,6 +8,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import './index.css'
 import './assets/normal.css'
+import 'simplebar-react/dist/simplebar.min.css'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>

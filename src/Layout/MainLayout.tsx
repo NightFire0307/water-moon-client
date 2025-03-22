@@ -83,7 +83,7 @@ function MainLayout() {
           <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
         </Sider>
 
-        <Content className="bg-white overflow-y-auto ml-4 rounded-xl p-4 shadow-md" onContextMenu={e => e.preventDefault()}>
+        <Content className="bg-white ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
           <Outlet />
         </Content>
       </Layout>

@@ -82,7 +82,7 @@ export function Photo(props: PhotoProps) {
             ))
           }
         </div>
-        <div className="relative bg-darkBlueGray-400 overflow-hidden rounded-xl flex shadow-md justify-center items-center h-[290px] object-contain">
+        <div className="relative bg-darkBlueGray-400 overflow-hidden rounded-xl flex shadow-md justify-center items-center h-[300px] object-contain">
           {
             remark && (
               <div
