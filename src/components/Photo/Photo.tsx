@@ -1,5 +1,5 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
-import type { IProduct } from '../stores/productsStore.tsx'
+import type { IProduct } from '../../stores/productsStore.tsx'
 import {
   NoteEditIcon,
   TagAddIcon,
@@ -10,7 +10,7 @@ import { CommentOutlined, ZoomInOutlined } from '@ant-design/icons'
 import { Dropdown, Image, type MenuProps, Tag } from 'antd'
 import cs from 'classnames'
 import { useContext, useEffect, useState } from 'react'
-import { PreviewModeContext } from '../App.tsx'
+import { PreviewModeContext } from '../../App.tsx'
 
 interface PhotoProps {
   photoId: number

@@ -1,6 +1,6 @@
 import { PreviewModeContext } from '@/App.tsx'
 import FloatBtn from '@/components/FloatBtn/FloatBtn.tsx'
-import { PhotoGrid } from '@/components/PhotoGrid.tsx'
+import { PhotoGrid } from '@/components/Photo/PhotoGrid.tsx'
 import { ArrowRightOutlined, LockOutlined } from '@ant-design/icons'
 import { useContext, useState } from 'react'
 import SimpleBar from 'simplebar-react'

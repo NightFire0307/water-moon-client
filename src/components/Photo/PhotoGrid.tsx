@@ -1,4 +1,4 @@
-import { PencilIcon } from '@/assets/icon/'
+import { PencilIcon } from '@/assets/icon'
 import {
   LeftOutlined,
   RightOutlined,
@@ -9,12 +9,12 @@ import {
 import { animated, useTransition } from '@react-spring/web'
 import { Divider, Image, message, Space, Tooltip } from 'antd'
 import { useContext, useEffect, useState } from 'react'
-import { PreviewModeContext } from '../App.tsx'
-import { usePhotosStore } from '../stores/photosStore.tsx'
-import { useProductsStore } from '../stores/productsStore.tsx'
+import { PreviewModeContext } from '../../App.tsx'
+import { usePhotosStore } from '../../stores/photosStore.tsx'
+import { useProductsStore } from '../../stores/productsStore.tsx'
+import { ProductSelectModal } from '../ProductSelectModal.tsx'
+import { RemarkModal } from '../RemarkModal.tsx'
 import { Photo } from './Photo.tsx'
-import { ProductSelectModal } from './ProductSelectModal.tsx'
-import { RemarkModal } from './RemarkModal.tsx'
 
 export function PhotoGrid() {
   const previewMode = useContext(PreviewModeContext)
@@ -29,7 +29,6 @@ export function PhotoGrid() {
     removeAllMarkedProduct,
     removeMarkedProductByPhotoId,
     updatePhotoRemoveTagMenus,
-    removePhotoRemoveTagMenus,
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
     updatePhotoRemark,
