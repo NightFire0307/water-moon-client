@@ -50,7 +50,7 @@ function Home() {
         )}
         addonIcon={<LockOutlined />}
         afterIcon={<ArrowRightOutlined />}
-        onClick={() => console.log('111')}
+        onClick={() => setConfirmOpen(true)}
       />
 
       <ConfirmModal

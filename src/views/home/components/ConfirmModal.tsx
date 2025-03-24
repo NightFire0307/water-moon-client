@@ -1,8 +1,8 @@
+import type { FC } from 'react'
 import { useProductsStore } from '@/stores/productsStore.tsx'
-import { LoadingOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Modal } from 'antd'
-import { useEffect, useRef, useState } from 'react'
-import { ValidationResult } from './ValidationResult.tsx'
+import { LockOutlined, WarningOutlined } from '@ant-design/icons'
+import { Alert, Button, ConfigProvider, Modal, Space } from 'antd'
+import { createStyles } from 'antd-style'
 
 interface ConfirmModalProps {
   open: boolean
@@ -11,90 +11,106 @@ interface ConfirmModalProps {
   onCancel: () => void
 }
 
-export function ConfirmModal(props: ConfirmModalProps) {
-  const { open, onCancel, onSubmit, confirmLoading } = props
-  // 倒计时
-  const [countDown, setCountDown] = useState(5)
-  const [allSelect, setAllSelect] = useState(false)
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+// 警告内容
+const AlertContent: FC = () => {
   const products = useProductsStore(state => state.products)
 
-  // 校验产品是否全部选片
-  function checkAllSelected() {
-    for (let i = 0; i < products.length; i++) {
-      if (products[i].selected_photos.length < products[i].total) {
-        return false
+  // 未完成的选片
+  const unFinishedProducts = products.filter(product => product.photo_limit > product.selected_photos.length)
+
+  return (
+    <div className="flex items-start gap-2 text-amber-600 font-medium">
+      <span className="text-xl ">
+        <WarningOutlined />
+      </span>
+      <div>
+        <div className="text-base leading-8">以下产品选片进度未达到100%</div>
+        {
+          unFinishedProducts.map(product => (
+            <div key={product.productId} className="flex justify-between">
+              <span>{product.title}</span>
+              <div>
+                {
+                  `${product.selected_photos.length} / ${product.photo_limit} (${(product.selected_photos.length / product.photo_limit) * 100})%`
+                }
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  )
+}
+
+const useStyle = createStyles(({ prefixCls, css }) => ({
+  linearGradientButton: css`
+    &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
+      > span {
+        position: relative;
       }
-    }
-    return true
-  }
-
-  useEffect(() => {
-    setAllSelect(checkAllSelected())
-
-    return () => setCountDown(5)
-  }, [open, products])
-
-  useEffect(() => {
-    if (!allSelect)
-      return
-
-    if (countDown !== 0) {
-      timer.current = setTimeout(() => {
-        setCountDown(prevCount => prevCount - 1)
-      }, 1000)
-    }
-    else {
-      setAllSelect(true)
-    }
-
-    return () => {
-      if (timer.current) {
-        clearTimeout(timer.current)
+        
+      & {
+          background: #1e293b;
       }
-    }
-  }, [allSelect, countDown])
+
+      &::before {
+        content: '';
+        background: linear-gradient(90deg, #324054, #1e293b);
+        position: absolute;
+        inset: -1px;
+        opacity: 1;
+        transition: all 0.3s;
+        border-radius: inherit;
+      }
+
+      &:hover::before {
+        opacity: 0;
+      }
+    };
+    &.${prefixCls}-btn-default:not([disabled]):not(.${prefixCls}-btn-dangerous) {
+      & {
+        border-color: #94a3b8;
+      }
+
+      &:hover {
+        color: inherit;
+        background: #f1f5f9;
+      }
+    },
+  `,
+}))
+
+export function ConfirmModal(props: ConfirmModalProps) {
+  const { open, onCancel, onSubmit, confirmLoading } = props
+  const { styles } = useStyle()
 
   return (
     <ConfigProvider
-      theme={{
-        components: {
-          Modal: {
-            headerBg: '#e6f4ff',
-            contentBg: '#e6f4ff',
-          },
-        },
+      button={{
+        className: styles.linearGradientButton,
       }}
     >
       <Modal
-        styles={{
-          content: { padding: '0px' },
-        }}
-        footer={null}
+        footer={(
+          <Space>
+            <Button>取消</Button>
+            <Button type="primary">确认提交</Button>
+          </Space>
+        )}
         open={open}
         onCancel={onCancel}
+        centered
       >
-        <div className="w-full text-center text-2xl pt-4 font-bold text-[#002c8c]">确认提交</div>
-        {/* <p className="text-[red] font-bold">提交选片结果后将无法更改，是否确认提交？</p> */}
-        <div className="p-6">
-          <ValidationResult allSelect={allSelect} />
+        <div className="flex gap-2 items-center">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full text-white bg-darkBlueGray-800">
+            <LockOutlined />
+          </div>
+          <span className="text-xl font-bold">确认提交选片结果</span>
         </div>
 
-        <div className="bg-white flex gap-4 justify-end p-6 rounded-b-2xl">
-          <Button onClick={onCancel}>取消</Button>
-          <Button
-            type="primary"
-            disabled={countDown !== 0 || confirmLoading}
-            onClick={onSubmit}
-            icon={confirmLoading ? <LoadingOutlined /> : null}
-          >
-            确认提交
-            {' '}
-            {
-              countDown !== 0 && allSelect ? `(${countDown})` : null
-            }
-          </Button>
-        </div>
+        <div className="my-1 text-darkBlueGray-600">提交后将进入预览模式，选片结果将被锁定，无法再进行修改。</div>
+
+        <Alert type="warning" message={<AlertContent />} />
       </Modal>
     </ConfigProvider>
   )
