@@ -1,9 +1,7 @@
 import { PreviewModeContext } from '@/App.tsx'
+import FloatBtn from '@/components/FloatBtn/FloatBtn.tsx'
 import { PhotoGrid } from '@/components/PhotoGrid.tsx'
-import {
-  LockOutlined,
-} from '@ant-design/icons'
-import { FloatButton } from 'antd'
+import { ArrowRightOutlined, LockOutlined } from '@ant-design/icons'
 import { useContext, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { ConfirmModal } from './components/ConfirmModal.tsx'
@@ -29,27 +27,31 @@ function Home() {
         <div className="text-darkBlueGray-600 font-medium">(13 张照片)</div>
       </div>
 
-      <div className="flex-1 overflow-hidden ">
-        <div className="h-full ">
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full">
           <SimpleBar style={{ maxHeight: '100%' }}>
             <PhotoGrid />
           </SimpleBar>
         </div>
       </div>
 
-      {
-        !previewMode && (
-          <FloatButton.Group shape="circle" style={{ insetInlineEnd: 60 }}>
-            <FloatButton.BackTop tooltip="返回顶部" />
-            <FloatButton
-              tooltip="提交选片结果"
-              icon={<LockOutlined />}
-              onClick={() => setConfirmOpen(true)}
-            >
-            </FloatButton>
-          </FloatButton.Group>
-        )
-      }
+      <FloatBtn
+        title="提交选片结果"
+        desc={(
+          <span>
+            已选:
+            {' '}
+            {32}
+            {' '}
+            / 应选:
+            {' '}
+            {63}
+          </span>
+        )}
+        addonIcon={<LockOutlined />}
+        afterIcon={<ArrowRightOutlined />}
+        onClick={() => console.log('111')}
+      />
 
       <ConfirmModal
         open={confirmOpen}
