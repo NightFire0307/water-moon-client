@@ -1,6 +1,7 @@
 import type { FC } from 'react'
+import IconProduct from '@/assets/icon/Product.svg?react'
 import { useProductsStore } from '@/stores/productsStore.tsx'
-import { AppstoreOutlined, CameraOutlined } from '@ant-design/icons'
+import { AppstoreOutlined } from '@ant-design/icons'
 import { animated, useTrail } from '@react-spring/web'
 import { Button, ConfigProvider, Divider, Space, Tooltip } from 'antd'
 
@@ -16,9 +17,9 @@ const SidebarBtn: FC = () => {
     <ConfigProvider theme={{
       components: {
         Button: {
-          defaultBg: '#1e293b',
+          defaultBg: '#2a364a',
           defaultColor: '#f1f5f9',
-          defaultBorderColor: '#464c54',
+          defaultBorderColor: '#2a364a',
           defaultHoverBg: '#324054',
           defaultHoverBorderColor: '#2a364a',
           defaultHoverColor: '#fff',
@@ -29,14 +30,14 @@ const SidebarBtn: FC = () => {
       <Tooltip title="全部照片" placement="right">
         <Button className="h-10" block icon={<AppstoreOutlined />} />
       </Tooltip>
-      <Divider />
+      <Divider className="bg-darkBlueGray-600" />
       <Space direction="vertical" className="w-full">
         {
           trail.map((style, index) => (
             <animated.div style={style} key={products[index].productId}>
               <Tooltip title={products[index].title} placement="right">
-                <Button className="h-10 rounded-md text-darkBlueGray-500" block icon={<CameraOutlined />}>
-                  {products[index].productId}
+                <Button className="h-10 rounded-md text-darkBlueGray-500 font-medium" block icon={<IconProduct />}>
+                  {index}
                 </Button>
               </Tooltip>
             </animated.div>

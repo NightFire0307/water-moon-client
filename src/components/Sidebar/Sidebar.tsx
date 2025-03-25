@@ -2,18 +2,18 @@ import type { FC, MouseEvent } from 'react'
 import ProductCardGroup from '@/components/Sidebar/ProductCardGroup.tsx'
 import SidebarBtn from '@/components/Sidebar/SidebarBtn.tsx'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button } from 'antd'
+import cs from 'classnames'
 
 interface SidebarProps {
   collapsed: boolean
   maxSelectPhotos?: number
-  onClick?: (e: MouseEvent<HTMLButtonElement>) => void
+  onClick?: (e: MouseEvent) => void
 }
 
 const Sidebar: FC<SidebarProps> = ({ collapsed, onClick, maxSelectPhotos }) => {
   return (
     <>
-      <div className="flex justify-between  items-center mb-4">
+      <div className={cs('flex items-center mb-4', collapsed ? 'justify-center' : 'justify-between')}>
         {
           !collapsed && (
             <div className="flex items-center gap-2">
@@ -22,14 +22,12 @@ const Sidebar: FC<SidebarProps> = ({ collapsed, onClick, maxSelectPhotos }) => {
             </div>
           )
         }
-        <Button
-          type="text"
-          block
-          className="max-w-[50px]"
-          icon={!collapsed ? <LeftOutlined className="text-darkBlueGray-900" /> : <RightOutlined className="text-darkBlueGray-900" />}
-          onClick={onClick && onClick}
+        <div
+          className={cs('w-10 h-10 flex justify-center items-center rounded-md  hover:cursor-pointer', !collapsed ? 'hover:bg-darkBlueGray-400' : 'hover:bg-darkBlueGray-800')}
+          onClick={onClick}
         >
-        </Button>
+          {!collapsed ? <LeftOutlined className="text-darkBlueGray-900" /> : <RightOutlined className="text-darkBlueGray-400" />}
+        </div>
       </div>
       {
         !collapsed

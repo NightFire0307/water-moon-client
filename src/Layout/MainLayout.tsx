@@ -10,13 +10,14 @@ import { useCustomStore } from '@/stores/customStore.tsx'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
 import { Layout } from 'antd'
+import cs from 'classnames'
 import { useEffect, useState } from 'react'
 import { Outlet, useNavigate, useParams } from 'react-router'
 
 const { Sider, Content, Header } = Layout
 
 function MainLayout() {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
   const [previewMode, setPreviewMode] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const access_Token = useCustomStore(state => state.access_token)
@@ -87,8 +88,8 @@ function MainLayout() {
           <Layout className="bg-[transparent]">
             <Sider
               collapsed={collapsed}
-              collapsedWidth={65}
-              className="bg-white rounded-xl shadow-md p-4"
+              collapsedWidth={60}
+              className={cs('rounded-xl shadow-md', collapsed ? 'bg-gradient-to-b from-darkBlueGray-1000 to-darkBlueGray-900 p-2' : 'bg-white p-4')}
               width={290}
             >
               <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
