@@ -20,12 +20,13 @@ interface PhotoProps {
   products: IProduct[]
   addProductsMenus: MenuItemType[]
   removeProductsMenus: MenuItemType[]
+  onPreviewClick?: (photoId: number) => void
   onDropDownClick?: (key: string, photoId: number) => void
   onRemarkClick?: (photoId: number) => void
 }
 
 export function Photo(props: PhotoProps) {
-  const { photoId, src, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick } = props
+  const { photoId, src, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick, onPreviewClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const previewMode = useContext(PreviewModeContext)
@@ -115,9 +116,11 @@ export function Photo(props: PhotoProps) {
         </div>
 
         {/* Mask */}
-        <div className={
-          cs('absolute top-0 left-0 right-0 bottom-10 bg-darkBlueGray-1000/50 flex justify-center items-center transition duration-300 ease-in-out cursor-pointer', isHovered ? 'opacity-100' : 'opacity-0')
-        }
+        <div
+          className={
+            cs('absolute top-0 left-0 right-0 bottom-10 bg-darkBlueGray-1000/50 flex justify-center items-center transition duration-300 ease-in-out cursor-pointer', isHovered ? 'opacity-100' : 'opacity-0')
+          }
+          onClick={() => onPreviewClick && onPreviewClick(photoId)}
         >
           <div className="w-10 h-10 rounded-md bg-white text-xl flex justify-center items-center">
             <ZoomInOutlined />

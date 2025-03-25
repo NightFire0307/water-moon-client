@@ -17,7 +17,7 @@ import { Outlet, useNavigate, useParams } from 'react-router'
 const { Sider, Content, Header } = Layout
 
 function MainLayout() {
-  const [collapsed, setCollapsed] = useState(true)
+  const [collapsed, setCollapsed] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const access_Token = useCustomStore(state => state.access_token)

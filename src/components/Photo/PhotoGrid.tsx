@@ -19,6 +19,8 @@ import { Photo } from './Photo.tsx'
 export function PhotoGrid() {
   const previewMode = useContext(PreviewModeContext)
   const [visible, setVisible] = useState(false)
+  const [previewVisible, setPreviewVisible] = useState(false)
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
   const [currentPhotoId, setCurrentPhotoId] = useState<number>(-1)
   const { updateProductSelected, removeSelectedByPhotoId } = useProductsStore()
@@ -100,6 +102,11 @@ export function PhotoGrid() {
     <div className="grid grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 relative">
       <Image.PreviewGroup
         preview={{
+          visible: previewVisible,
+          current: currentPhotoIndex,
+          onVisibleChange: (value) => {
+            setPreviewVisible(value)
+          },
           toolbarRender: (_, { transform: { scale }, actions: { onActive, onZoomIn, onZoomOut }, image }) => (
             <div className="bg-gray bg-opacity-10 pr-4 pl-4 pt-2 pb-2 rounded-[100px] text-gray-500">
               <Space size={14} className="toolbar-wrapper text-xl">
@@ -147,7 +154,7 @@ export function PhotoGrid() {
         }}
       >
         {
-          transitions((style, photo) => (
+          transitions((style, photo, _, index) => (
             <animated.div key={photo.photoId} style={{ ...style }}>
               <Photo
                 photoId={photo.photoId}
@@ -159,6 +166,10 @@ export function PhotoGrid() {
                 removeProductsMenus={photo.removeTagMenus}
                 onDropDownClick={handleDropDownClick}
                 onRemarkClick={handleRemarkClick}
+                onPreviewClick={() => {
+                  setPreviewVisible(true)
+                  setCurrentPhotoIndex(index)
+                }}
               />
             </animated.div>
           ))
