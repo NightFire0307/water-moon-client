@@ -6,11 +6,11 @@ import {
   TagRemoveAllIcon,
   TagRemoveIcon,
 } from '@/assets/icon'
+import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
 import { CommentOutlined, ZoomInOutlined } from '@ant-design/icons'
 import { Dropdown, Image, type MenuProps, Tag } from 'antd'
 import cs from 'classnames'
 import { useContext, useEffect, useState } from 'react'
-import { PreviewModeContext } from '../../App.tsx'
 
 interface PhotoProps {
   photoId: number

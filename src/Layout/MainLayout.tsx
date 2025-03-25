@@ -2,7 +2,9 @@ import type { IOrder } from '@/types/order.ts'
 import { refreshToken, validSurlAndToken } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import Navbar from '@/components/Navbar'
+import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
 import Sidebar from '@/components/Sidebar'
+import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
 import { useCustomStore } from '@/stores/customStore.tsx'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
@@ -14,7 +16,8 @@ const { Sider, Content, Header } = Layout
 
 function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
-  const [orderInfo, setOrderInfo] = useState<IOrder>({})
+  const [previewMode, setPreviewMode] = useState(false)
+  const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const access_Token = useCustomStore(state => state.access_token)
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
@@ -25,7 +28,7 @@ function MainLayout() {
 
   async function verify(surl: string) {
     try {
-      const res = await validSurlAndToken(surl)
+      await validSurlAndToken(surl)
     }
     catch {
       navigate('/')
@@ -34,7 +37,8 @@ function MainLayout() {
 
   async function fetchOrderInfo(surl: string) {
     const { data } = await getOrderInfo(surl)
-    console.log(data)
+    if (data.status === 2)
+      setPreviewMode(true)
     setOrderInfo(data)
     generateProducts(data.order_products)
   }
@@ -45,7 +49,7 @@ function MainLayout() {
         // 刷新 access_token
         if (!access_Token) {
           try {
-            const { data } = await refreshToken(surl)
+            const { data } = await refreshToken()
             updateAccessToken(data.access_token)
           }
           catch {
@@ -68,27 +72,33 @@ function MainLayout() {
   }, [surl])
 
   return (
-    <Layout className="h-screen bg-gray-500 p-4">
-      <Header className="h-auto p-0 mb-4 bg-[transparent] rounded-xl ">
-        <Navbar />
-      </Header>
+    <PreviewModeContext.Provider value={previewMode}>
+      <Layout className="h-screen bg-gray-500 p-4">
+        {
+          previewMode && <PreviewAlert />
+        }
 
-      <Layout className="bg-[transparent]">
-        <Sider
-          collapsed={collapsed}
-          collapsedWidth={65}
-          className="bg-white rounded-xl shadow-md p-4"
-          width={290}
-        >
-          <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
-        </Sider>
+        <Header className="h-auto p-0 mb-4 bg-[transparent] rounded-xl ">
+          <Navbar />
+        </Header>
 
-        <Content className="bg-white ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
-          <Outlet />
-        </Content>
+        <Layout className="bg-[transparent]">
+          <Sider
+            collapsed={collapsed}
+            collapsedWidth={65}
+            className="bg-white rounded-xl shadow-md p-4"
+            width={290}
+          >
+            <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
+          </Sider>
+
+          <Content className="bg-white ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
+            <Outlet />
+          </Content>
+        </Layout>
+
       </Layout>
-
-    </Layout>
+    </PreviewModeContext.Provider>
   )
 }
 

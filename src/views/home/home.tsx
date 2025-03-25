@@ -1,7 +1,7 @@
-import { PreviewModeContext } from '@/App.tsx'
 import FloatBtn from '@/components/FloatBtn/FloatBtn.tsx'
 import { PhotoGrid } from '@/components/Photo/PhotoGrid.tsx'
-import { ArrowRightOutlined, LockOutlined } from '@ant-design/icons'
+import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
+import { ArrowRightOutlined, InfoCircleOutlined, LockOutlined } from '@ant-design/icons'
 import { useContext, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { ConfirmModal } from './components/ConfirmModal.tsx'
@@ -36,20 +36,22 @@ function Home() {
       </div>
 
       <FloatBtn
-        title="提交选片结果"
-        desc={(
-          <span>
-            已选:
-            {' '}
-            {32}
-            {' '}
-            / 应选:
-            {' '}
-            {63}
-          </span>
-        )}
-        addonIcon={<LockOutlined />}
-        afterIcon={<ArrowRightOutlined />}
+        title={previewMode ? '预览模式' : '提交选片结果'}
+        desc={previewMode
+          ? '当前模式不可修改'
+          : (
+              <span>
+                已选:
+                {' '}
+                {32}
+                {' '}
+                / 应选:
+                {' '}
+                {63}
+              </span>
+            )}
+        addonIcon={previewMode ? <InfoCircleOutlined /> : <LockOutlined />}
+        afterIcon={!previewMode ? <ArrowRightOutlined /> : undefined}
         onClick={() => setConfirmOpen(true)}
       />
 

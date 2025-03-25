@@ -44,7 +44,7 @@ const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 0, onCh
                 type={products[index].product_type}
                 onClick={() => handleCardClick(index, products[index].productId)}
                 className={
-                  cs('p-0.5 border-2 border-current rounded-xl transition duration-300 ease-in-out', curIndex === index && 'border-darkBlueGray-600')
+                  cs(' p-0.5 border-2 border-current rounded-xl transition duration-300 ease-in-out', curIndex === index && 'border-darkBlueGray-600')
                 }
               />
             </animated.div>

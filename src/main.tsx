@@ -1,5 +1,5 @@
+import App from '@/App.tsx'
 import AuthLayout from '@/Layout/AuthLayout.tsx'
-import MainLayout from '@/Layout/MainLayout.tsx'
 import Home from '@/views/home/home.tsx'
 import Login from '@/views/login/login.tsx'
 import { ConfigProvider } from 'antd'
@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
       locale={zhCN}
     >
       <Routes>
-        <Route path="/s/:surl" element={<MainLayout />}>
+        <Route path="/s/:surl" element={<App />}>
           <Route index element={<Home />} />
         </Route>
 
