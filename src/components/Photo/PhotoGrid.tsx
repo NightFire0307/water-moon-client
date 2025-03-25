@@ -1,16 +1,10 @@
-import { PencilIcon } from '@/assets/icon'
+import PhotoPreview from '@/components/Photo/PhotoPreview.tsx'
 import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
-import {
-  LeftOutlined,
-  RightOutlined,
-  TagOutlined,
-  ZoomInOutlined,
-  ZoomOutOutlined,
-} from '@ant-design/icons'
+
 import { animated, useTransition } from '@react-spring/web'
-import { Divider, Image, message, Space, Tooltip } from 'antd'
+import { Image, message } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import { ProductSelectModal } from '../ProductSelectModal.tsx'
 import { RemarkModal } from '../RemarkModal.tsx'
@@ -107,50 +101,9 @@ export function PhotoGrid() {
           onVisibleChange: (value) => {
             setPreviewVisible(value)
           },
-          toolbarRender: (_, { transform: { scale }, actions: { onActive, onZoomIn, onZoomOut }, image }) => (
-            <div className="bg-gray bg-opacity-10 pr-4 pl-4 pt-2 pb-2 rounded-[100px] text-gray-500">
-              <Space size={14} className="toolbar-wrapper text-xl">
-                {
-                  previewMode
-                    ? null
-                    : (
-                        <>
-                          <Tooltip title="添加备注">
-                            <PencilIcon
-                              className="hover:text-white cursor-pointer"
-                              onClick={() => setVisible(true)}
-                            />
-                          </Tooltip>
-                          <Tooltip title="选择产品">
-                            <TagOutlined
-                              className="hover:text-white cursor-pointer"
-                              onClick={() => {
-                                const photoId = findImageIdByUrl(image.url)
-                                setCurrentPhotoId(photoId!)
-                                setProductSelectModalVisible(true)
-                              }}
-                            />
-                          </Tooltip>
-                          <Divider type="vertical" className="border-[#bfbfbf]" />
-                        </>
-                      )
-                }
-
-                <Tooltip title="上一张">
-                  <LeftOutlined className="hover:text-white" onClick={() => onActive?.(-1)} />
-                </Tooltip>
-                <Tooltip title="下一张">
-                  <RightOutlined className="hover:text-white" onClick={() => onActive?.(1)} />
-                </Tooltip>
-                <Tooltip title="缩小">
-                  <ZoomOutOutlined className="hover:text-white" disabled={scale === 1} onClick={onZoomOut} />
-                </Tooltip>
-                <Tooltip title="放大">
-                  <ZoomInOutlined className="hover:text-white" disabled={scale === 50} onClick={onZoomIn} />
-                </Tooltip>
-              </Space>
-            </div>
-          ),
+          closeIcon: null,
+          imageRender: () => <PhotoPreview />,
+          toolbarRender: () => null,
         }}
       >
         {
