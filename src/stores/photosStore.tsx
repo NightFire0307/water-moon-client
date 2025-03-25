@@ -1,6 +1,6 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
 import type { IProduct } from './productsStore.tsx'
-import { getOrderPhotos, removeAllTags, updateOrderPhotos } from '@/apis/order.ts'
+import { getOrderPhotos, removeAllTags } from '@/apis/order.ts'
 import { CheckOutlined } from '@ant-design/icons'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'

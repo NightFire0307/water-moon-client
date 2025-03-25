@@ -4,6 +4,7 @@ import { getOrderInfo } from '@/apis/order.ts'
 import Navbar from '@/components/Navbar'
 import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
 import Sidebar from '@/components/Sidebar'
+import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
 import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
 import { useCustomStore } from '@/stores/customStore.tsx'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
@@ -72,33 +73,35 @@ function MainLayout() {
   }, [surl])
 
   return (
-    <PreviewModeContext.Provider value={previewMode}>
-      <Layout className="h-screen bg-gray-500 p-4">
-        {
-          previewMode && <PreviewAlert />
-        }
+    <OrderInfoContext.Provider value={orderInfo}>
+      <PreviewModeContext.Provider value={previewMode}>
+        <Layout className="h-screen bg-gray-500 p-4">
+          {
+            previewMode && <PreviewAlert />
+          }
 
-        <Header className="h-auto p-0 mb-4 bg-[transparent] rounded-xl ">
-          <Navbar />
-        </Header>
+          <Header className="h-auto p-0 mb-4 bg-[transparent] rounded-xl ">
+            <Navbar />
+          </Header>
 
-        <Layout className="bg-[transparent]">
-          <Sider
-            collapsed={collapsed}
-            collapsedWidth={65}
-            className="bg-white rounded-xl shadow-md p-4"
-            width={290}
-          >
-            <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
-          </Sider>
+          <Layout className="bg-[transparent]">
+            <Sider
+              collapsed={collapsed}
+              collapsedWidth={65}
+              className="bg-white rounded-xl shadow-md p-4"
+              width={290}
+            >
+              <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
+            </Sider>
 
-          <Content className="bg-white ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
-            <Outlet />
-          </Content>
+            <Content className="bg-white ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
+              <Outlet />
+            </Content>
+          </Layout>
+
         </Layout>
-
-      </Layout>
-    </PreviewModeContext.Provider>
+      </PreviewModeContext.Provider>
+    </OrderInfoContext.Provider>
   )
 }
 
