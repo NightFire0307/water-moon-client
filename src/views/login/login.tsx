@@ -1,9 +1,39 @@
-import { login } from '@/apis/login.ts'
+import { login, verifySurl } from '@/apis/login.ts'
 import { useCustomStore } from '@/stores/customStore.tsx'
+import { ArrowRightOutlined, LockOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Form, Input } from 'antd'
+import { createStyles } from 'antd-style'
 import { useForm } from 'antd/es/form/Form'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+
+const useStyle = createStyles(({ prefixCls, css }) => ({
+  linearGradientButton: css`
+    &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
+      > span {
+        position: relative;
+      }
+        
+      & {
+          background: #1e293b;
+      }
+
+      &::before {
+        content: '';
+        background: linear-gradient(90deg, #324054, #1e293b);
+        position: absolute;
+        inset: -1px;
+        opacity: 1;
+        transition: all 0.3s;
+        border-radius: inherit;
+      }
+
+      &:hover::before {
+        opacity: 0;
+      }
+    }
+  `,
+}))
 
 function Login() {
   const [isLoading, setIsLoading] = useState(false)
@@ -14,6 +44,7 @@ function Login() {
   const pwd = queryParams.get('pwd')
   const { updateAccessToken } = useCustomStore()
   const navigate = useNavigate()
+  const { styles } = useStyle()
 
   function handleSubmit() {
     setIsLoading(true)
@@ -32,6 +63,15 @@ function Login() {
   }
 
   useEffect(() => {
+    if (!surl) {
+      navigate('/404')
+    }
+    else {
+      verifySurl(surl).then().catch(() => navigate('/404'))
+    }
+  }, [surl])
+
+  useEffect(() => {
     if (pwd) {
       form.setFieldsValue({
         password: pwd,
@@ -41,17 +81,31 @@ function Login() {
 
   return (
     <ConfigProvider
+      button={{ className: styles.linearGradientButton }}
       theme={{
-        token: {
-          colorPrimary: '#262626',
+        components: {
+          Input: {
+            activeBorderColor: '#94a3b8',
+            activeShadow: '0 0 0 2px rgba(0, 0, 0, 0.06)',
+            hoverBorderColor: '#94a3b8',
+          },
         },
       }}
     >
       <Form form={form} layout="vertical" requiredMark={false} autoComplete="off">
-        <Form.Item name="password" label="密码" rules={[{ required: true, message: '请输入登录密码' }]}>
-          <Input placeholder="请输入您的登录密码"></Input>
+        <Form.Item name="password" label="动态密码" rules={[{ required: true, message: '请输入动态密码' }]}>
+          <Input placeholder="请输入您的动态密码" prefix={<LockOutlined />}></Input>
         </Form.Item>
-        <Button type="primary" block loading={isLoading} onClick={handleSubmit}>登录</Button>
+        <Button
+          type="primary"
+          block
+          loading={isLoading}
+          onClick={handleSubmit}
+          icon={<ArrowRightOutlined />}
+          iconPosition="end"
+        >
+          进入选片系统
+        </Button>
       </Form>
     </ConfigProvider>
   )

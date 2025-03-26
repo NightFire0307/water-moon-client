@@ -10,7 +10,7 @@ export function login(data: { short_url: string, password: string }) {
 }
 
 // 校验短链和token
-export function validSurlAndToken(surl: string) {
+export function verifySurl(surl: string) {
   return request({
     url: `/api/selection/auth/verify/${surl}`,
     method: 'POST',

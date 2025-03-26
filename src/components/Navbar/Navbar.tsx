@@ -31,7 +31,7 @@ const Navbar: FC = () => {
   return (
     <div className="relative">
       <div className={
-        cs('rounded-xl bg-gradient-to-r from-darkBlueGray-1000 to-darkBlueGray-800 pl-4 pr-4 pt-2 pb-2 h-full flex justify-between items-center text-white relative z-10', extended ? 'rounded-bl-none rounded-br-none' : '')
+        cs('rounded-xl bg-gradient-to-r from-darkBlueGray-900 to-darkBlueGray-700 pl-4 pr-4 pt-2 pb-2 h-full flex justify-between items-center text-white relative z-10', extended ? 'rounded-bl-none rounded-br-none' : '')
       }
       >
         <div className="flex items-center">

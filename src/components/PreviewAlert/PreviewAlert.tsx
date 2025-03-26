@@ -11,8 +11,8 @@ const PreviewAlert: FC = () => {
 
   return (
     <animated.div style={props}>
-      <div className="flex items-center mb-4 h-16 bg-darkBlueGray-100 rounded-md overflow-hidden before:contet-[''] before:block before:h-full before:w-1 before:bg-darkBlueGray-900">
-        <div className="mx-3 flex justify-center items-center h-8 w-8 bg-darkBlueGray-900 text-white text-base rounded-full">
+      <div className="flex items-center mb-4 h-16 bg-darkBlueGray-50 rounded-md overflow-hidden before:contet-[''] before:block before:h-full before:w-1 before:bg-darkBlueGray-900">
+        <div className="mx-3 flex justify-center items-center h-8 w-8 bg-darkBlueGray-800 text-white text-base rounded-full">
           <LockOutlined />
         </div>
         <div className="flex flex-col gap-1">

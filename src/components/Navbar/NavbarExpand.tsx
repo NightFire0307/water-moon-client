@@ -5,7 +5,7 @@ import { animated } from '@react-spring/web'
 
 const NavbarExpand: FC = () => {
   return (
-    <animated.div className="flex gap-16 justify-start items-center pl-4 pr-4 w-full h-[65px] bg-darkBlueGray-200 shadow-md rounded-br-xl rounded-bl-xl">
+    <animated.div className="flex gap-16 justify-start items-center pl-4 pr-4 w-full h-[65px] bg-darkBlueGray-50 shadow-md rounded-br-xl rounded-bl-xl">
       <DetailItem title="套餐类型" desc="豪华套餐" icon={<HeartOutlined />} />
       <DetailItem title="摄影师" desc="王小二" icon={<UserOutlined />} />
       <DetailItem

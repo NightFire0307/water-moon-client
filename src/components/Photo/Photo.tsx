@@ -83,7 +83,7 @@ export function Photo(props: PhotoProps) {
             ))
           }
         </div>
-        <div className="relative bg-darkBlueGray-400 overflow-hidden rounded-xl flex shadow-md justify-center items-center h-[300px] object-contain">
+        <div className="relative bg-darkBlueGray-200 overflow-hidden rounded-xl flex shadow-md justify-center items-center h-[300px] object-contain">
           {
             remark && (
               <div
@@ -105,20 +105,20 @@ export function Photo(props: PhotoProps) {
         <div
           className="absolute p-2 flex justify-between items-center
           bottom-0 left-0 right-0 h-10
-          bg-gradient-to-r from-darkBlueGray-1000 to-darkBlueGray-900
+          bg-gradient-to-r from-darkBlueGray-900 to-darkBlueGray-700
           text-white font-mono"
         >
           <div>
             IMG_
             {name}
           </div>
-          <div className="text-sm text-darkBlueGray-500">1.3MB</div>
+          <div className="text-sm text-darkBlueGray-200">1.3MB</div>
         </div>
 
         {/* Mask */}
         <div
           className={
-            cs('absolute top-0 left-0 right-0 bottom-10 bg-darkBlueGray-1000/50 flex justify-center items-center transition duration-300 ease-in-out cursor-pointer', isHovered ? 'opacity-100' : 'opacity-0')
+            cs('absolute top-0 left-0 right-0 bottom-10 bg-darkBlueGray-900/50 flex justify-center items-center transition duration-300 ease-in-out cursor-pointer', isHovered ? 'opacity-100' : 'opacity-0')
           }
           onClick={() => onPreviewClick && onPreviewClick(photoId)}
         >

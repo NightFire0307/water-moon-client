@@ -23,7 +23,7 @@ const Sidebar: FC<SidebarProps> = ({ collapsed, onClick, maxSelectPhotos }) => {
           )
         }
         <div
-          className={cs('w-10 h-10 flex justify-center items-center rounded-md  hover:cursor-pointer', !collapsed ? 'hover:bg-darkBlueGray-400' : 'hover:bg-darkBlueGray-800')}
+          className={cs('w-10 h-10 flex justify-center items-center rounded-md  hover:cursor-pointer', !collapsed ? 'hover:bg-darkBlueGray-200' : 'hover:bg-darkBlueGray-700')}
           onClick={onClick}
         >
           {!collapsed ? <LeftOutlined className="text-darkBlueGray-900" /> : <RightOutlined className="text-darkBlueGray-400" />}

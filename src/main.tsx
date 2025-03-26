@@ -20,9 +20,11 @@ createRoot(document.getElementById('root')!).render(
           <Route index element={<Home />} />
         </Route>
 
-        <Route path="/auth" element={<AuthLayout />}>
+        <Route path="/share/init" element={<AuthLayout />}>
           <Route index element={<Login />} />
         </Route>
+
+        <Route path="/404" element={<div>404</div>} />
       </Routes>
     </ConfigProvider>
   </BrowserRouter>,

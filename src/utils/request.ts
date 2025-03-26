@@ -68,6 +68,8 @@ service.interceptors.response.use(
             isRefreshing = false
           }
           break
+        case 404:
+          return Promise.reject(error.response.data)
         default:
           message.error('未知错误，请稍后再试')
       }

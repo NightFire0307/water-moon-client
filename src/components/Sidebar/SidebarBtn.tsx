@@ -17,11 +17,11 @@ const SidebarBtn: FC = () => {
     <ConfigProvider theme={{
       components: {
         Button: {
-          defaultBg: '#2a364a',
+          defaultBg: '#334155',
           defaultColor: '#f1f5f9',
-          defaultBorderColor: '#2a364a',
+          defaultBorderColor: '#334155',
           defaultHoverBg: '#324054',
-          defaultHoverBorderColor: '#2a364a',
+          defaultHoverBorderColor: '#334155',
           defaultHoverColor: '#fff',
         },
       },
@@ -36,7 +36,7 @@ const SidebarBtn: FC = () => {
           trail.map((style, index) => (
             <animated.div style={style} key={products[index].productId}>
               <Tooltip title={products[index].title} placement="right">
-                <Button className="h-10 rounded-md text-darkBlueGray-500 font-medium" block icon={<IconProduct />}>
+                <Button className="h-10 rounded-md text-darkBlueGray-400 font-medium" block icon={<IconProduct />}>
                   {index}
                 </Button>
               </Tooltip>

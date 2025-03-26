@@ -1,5 +1,5 @@
 import type { IOrder } from '@/types/order.ts'
-import { refreshToken, validSurlAndToken } from '@/apis/login.ts'
+import { refreshToken, verifySurl } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import Navbar from '@/components/Navbar'
 import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
@@ -30,7 +30,7 @@ function MainLayout() {
 
   async function verify(surl: string) {
     try {
-      await validSurlAndToken(surl)
+      await verifySurl(surl)
     }
     catch {
       navigate('/')
@@ -66,8 +66,8 @@ function MainLayout() {
           await fetchPhotos()
         }
         catch (err) {
-          console.log(err)
-          // navigate('/404')
+          console.error(err)
+          navigate('/404')
         }
       })()
     }
