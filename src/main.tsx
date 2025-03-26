@@ -1,5 +1,6 @@
 import App from '@/App.tsx'
 import AuthLayout from '@/Layout/AuthLayout.tsx'
+import Error404Page from '@/views/errorPage/404.tsx'
 import Home from '@/views/home/home.tsx'
 import Login from '@/views/login/login.tsx'
 import { ConfigProvider } from 'antd'
@@ -24,7 +25,7 @@ createRoot(document.getElementById('root')!).render(
           <Route index element={<Login />} />
         </Route>
 
-        <Route path="/404" element={<div>404</div>} />
+        <Route path="/404" element={<Error404Page />} />
       </Routes>
     </ConfigProvider>
   </BrowserRouter>,

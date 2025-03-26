@@ -50,7 +50,7 @@ function Login() {
     setIsLoading(true)
     form.validateFields()
       .then(async ({ password }) => {
-        const { data } = await login({ short_url: surl, password })
+        const { data } = await login({ short_url: surl || '', password })
         if (data) {
           updateAccessToken(data.access_token)
           navigate(`/s/${surl}`)
