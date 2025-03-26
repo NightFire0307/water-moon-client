@@ -1,10 +1,10 @@
-import PhotoPreview from '@/components/Photo/PhotoPreview.tsx'
+import PhotoPreviewGroup from '@/components/Photo/PhotoPreviewGroup.tsx'
 import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
-import { useProductsStore } from '@/stores/productsStore.tsx'
 
+import { useProductsStore } from '@/stores/productsStore.tsx'
 import { animated, useTransition } from '@react-spring/web'
-import { Image, message } from 'antd'
+import { message } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import { ProductSelectModal } from '../ProductSelectModal.tsx'
 import { RemarkModal } from '../RemarkModal.tsx'
@@ -94,18 +94,7 @@ export function PhotoGrid() {
 
   return (
     <div className="grid grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 relative">
-      <Image.PreviewGroup
-        preview={{
-          visible: previewVisible,
-          current: currentPhotoIndex,
-          onVisibleChange: (value) => {
-            setPreviewVisible(value)
-          },
-          closeIcon: null,
-          imageRender: () => <PhotoPreview />,
-          toolbarRender: () => null,
-        }}
-      >
+      <PhotoPreviewGroup preview={{ visible: previewVisible }}>
         {
           transitions((style, photo, _, index) => (
             <animated.div key={photo.photoId} style={{ ...style }}>
@@ -127,7 +116,7 @@ export function PhotoGrid() {
             </animated.div>
           ))
         }
-      </Image.PreviewGroup>
+      </PhotoPreviewGroup>
 
       <RemarkModal
         photoId={currentPhotoId}
