@@ -1,5 +1,6 @@
 import type { FC, PropsWithChildren } from 'react'
 import ToolBtn from '@/components/Photo/ToolBtn.tsx'
+import UseDrag from '@/hooks/useDrag'
 import {
   CalendarOutlined,
   CloseOutlined,
@@ -29,6 +30,8 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   // 点击隐藏所有按钮
   const [showControl, setShowControl] = useState(true)
 
+  const { onMouseDown, onMouseMove, onMouseUp, offsetX, offsetY } = UseDrag()
+
   return (
     <ConfigProvider theme={{
       components: {
@@ -52,7 +55,10 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
           },
         }}
       >
-        <div className="relative px-16 font-medium">
+        <div
+          className="relative px-16 font-medium"
+          onClick={() => setShowControl(!showControl)}
+        >
           {
             showControl && (
               <>
@@ -64,7 +70,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                   <ToolBtn icon={<ReloadOutlined className="-scale-x-100" />} onClick={() => setRotate(prev => Math.max(prev - 90, 0))} />
                   <ToolBtn icon={<ReloadOutlined />} onClick={() => setRotate(prev => Math.min(prev + 90, 360))} />
                   <ToolBtn icon={<ZoomOutOutlined />} onClick={() => setScale(prev => Math.max(prev / 2, 1))} />
-                  <ToolBtn icon={<ZoomInOutlined />} onClick={() => setScale(prev => Math.min(prev * 2, 4))} />
+                  <ToolBtn icon={<ZoomInOutlined />} onClick={() => setScale(prev => Math.min(prev * 1.5, 4))} />
                 </div>
                 <div className="absolute top-4 right-4">
                   <ToolBtn icon={<CloseOutlined />} />
@@ -77,7 +83,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                   <ToolBtn icon={<RightOutlined />} />
                 </div>
 
-                <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-800/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
+                <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-700/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
                   <div>IMG_001</div>
                   <div className="flex items-center gap-4">
                     <CalendarOutlined />
@@ -92,12 +98,20 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
             )
           }
 
-          <div className="w-full h-full flex justify-center overflow-hidden" onClick={() => setShowControl(!showControl)}>
+          <div
+            draggable={false}
+            className="min-h-[85vh] w-full h-full flex justify-center overflow-hidden cursor-grab"
+          >
             <img
-              style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-              className="object-contain max-h-[85vh]"
+              style={{ transform: `translate3d(${offsetX}px, ${offsetY}px, 0px) scale(${scale}) rotate(${rotate}deg)` }}
+              className="object-contain max-h-[85vh] "
               alt=""
-              src="http://192.168.26.246:9090/water-moon/D1212/D71T6454?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=YJV7PFvKGTnYaFEdPcBi%2F20250324%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250324T030121Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=f9dcbeefd8b1e13a652ee0d807b36c0a7f3e1fd1649275e9ad638ac7bdda928b"
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              onMouseLeave={onMouseUp}
+              onDragStart={e => e.preventDefault()}
+              src="http://127.0.0.1:9000/water-moon/D001111/10cad696dbf06f767716d36a7398283c?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=pdYskaKZrc4ulTlONJbw%2F20250326%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250326T125850Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=f8be20ccdc60f7df63d70d88a7a2d4c0bfc28d18c08baf15d048c19b3d2150a5"
             />
           </div>
         </div>
