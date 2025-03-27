@@ -94,7 +94,14 @@ export function PhotoGrid() {
 
   return (
     <div className="grid grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 relative">
-      <PhotoPreviewGroup preview={{ visible: previewVisible }}>
+      <PhotoPreviewGroup
+        preview={{
+          visible: previewVisible,
+          current: currentPhotoIndex,
+          onChange: current => setCurrentPhotoIndex(current),
+          onVisibleChange: visible => setPreviewVisible((visible)),
+        }}
+      >
         {
           transitions((style, photo, _, index) => (
             <animated.div key={photo.photoId} style={{ ...style }}>

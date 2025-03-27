@@ -12,7 +12,7 @@ import { Dropdown, Image, type MenuProps, Tag } from 'antd'
 import cs from 'classnames'
 import { useContext, useEffect, useState } from 'react'
 
-interface PhotoProps {
+export interface PhotoProps {
   photoId: number
   src: string
   name: string
