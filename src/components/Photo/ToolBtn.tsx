@@ -7,9 +7,12 @@ interface ToolBtnProps {
   disabled?: boolean
   desc?: string
   onClick?: (e: MouseEvent) => void
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
+  onFocus?: () => void
 }
 
-const ToolBtn: FC<ToolBtnProps> = ({ icon, desc, onClick, disabled = false }) => {
+const ToolBtn: FC<ToolBtnProps> = ({ icon, desc, onClick, onFocus, onMouseEnter, onMouseLeave, disabled = false }) => {
   return (
     <Tooltip title={desc}>
       <div
@@ -20,6 +23,9 @@ const ToolBtn: FC<ToolBtnProps> = ({ icon, desc, onClick, disabled = false }) =>
           )
         }
         onClick={onClick}
+        onMouseLeave={onMouseLeave}
+        onFocus={onFocus}
+        onMouseEnter={onMouseEnter}
       >
         { icon }
       </div>

@@ -12,7 +12,7 @@ import {
   ZoomInOutlined,
   ZoomOutOutlined,
 } from '@ant-design/icons'
-import { ConfigProvider, Modal, Spin, Watermark } from 'antd'
+import { ConfigProvider, Dropdown, Modal, Spin, Watermark } from 'antd'
 import { Children, isValidElement, useEffect, useMemo, useRef, useState } from 'react'
 import Draggable from 'react-draggable'
 
@@ -194,7 +194,10 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
             </div>
 
             <div className="absolute top-4 left-4  flex justify-center gap-2 z-10">
-              <ToolBtn icon={<TagOutlined />} />
+              <Dropdown menu={{ items: [{ label: '产品1', key: '1' }, { label: '产品2', key: '2' }, { type: 'divider' }] }}>
+                <ToolBtn icon={<TagOutlined />} />
+              </Dropdown>
+
               <ToolBtn icon={<MessageOutlined />} />
             </div>
 
@@ -226,7 +229,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                             style={{ transform: `scale(${scale}) ` }}
                             src={imgSrc}
                             alt=""
-                            className="object-contain"
+                            className="max-h-[85vh] object-contain"
                           />
                         </div>
                       </Draggable>
