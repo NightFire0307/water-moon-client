@@ -2,7 +2,9 @@ import MainLayout from '@/Layout/MainLayout.tsx'
 import './App.css'
 
 function App() {
-  return <MainLayout />
+  return (
+    <MainLayout />
+  )
 }
 
 export default App
