@@ -39,7 +39,7 @@ function getPhotosProps(children: ReactNode) {
     if (!isValidElement(child))
       return
 
-    if (child.type === Photo && child.props.src) {
+    if (child.type === Photo) {
       urls.push(child.props)
     }
 
@@ -61,6 +61,18 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const containerRef = useRef<HTMLDivElement>(null)
 
   const childProps = useMemo(() => getPhotosProps(children), [children])
+
+  const loadedImage = (src: string) => {
+    setImgLoaded(true)
+    setImgSrc('')
+
+    const image = new Image()
+    image.src = src
+    image.onload = () => {
+      setImgSrc(src)
+      setImgLoaded(false)
+    }
+  }
 
   // Prev Photo
   const handlePrev = () => {
@@ -84,13 +96,12 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const handleZoom = (factor: number) => {
     const newScale = Number.parseFloat((scale * factor).toFixed(1))
 
-    setScale(Math.max(1, Math.min(newScale, 2)))
+    setScale(Math.max(1, Math.min(newScale, 1.8)))
   }
 
   useEffect(() => {
-    setImgSrc(childProps[isPhotoPreviewGroupType(preview) ? preview.current ?? 0 : 0]?.src ?? '')
-    setImgLoaded(false)
-  }, [childProps])
+    loadedImage(childProps[isPhotoPreviewGroupType(preview) ? preview.current ?? 0 : 0]?.original_url ?? '')
+  }, [childProps, preview])
 
   useEffect(() => {
     if (imgRef.current && containerRef.current) {

@@ -8,7 +8,8 @@ import { useProductsStore } from './productsStore.tsx'
 
 export interface IPhoto {
   photoId: number
-  src: string
+  original_url: string
+  thumbnail_url: string
   name: string
   remark: string
   markedProducts: IProduct[]
@@ -59,7 +60,8 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
         for (const photo of data) {
           photos.push({
             photoId: photo.id,
-            src: photo.thumbnail_url,
+            thumbnail_url: photo.thumbnail_url,
+            original_url: photo.original_url,
             name: photo.file_name,
             remark: photo.remark ?? '',
             markedProducts: products.filter(product => product.selected_photos.includes(photo.id)),

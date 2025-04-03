@@ -82,11 +82,6 @@ export function PhotoGrid() {
     }
   }
 
-  function findImageIdByUrl(url: string) {
-    const photo = photos.find(photo => photo.src === url)
-    return photo?.photoId
-  }
-
   function handleRemarkClick(photoId: number) {
     setCurrentPhotoId(photoId)
     setVisible(true)
@@ -107,7 +102,8 @@ export function PhotoGrid() {
             <animated.div key={photo.photoId} style={{ ...style }}>
               <Photo
                 photoId={photo.photoId}
-                src={photo.src}
+                thumbnail_url={photo.thumbnail_url}
+                original_url={photo.original_url}
                 name={photo.name}
                 products={photo.markedProducts}
                 remark={photo.remark}

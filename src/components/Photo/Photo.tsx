@@ -14,7 +14,8 @@ import { useContext, useEffect, useState } from 'react'
 
 export interface PhotoProps {
   photoId: number
-  src: string
+  thumbnail_url: string
+  original_url: string
   name: string
   remark: string
   products: IProduct[]
@@ -26,7 +27,7 @@ export interface PhotoProps {
 }
 
 export function Photo(props: PhotoProps) {
-  const { photoId, src, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick, onPreviewClick } = props
+  const { photoId, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick, onPreviewClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const previewMode = useContext(PreviewModeContext)
@@ -96,7 +97,7 @@ export function Photo(props: PhotoProps) {
           }
           <Image
             className="max-w-[300px] max-h-[300px] w-auto h-auto cursor-pointer"
-            src={src}
+            src={thumbnail_url}
             preview={{
               mask: null,
             }}
