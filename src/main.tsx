@@ -17,12 +17,16 @@ createRoot(document.getElementById('root')!).render(
       locale={zhCN}
     >
       <Routes>
-        <Route path="/s/:surl" element={<App />}>
-          <Route index element={<Home />} />
+        <Route path="/" element={<AuthLayout />}>
+          <Route index element={<Login />} />
         </Route>
 
         <Route path="/share/init" element={<AuthLayout />}>
           <Route index element={<Login />} />
+        </Route>
+
+        <Route path="/s/:surl" element={<App />}>
+          <Route index element={<Home />} />
         </Route>
 
         <Route path="/404" element={<Error404Page />} />
