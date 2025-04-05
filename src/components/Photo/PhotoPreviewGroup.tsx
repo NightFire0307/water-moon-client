@@ -17,7 +17,7 @@ import {
   ZoomOutOutlined,
 } from '@ant-design/icons'
 import { ConfigProvider, Dropdown, Modal, Spin, Watermark } from 'antd'
-import { Children, isValidElement, useEffect, useMemo, useRef, useState } from 'react'
+import { Children, isValidElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Draggable from 'react-draggable'
 
 interface PhotoPreviewProps {
@@ -63,8 +63,9 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 })
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const photos = usePhotosStore(state => state.photos)
-  const products = useProductsStore(state => state.products)
+
+  const { photos } = usePhotosStore()
+  const { products } = useProductsStore()
 
   const childProps = useMemo(() => getPhotosProps(children), [children])
 
@@ -104,17 +105,31 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     }
   }, [photos, previewGroup, childProps])
 
-  const loadedImage = (src: string) => {
+  // 获取图片ID
+  const photoId = useMemo(() => {
+    if (previewGroup?.current !== undefined) {
+      return childProps[previewGroup.current]?.photoId
+    }
+  }, [previewGroup, childProps])
+
+  useEffect(() => {
+    if (previewGroup?.current === undefined)
+      return
+    const src = childProps[previewGroup.current]?.original_url
+    if (!src)
+      return
+
     setImgLoaded(true)
-    setImgSrc('')
 
     const image = new Image()
     image.src = src
     image.onload = () => {
-      setImgSrc(src)
-      setImgLoaded(false)
+      requestAnimationFrame(() => {
+        setImgSrc(src)
+        setImgLoaded(false)
+      })
     }
-  }
+  }, [childProps, previewGroup?.current])
 
   // Prev Photo
   const handlePrev = () => {
@@ -146,15 +161,19 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     setScale(Math.max(1, Math.min(newScale, 1.8)))
   }
 
-  const handleProductClick = (productId: string) => {
-    console.log(productId)
-  }
+  const handleProductClick = useCallback((productId: string) => {
+    const photo = photos.find(photo => photo.photoId === photoId)
+    if (!photo)
+      return
 
-  useEffect(() => {
-    if (previewGroup?.current !== undefined) {
-      loadedImage(childProps[previewGroup.current]?.original_url)
+    const productIds = photo.markedProducts.map(product => product.productId)
+    if (productIds.includes(+productId)) {
+      console.log('包含该产品')
     }
-  }, [childProps, previewGroup]) // 确保依赖项稳定
+    else {
+      console.log('不包含该产品')
+    }
+  }, [photos, photoId])
 
   useEffect(() => {
     if (imgRef.current && containerRef.current) {
