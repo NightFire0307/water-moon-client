@@ -1,9 +1,12 @@
 import type { PhotoProps } from '@/components/Photo/Photo.tsx'
+import type { MenuProps } from 'antd'
 import type { FC, PropsWithChildren, ReactNode } from 'react'
 import { Photo } from '@/components/Photo/Photo.tsx'
 import ToolBtn from '@/components/Photo/ToolBtn.tsx'
+import { useProductsStore } from '@/stores/productsStore.tsx'
 import {
   CalendarOutlined,
+  CheckOutlined,
   CloseOutlined,
   LeftOutlined,
   MessageOutlined,
@@ -21,14 +24,14 @@ interface PhotoPreviewProps {
 }
 
 interface PhotoPreviewGroupType {
-  visible: boolean
+  visible?: boolean
   current?: number
   onChange?: (current: number, prevCurrent: number) => void
   onVisibleChange?: (visible: boolean) => void
 }
 
-function isPhotoPreviewGroupType(preview: boolean | PhotoPreviewGroupType): preview is PhotoPreviewGroupType {
-  return typeof preview !== 'boolean' && preview !== null
+function getPreviewGroupType(preview: PhotoPreviewProps['preview']): PhotoPreviewGroupType | undefined {
+  return typeof preview === 'boolean' ? undefined : preview
 }
 
 // 遍历 Children 获取所有的 Photo 组件下的 Props
@@ -59,8 +62,30 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 })
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const products = useProductsStore(state => state.products)
 
   const childProps = useMemo(() => getPhotosProps(children), [children])
+
+  const previewGroup = useMemo(() => getPreviewGroupType(preview), [preview])
+
+  const defaultItems: MenuProps['items'] = [
+    {
+      key: 'default',
+      label: '标记产品',
+      disabled: true,
+    },
+    {
+      type: 'divider',
+    },
+  ]
+  const productItems: MenuProps['items'] = useMemo(() => {
+    return products.map(product => ({
+      key: product.productId,
+      extra: product.product_type,
+      label: product.title,
+      icon: previewGroup?.current && childProps[previewGroup.current]?.photoId && product.selected_photos.includes(childProps[previewGroup.current].photoId) ? <CheckOutlined /> : null,
+    }))
+  }, [products, previewGroup, childProps])
 
   const loadedImage = (src: string) => {
     setImgLoaded(true)
@@ -76,20 +101,25 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
 
   // Prev Photo
   const handlePrev = () => {
-    if (isPhotoPreviewGroupType(preview)) {
-      preview.onChange?.(Math.max(preview.current! - 1, 0), preview.current!)
+    if (previewGroup?.onChange && previewGroup?.current !== undefined) {
+      previewGroup.onChange(Math.max(previewGroup.current - 1, 0), previewGroup.current)
     }
   }
 
   // Next Photo
   const handleNext = () => {
-    if (isPhotoPreviewGroupType(preview)) {
-      preview.onChange?.(Math.min(preview.current! + 1, childProps.length - 1), preview.current!)
+    if (previewGroup?.onChange && previewGroup?.current !== undefined) {
+      previewGroup.onChange(Math.min(previewGroup.current + 1, childProps.length - 1), previewGroup.current)
     }
   }
 
   const handleClose = () => {
-    isPhotoPreviewGroupType(preview) ? preview.onVisibleChange?.(!preview.visible) : setOpen(false)
+    if (previewGroup?.onVisibleChange) {
+      previewGroup.onVisibleChange(!previewGroup.visible)
+    }
+    else {
+      setOpen(false)
+    }
   }
 
   // Scale Photo
@@ -99,9 +129,15 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     setScale(Math.max(1, Math.min(newScale, 1.8)))
   }
 
+  const handleProductClick = (productId: string) => {
+    console.log(productId)
+  }
+
   useEffect(() => {
-    loadedImage(childProps[isPhotoPreviewGroupType(preview) ? preview.current ?? 0 : 0]?.original_url ?? '')
-  }, [childProps, preview])
+    if (previewGroup?.current !== undefined) {
+      loadedImage(childProps[previewGroup.current]?.original_url)
+    }
+  }, [childProps, previewGroup]) // 确保依赖项稳定
 
   useEffect(() => {
     if (imgRef.current && containerRef.current) {
@@ -134,7 +170,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
       { children }
 
       <Modal
-        open={isPhotoPreviewGroupType(preview) ? preview.visible : open}
+        open={previewGroup?.visible ? previewGroup.visible : open}
         width={1200}
         footer={null}
         closeIcon={null}
@@ -154,6 +190,12 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
           }}
           >
             <div className="absolute top-4 left-1/2 -translate-x-1/2 flex justify-center gap-2 z-10">
+              <Dropdown menu={{ items: [...defaultItems, ...productItems], onClick: ({ key }) => handleProductClick(key) }}>
+                <ToolBtn icon={<TagOutlined />} />
+              </Dropdown>
+
+              <ToolBtn icon={<MessageOutlined />} />
+
               <ToolBtn
                 icon={<ZoomOutOutlined />}
                 onClick={() => handleZoom(0.8)}
@@ -168,21 +210,21 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
               <ToolBtn
                 icon={<LeftOutlined />}
                 onClick={handlePrev}
-                disabled={isPhotoPreviewGroupType(preview) && preview.current === 0}
+                disabled={previewGroup?.current ? previewGroup.current === 0 : false}
               />
             </div>
             <div className="absolute right-4 top-1/2 ">
               <ToolBtn
                 icon={<RightOutlined />}
                 onClick={handleNext}
-                disabled={isPhotoPreviewGroupType(preview) && preview.current === childProps.length - 1}
+                disabled={previewGroup?.current ? previewGroup.current === childProps.length - 1 : false}
               />
             </div>
 
             <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-700/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
               <div>
                 IMG_
-                {childProps[isPhotoPreviewGroupType(preview) ? preview.current ?? 0 : 0]?.name}
+                {childProps[previewGroup?.current ? previewGroup.current ?? 0 : 0]?.name}
               </div>
               <div className="flex items-center gap-4">
                 <CalendarOutlined />
@@ -192,14 +234,6 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                 <TagOutlined />
                 <div className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">缘定今生</div>
               </div>
-            </div>
-
-            <div className="absolute top-4 left-4  flex justify-center gap-2 z-10">
-              <Dropdown menu={{ items: [{ label: '产品1', key: '1' }, { label: '产品2', key: '2' }, { type: 'divider' }] }}>
-                <ToolBtn icon={<TagOutlined />} />
-              </Dropdown>
-
-              <ToolBtn icon={<MessageOutlined />} />
             </div>
 
             <div className="absolute top-4 right-4">
