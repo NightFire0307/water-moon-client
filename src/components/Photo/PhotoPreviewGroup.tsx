@@ -3,6 +3,7 @@ import type { MenuProps } from 'antd'
 import type { FC, PropsWithChildren, ReactNode } from 'react'
 import { Photo } from '@/components/Photo/Photo.tsx'
 import ToolBtn from '@/components/Photo/ToolBtn.tsx'
+import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
 import {
   CalendarOutlined,
@@ -62,12 +63,14 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 })
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const photos = usePhotosStore(state => state.photos)
   const products = useProductsStore(state => state.products)
 
   const childProps = useMemo(() => getPhotosProps(children), [children])
 
   const previewGroup = useMemo(() => getPreviewGroupType(preview), [preview])
 
+  // 默认下拉菜单
   const defaultItems: MenuProps['items'] = [
     {
       key: 'default',
@@ -78,14 +81,28 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
       type: 'divider',
     },
   ]
+
+  // 产品下拉菜单
   const productItems: MenuProps['items'] = useMemo(() => {
     return products.map(product => ({
       key: product.productId,
       extra: product.product_type,
       label: product.title,
-      icon: previewGroup?.current && childProps[previewGroup.current]?.photoId && product.selected_photos.includes(childProps[previewGroup.current].photoId) ? <CheckOutlined /> : null,
+      icon: previewGroup?.current !== undefined && product.selected_photos.includes(childProps[previewGroup.current]?.photoId) ? <CheckOutlined /> : null,
     }))
   }, [products, previewGroup, childProps])
+
+  // 获取图片标记的产品
+  const photo_marked_products = useMemo(() => {
+    if (previewGroup?.current !== undefined) {
+      const photoId = childProps[previewGroup.current]?.photoId
+      for (const photo of photos) {
+        if (photo.photoId === photoId) {
+          return photo.markedProducts
+        }
+      }
+    }
+  }, [photos, previewGroup, childProps])
 
   const loadedImage = (src: string) => {
     setImgLoaded(true)
@@ -230,9 +247,15 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                 <CalendarOutlined />
                 <p>2025-03-24</p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <TagOutlined />
-                <div className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">缘定今生</div>
+
+                {
+                  photo_marked_products && photo_marked_products.map(product => (
+                    <div key={product.productId} className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">{product.title}</div>
+                  ))
+                }
+                {/* <div className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">缘定今生</div> */}
               </div>
             </div>
 
