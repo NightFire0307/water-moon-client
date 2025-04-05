@@ -64,8 +64,8 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const { photos } = usePhotosStore()
-  const { products } = useProductsStore()
+  const { photos, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus, updatePhotoAddTagMenus } = usePhotosStore()
+  const { products, removeSelectedByPhotoId } = useProductsStore()
 
   const childProps = useMemo(() => getPhotosProps(children), [children])
 
@@ -113,6 +113,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   }, [previewGroup, childProps])
 
   useEffect(() => {
+    console.log('图片加载')
     if (previewGroup?.current === undefined)
       return
     const src = childProps[previewGroup.current]?.original_url
@@ -129,7 +130,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
         setImgLoaded(false)
       })
     }
-  }, [childProps, previewGroup?.current])
+  }, [previewGroup?.current])
 
   // Prev Photo
   const handlePrev = () => {
@@ -169,11 +170,15 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     const productIds = photo.markedProducts.map(product => product.productId)
     if (productIds.includes(+productId)) {
       console.log('包含该产品')
+      removeMarkedProductByPhotoId(photo.photoId, +productId)
+      removePhotoRemoveTagMenus(photo.photoId, +productId)
+      updatePhotoAddTagMenus(photo.photoId, +productId, false)
+      removeSelectedByPhotoId(photo.photoId, +productId)
     }
     else {
       console.log('不包含该产品')
     }
-  }, [photos, photoId])
+  }, [photos, photoId, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus])
 
   useEffect(() => {
     if (imgRef.current && containerRef.current) {
