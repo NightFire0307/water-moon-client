@@ -70,7 +70,6 @@ export function Photo(props: PhotoProps) {
         onClick: ({ key }) => onDropDownClick?.(key, photoId),
       }}
       trigger={previewMode ? [] : ['contextMenu']}
-      className="mt-4"
     >
       <div
         onMouseEnter={() => setIsHovered(true)}
@@ -84,7 +83,7 @@ export function Photo(props: PhotoProps) {
             ))
           }
         </div>
-        <div className="relative bg-darkBlueGray-200 overflow-hidden rounded-xl flex shadow-md justify-center items-center h-[300px] object-contain">
+        <div className="relative bg-darkBlueGray-200 overflow-hidden rounded-tl-xl rounded-tr-xl flex shadow-md justify-center items-center max-h-[220px]">
           {
             remark && (
               <div
@@ -96,7 +95,7 @@ export function Photo(props: PhotoProps) {
             )
           }
           <Image
-            className="max-w-[300px] max-h-[300px] w-auto h-auto cursor-pointer"
+            className="cursor-pointer object-contain"
             src={thumbnail_url}
             preview={{
               mask: null,
@@ -104,8 +103,7 @@ export function Photo(props: PhotoProps) {
           />
         </div>
         <div
-          className="absolute p-2 flex justify-between items-center
-          bottom-0 left-0 right-0 h-10
+          className=" p-2 flex justify-between items-center h-10
           bg-gradient-to-r from-darkBlueGray-900 to-darkBlueGray-700
           text-white font-mono"
         >

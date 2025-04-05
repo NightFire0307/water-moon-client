@@ -138,6 +138,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
         width={1200}
         footer={null}
         closeIcon={null}
+        centered
         styles={{
           content: {
             padding: 0,
@@ -211,7 +212,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
           </div>
 
           <div
-            className="relative flex min-h-[85vh] items-center justify-center overflow-hidden"
+            className="relative flex max-h-[80vh] min-h-[80vh] items-center justify-center overflow-hidden"
           >
             <Watermark content="人像摄影">
               {

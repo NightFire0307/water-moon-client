@@ -18,8 +18,8 @@ const ToolBtn: FC<ToolBtnProps> = ({ icon, desc, onClick, onFocus, onMouseEnter,
       <div
         className={
           cs(
-            'flex justify-center items-center w-9 h-9 rounded-full bg-darkBlueGray-700 transition-all ease-in-out text-text-onDark',
-            disabled ? 'bg-darkBlueGray-800 cursor-not-allowed' : ' hover:bg-darkBlueGray-600 cursor-pointer',
+            'flex justify-center items-center w-9 h-9 rounded-full bg-darkBlueGray-700 transition-all ease-in-out ',
+            disabled ? 'text-darkBlueGray-500 bg-darkBlueGray-800 cursor-not-allowed' : ' hover:bg-darkBlueGray-600 cursor-pointer text-darkBlueGray-200',
           )
         }
         onClick={onClick}
