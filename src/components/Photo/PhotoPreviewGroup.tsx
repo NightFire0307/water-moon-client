@@ -1,7 +1,9 @@
 import type { PhotoProps } from '@/components/Photo/Photo.tsx'
 import type { MenuProps } from 'antd'
 import type { FC, PropsWithChildren, ReactNode } from 'react'
+import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { Photo } from '@/components/Photo/Photo.tsx'
+import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
 import ToolBtn from '@/components/Photo/ToolBtn.tsx'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
@@ -16,7 +18,7 @@ import {
   ZoomInOutlined,
   ZoomOutOutlined,
 } from '@ant-design/icons'
-import { ConfigProvider, Dropdown, Modal, Spin, Watermark } from 'antd'
+import { Dropdown, Spin, Watermark } from 'antd'
 import { Children, isValidElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Draggable from 'react-draggable'
 
@@ -57,6 +59,7 @@ function getPhotosProps(children: ReactNode) {
 
 const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, children }) => {
   const [open, setOpen] = useState(false)
+  const [remarkOpen, setRemarkOpen] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(true)
   const [imgSrc, setImgSrc] = useState('')
   const [scale, setScale] = useState(1)
@@ -205,22 +208,15 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   }, [scale])
 
   return (
-    <ConfigProvider theme={{
-      components: {
-        Modal: {
-          contentBg: '#0f172a',
-        },
-      },
-    }}
-    >
+    <>
       { children }
 
-      <Modal
+      <CustomModal
         open={previewGroup?.visible ? previewGroup.visible : open}
         width={1200}
+        centered
         footer={null}
         closeIcon={null}
-        centered
         styles={{
           content: {
             padding: 0,
@@ -240,7 +236,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                 <ToolBtn icon={<TagOutlined />} />
               </Dropdown>
 
-              <ToolBtn icon={<MessageOutlined />} />
+              <ToolBtn icon={<MessageOutlined />} onClick={() => setRemarkOpen(true)} />
 
               <ToolBtn
                 icon={<ZoomOutOutlined />}
@@ -326,8 +322,10 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
           </div>
 
         </div>
-      </Modal>
-    </ConfigProvider>
+      </CustomModal>
+
+      <PhotoRemarkModal open={remarkOpen} onClose={() => setRemarkOpen(false)} />
+    </>
   )
 }
 
