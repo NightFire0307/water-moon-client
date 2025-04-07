@@ -64,8 +64,8 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const { photos, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus, updatePhotoAddTagMenus } = usePhotosStore()
-  const { products, removeSelectedByPhotoId } = useProductsStore()
+  const { photos, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus, updatePhotoAddTagMenus, updatePhotoMarkedProductTypes, updatePhotoRemoveTagMenus } = usePhotosStore()
+  const { products, removeSelectedByPhotoId, updateProductSelected } = useProductsStore()
 
   const childProps = useMemo(() => getPhotosProps(children), [children])
 
@@ -113,7 +113,8 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   }, [previewGroup, childProps])
 
   useEffect(() => {
-    console.log('图片加载')
+    if (previewGroup?.visible !== true)
+      return
     if (previewGroup?.current === undefined)
       return
     const src = childProps[previewGroup.current]?.original_url
@@ -130,7 +131,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
         setImgLoaded(false)
       })
     }
-  }, [previewGroup?.current])
+  }, [previewGroup?.current, previewGroup?.visible])
 
   // Prev Photo
   const handlePrev = () => {
@@ -177,6 +178,10 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     }
     else {
       console.log('不包含该产品')
+      updatePhotoMarkedProductTypes(photo.photoId, +productId)
+      updatePhotoRemoveTagMenus(photo.photoId, +productId)
+      updatePhotoAddTagMenus(photo.photoId, +productId, true)
+      updateProductSelected(photo.photoId, +productId)
     }
   }, [photos, photoId, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus])
 

@@ -24,7 +24,7 @@ interface ProductStore {
 interface ProductAction {
   generateProducts: (orderProducts: IOrderProduct[]) => void
   updateProductSelected: (photoId: number, orderProductId: number) => Promise<void>
-  removeSelectedByPhotoId: (photoId: number, orderProductId: number) => void
+  removeSelectedByPhotoId: (photoId: number, orderProductId: number) => Promise<void>
   saveSelected: () => void
 }
 
