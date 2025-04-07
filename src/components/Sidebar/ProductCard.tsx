@@ -2,6 +2,7 @@ import type { FC } from 'react'
 import { CameraIcon, CircleCheckIcon, WarningIcon } from '@/assets/icon'
 import { Card, Progress, Tooltip, Typography } from 'antd'
 import cs from 'classnames'
+import { useMemo } from 'react'
 
 const { Text } = Typography
 
@@ -44,6 +45,11 @@ const ProductTitle: FC<ProductTitleProps> = ({ title, count }) => {
 
 export function ProductCard(props: ProductCardProps) {
   const { productId, title, count, selectedCount, photoLimit, type, onClick, className } = props
+
+  // 完成进度
+  const completePercent = useMemo(() => {
+    return Math.round((selectedCount / photoLimit) * 100)
+  }, [selectedCount, photoLimit])
 
   function handleCardClick() {
     onClick && onClick(productId)
@@ -105,14 +111,14 @@ export function ProductCard(props: ProductCardProps) {
           <div className="flex justify-between">
             <div className="text-[12px]">完成进度</div>
             <div className="text-[12px] font-medium">
-              {(selectedCount / photoLimit) * 100 > 100 ? 100 : (selectedCount / photoLimit) * 100 }
+              {completePercent > 100 ? 100 : completePercent }
               %
             </div>
           </div>
           <Progress
             showInfo={false}
-            percent={(selectedCount / photoLimit) * 100}
-            strokeColor={(selectedCount / photoLimit) * 100 < 100 ? '#475569' : '#10b981'}
+            percent={completePercent}
+            strokeColor={completePercent < 100 ? '#475569' : '#10b981'}
           />
         </div>
       </div>
