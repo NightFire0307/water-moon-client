@@ -67,7 +67,7 @@ export function ProductCard(props: ProductCardProps) {
       }}
       onClick={handleCardClick}
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 text-darkBlueGray-800">
         <div className="flex justify-between">
           <div className="pl-2 pr-2 rounded-full inline-block bg-darkBlueGray-200 text-black-firstText text-[12px]">{ type }</div>
           {
@@ -89,7 +89,7 @@ export function ProductCard(props: ProductCardProps) {
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
             <div className="bg-darkBlueGray-200 w-6 h-6 rounded-full flex justify-center items-center">
-              <CameraIcon className="text-darkBlueGray-1000 text-base" />
+              <CameraIcon className=" text-base" />
             </div>
             <Text className="text-black-secondText text-[12px]">应选 / 实选</Text>
           </div>

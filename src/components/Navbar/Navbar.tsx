@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import NavbarExpand from '@/components/Navbar/NavbarExpand.tsx'
 import { DownOutlined } from '@ant-design/icons'
 import { animated, useSpring, useTransition } from '@react-spring/web'
-import { Button, ConfigProvider } from 'antd'
+import { Button } from 'antd'
 import cs from 'classnames'
 import { useState } from 'react'
 
@@ -35,33 +35,22 @@ const Navbar: FC = () => {
       }
       >
         <div className="flex items-center">
-          <div className="w-1.5 h-10 bg-darkBlueGray-500 rounded-lg" />
+          <div className="w-1.5 h-10 bg-darkBlueGray-400 rounded-lg" />
           <div className="flex flex-col leading-none ml-4">
             <div className="flex items-center mb-1">
               <div className="text-xl font-bold ">在线选片系统</div>
               <div className="text-sm font-medium bg-darkBlueGray-600 ml-2 pr-2 pl-2 pt-1 pb-1 rounded-md">当前订单号: WK-D12345</div>
             </div>
-            <span className="text-darkBlueGray-500">张先生 & 李小姐 · 2025年10月15日</span>
+            <span className="text-darkBlueGray-400">张先生 & 李小姐 · 2025年10月15日</span>
           </div>
         </div>
         <div>
-          <ConfigProvider theme={{
-            components: {
-              Button: {
-                textHoverBg: '#475569',
-                textTextHoverColor: '#fff',
-                textTextActiveColor: '#fff',
-              },
-            },
-          }}
-          >
-            <Button type="text" className="text-white" onClick={handleExtended}>
-              详情
-              <animated.span style={props}>
-                <DownOutlined />
-              </animated.span>
-            </Button>
-          </ConfigProvider>
+          <Button type="text" className="text-white" onClick={handleExtended}>
+            详情
+            <animated.span style={props}>
+              <DownOutlined />
+            </animated.span>
+          </Button>
         </div>
       </div>
       {

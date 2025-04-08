@@ -5,6 +5,10 @@ export default {
     './src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
+    backgroundPosition: {
+      'left-center': 'left center',
+      'right-center': 'right center',
+    },
     screens: {
       'sm': '576px',
       'md': '768px',

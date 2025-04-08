@@ -79,7 +79,7 @@ export function Photo(props: PhotoProps) {
         <div className="absolute top-2 left-2 z-10">
           {
             products.map(product => (
-              <Tag bordered={false} color="#324054" key={product.productId}>{product.product_type}</Tag>
+              <Tag bordered={false} color="#1e293b" key={product.productId}>{product.product_type}</Tag>
             ))
           }
         </div>
@@ -121,8 +121,8 @@ export function Photo(props: PhotoProps) {
           }
           onClick={() => onPreviewClick && onPreviewClick(photoId)}
         >
-          <div className="w-10 h-10 rounded-md bg-white text-xl flex justify-center items-center">
-            <ZoomInOutlined />
+          <div className="w-10 h-10 rounded-md bg-darkBlueGray-50 text-xl flex justify-center items-center">
+            <ZoomInOutlined className="text-darkBlueGray-800" />
           </div>
         </div>
       </div>

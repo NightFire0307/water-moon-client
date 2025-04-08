@@ -13,7 +13,7 @@ const FloatBtn: FC<FloatBtnProps> = ({ title, desc, addonIcon, afterIcon, onClic
   const floatBtnContent = (
     <div className="absolute bottom-10 right-12 group select-none cursor-pointer" onClick={onClick}>
       <div
-        className="bg-gradient-to-r from-darkBlueGray-700 to-darkBlueGray-900 group-hover:from-darkBlueGray-800 group-hover:to-darkBlueGray-900 px-4 text-white py-3  h-auto rounded-full flex items-center"
+        className="shadow-xl bg-gradient-to-r from-darkBlueGray-800 to-darkBlueGray-600 group-hover:from-darkBlueGray-800 group-hover:to-darkBlueGray-900 px-4 text-white py-3  h-auto rounded-full flex items-center"
       >
         <div className="flex items-center">
           {
@@ -25,8 +25,8 @@ const FloatBtn: FC<FloatBtnProps> = ({ title, desc, addonIcon, afterIcon, onClic
           }
 
           <div className="mr-1 leading-normal">
-            <div className="text-center text-sm font-bold">{title}</div>
-            <div className="text-xs text-darkBlueGray-500 flex items-center">
+            <div className="text-center text-sm font-bold text-darkBlueGray-50">{title}</div>
+            <div className="text-xs text-darkBlueGray-400 flex items-center">
               { desc }
             </div>
           </div>

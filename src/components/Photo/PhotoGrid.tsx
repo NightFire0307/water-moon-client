@@ -1,21 +1,17 @@
 import PhotoPreviewGroup from '@/components/Photo/PhotoPreviewGroup.tsx'
-import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
 import { usePhotosStore } from '@/stores/photosStore.tsx'
 
 import { useProductsStore } from '@/stores/productsStore.tsx'
 import { animated, useTransition } from '@react-spring/web'
 import { message } from 'antd'
-import { useContext, useEffect, useState } from 'react'
-import { ProductSelectModal } from '../ProductSelectModal.tsx'
+import { useEffect, useState } from 'react'
 import { RemarkModal } from '../RemarkModal.tsx'
 import { Photo } from './Photo.tsx'
 
 export function PhotoGrid() {
-  const previewMode = useContext(PreviewModeContext)
   const [visible, setVisible] = useState(false)
   const [previewVisible, setPreviewVisible] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
-  const [productSelectModalVisible, setProductSelectModalVisible] = useState(false)
   const [currentPhotoId, setCurrentPhotoId] = useState<number>(-1)
   const { updateProductSelected, removeSelectedByPhotoId } = useProductsStore()
   const {
@@ -126,13 +122,6 @@ export function PhotoGrid() {
         open={visible}
         onClose={() => setVisible(false)}
         onSave={remark => updatePhotoRemark(currentPhotoId, remark)}
-      />
-
-      <ProductSelectModal
-        open={productSelectModalVisible}
-        photoId={currentPhotoId}
-        onSubmit={() => {}}
-        onClose={() => setProductSelectModalVisible(false)}
       />
     </div>
   )

@@ -15,6 +15,41 @@ createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
     <ConfigProvider
       locale={zhCN}
+      theme={{
+        token: {
+          colorBgElevated: '#334155',
+          colorText: '#f8fafc',
+          colorTextDisabled: '#64748b',
+          colorTextDescription: '#94a3b8',
+          controlItemBgHover: '#475569',
+        },
+        components: {
+          Modal: {
+            contentBg: '#1e293b',
+          },
+          Button: {
+            defaultBg: '#1e293b',
+            defaultColor: '#e2e8f0',
+            defaultBorderColor: '#334155',
+            defaultActiveBg: '#0f172a',
+            defaultActiveBorderColor: '#1e293b',
+            defaultActiveColor: '#e2e8f0',
+            defaultHoverBg: '#334155',
+            defaultHoverBorderColor: '#475569',
+            defaultHoverColor: '#ffffff',
+            textTextColor: '#94a3b8',
+            textHoverBg: '#475569',
+            textTextActiveColor: '#cbd5e1',
+            textTextHoverColor: '#f8fafc',
+          },
+          Input: {
+            activeBg: '#1e293b',
+            activeBorderColor: '#475569',
+            activeShadow: '#020617',
+            hoverBorderColor: '#94a3b8',
+          },
+        },
+      }}
     >
       <Routes>
         <Route path="/" element={<AuthLayout />}>
