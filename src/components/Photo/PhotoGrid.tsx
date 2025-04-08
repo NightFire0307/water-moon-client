@@ -98,6 +98,7 @@ export function PhotoGrid() {
             <animated.div key={photo.photoId} style={{ ...style }}>
               <Photo
                 photoId={photo.photoId}
+                index={index + 1}
                 thumbnail_url={photo.thumbnail_url}
                 original_url={photo.original_url}
                 name={photo.name}

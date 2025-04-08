@@ -7,17 +7,19 @@ import {
   TagRemoveIcon,
 } from '@/assets/icon'
 import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
-import { CommentOutlined, ZoomInOutlined } from '@ant-design/icons'
+import { CommentOutlined, StarFilled, ZoomInOutlined } from '@ant-design/icons'
 import { Dropdown, Image, type MenuProps, Tag } from 'antd'
 import cs from 'classnames'
 import { useContext, useEffect, useState } from 'react'
 
 export interface PhotoProps {
   photoId: number
+  index: number
   thumbnail_url: string
   original_url: string
   name: string
-  remark: string
+  remark?: string
+  isRecommend?: boolean
   products: IProduct[]
   addProductsMenus: MenuItemType[]
   removeProductsMenus: MenuItemType[]
@@ -27,7 +29,7 @@ export interface PhotoProps {
 }
 
 export function Photo(props: PhotoProps) {
-  const { photoId, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick, onPreviewClick } = props
+  const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onRemarkClick, onPreviewClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const previewMode = useContext(PreviewModeContext)
@@ -83,6 +85,14 @@ export function Photo(props: PhotoProps) {
             ))
           }
         </div>
+        {
+          isRecommend
+          && (
+            <div className="absolute top-2 right-2 z-10">
+              <StarFilled className="text-amber-400 text-base" />
+            </div>
+          )
+        }
         <div className="relative bg-darkBlueGray-200 overflow-hidden rounded-tl-xl rounded-tr-xl flex shadow-md justify-center items-center max-h-[220px]">
           {
             remark && (
@@ -103,15 +113,15 @@ export function Photo(props: PhotoProps) {
           />
         </div>
         <div
-          className=" p-2 flex justify-between items-center h-10
+          className="p-2 flex justify-between items-center h-10
           bg-gradient-to-r from-darkBlueGray-900 to-darkBlueGray-700
-          text-white font-mono"
+          font-mono text-darkBlueGray-50 font-semibold"
         >
           <div>
             IMG_
             {name}
           </div>
-          <div className="text-sm text-darkBlueGray-200">1.3MB</div>
+          <div className="text-darkBlueGray-400">{index}</div>
         </div>
 
         {/* Mask */}

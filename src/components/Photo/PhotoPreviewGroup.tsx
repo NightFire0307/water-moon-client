@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons'
 import { Dropdown, Spin, Watermark } from 'antd'
 import { Children, isValidElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
 import Draggable from 'react-draggable'
 
 interface PhotoPreviewProps {
@@ -64,6 +65,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const [imgSrc, setImgSrc] = useState('')
   const [scale, setScale] = useState(1)
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 })
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -207,6 +209,10 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     }
   }, [scale])
 
+  useEffect(() => {
+    document.addEventListener('click', () => setDropdownOpen(false))
+  }, [])
+
   return (
     <>
       { children }
@@ -232,8 +238,14 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
           }}
           >
             <div className="absolute top-4 left-1/2 -translate-x-1/2 flex justify-center gap-2 z-10">
-              <Dropdown menu={{ items: [...defaultItems, ...productItems], onClick: ({ key }) => handleProductClick(key) }}>
-                <ToolBtn icon={<TagOutlined />} />
+              <Dropdown
+                open={dropdownOpen}
+                menu={{ items: [...defaultItems, ...productItems], onClick: ({ key }) => handleProductClick(key) }}
+              >
+                <ToolBtn
+                  icon={<TagOutlined />}
+                  onMouseEnter={() => setDropdownOpen(true)}
+                />
               </Dropdown>
 
               <ToolBtn icon={<MessageOutlined />} onClick={() => setRemarkOpen(true)} />

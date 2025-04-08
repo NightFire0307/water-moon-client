@@ -11,7 +11,7 @@ interface CustomModalProps extends PropsWithChildren, ModalProps {
   onCancel?: () => void
 }
 
-const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCancel, onOk, footer, closeIcon, ...reset }) => {
+const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCancel, onOk, footer, closeIcon, okText, ...reset }) => {
   return (
     <Modal
       {...reset}
@@ -41,9 +41,9 @@ const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCanc
 
       {
         footer !== null && (
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 mt-4">
             <Button onClick={() => onCancel && onCancel()}>取消</Button>
-            <Button onClick={() => onOk && onOk()}>保存备注</Button>
+            <Button onClick={() => onOk && onOk()}>{ okText || '确定'}</Button>
           </div>
         )
       }
