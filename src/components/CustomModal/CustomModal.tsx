@@ -9,9 +9,10 @@ interface CustomModalProps extends PropsWithChildren, ModalProps {
   icon?: ReactElement
   onOk?: () => void
   onCancel?: () => void
+  disabledOk?: boolean
 }
 
-const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCancel, onOk, footer, closeIcon, okText, ...reset }) => {
+const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCancel, onOk, footer, closeIcon, okText, disabledOk, ...reset }) => {
   return (
     <Modal
       {...reset}
@@ -43,7 +44,7 @@ const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCanc
         footer !== null && (
           <div className="flex justify-end gap-2 mt-4">
             <Button onClick={() => onCancel && onCancel()}>取消</Button>
-            <Button onClick={() => onOk && onOk()}>{ okText || '确定'}</Button>
+            <Button onClick={() => onOk && onOk()} disabled={disabledOk ?? false}>{ okText || '确定'}</Button>
           </div>
         )
       }

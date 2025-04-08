@@ -1,11 +1,12 @@
 import type { IProduct } from '@/stores/productsStore.tsx'
 import type { FC, ReactElement } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
+import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
 import { useProductsStore } from '@/stores/productsStore.tsx'
 import { CheckCircleOutlined, LockOutlined, WarningOutlined } from '@ant-design/icons'
 import { Alert } from 'antd'
 import cs from 'classnames'
-import { useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 
 interface ConfirmModalProps {
   open: boolean
@@ -36,7 +37,7 @@ const AlertContent: FC<AlertContentProps> = ({ title, type, icon, unFinishedProd
               <span>{product.title}</span>
               <div>
                 {
-                  `${product.selected_photos.length} / ${(product.photo_limit * product.count)} (${(product.selected_photos.length / (product.photo_limit * product.count)) * 100})%`
+                  `${product.selected_photos.length} / ${(product.photo_limit * product.count)} (${Math.round((product.selected_photos.length / (product.photo_limit * product.count)) * 100)})%`
                 }
               </div>
             </div>
@@ -50,11 +51,31 @@ const AlertContent: FC<AlertContentProps> = ({ title, type, icon, unFinishedProd
 export function ConfirmModal(props: ConfirmModalProps) {
   const { open, onCancel } = props
   const products = useProductsStore(state => state.products)
+  const orderInfo = useContext(OrderInfoContext)
+
+  // 过滤产品
+  const filterProducts = useCallback(() => {
+    return products
+      .map((product) => {
+        if (product.selected_photos.length < product.photo_limit * product.count) {
+          return product
+        }
+
+        if (product.photo_limit === 0 && product.selected_photos.length < orderInfo!.max_select_photos) {
+          return {
+            ...product,
+            photo_limit: orderInfo?.max_select_photos ?? product.photo_limit,
+          }
+        }
+        return null
+      })
+      .filter(product => product !== null) // 确保过滤掉 null 和 undefined
+  }, [products, orderInfo])
 
   // 未完成选片的产品
   const unFinishedProducts = useMemo(
-    () => products.filter(product => (product.photo_limit * product.count) > product.selected_photos.length),
-    [products],
+    () => filterProducts(),
+    [filterProducts],
   )
 
   return (

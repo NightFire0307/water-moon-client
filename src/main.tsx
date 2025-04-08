@@ -28,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
             contentBg: '#1e293b',
           },
           Button: {
+            borderColorDisabled: '#475569',
             defaultBg: '#1e293b',
             defaultColor: '#e2e8f0',
             defaultBorderColor: '#334155',
