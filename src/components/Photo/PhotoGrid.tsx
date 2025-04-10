@@ -1,18 +1,19 @@
+import type { PhotoInfo } from './Photo.tsx'
 import PhotoPreviewGroup from '@/components/Photo/PhotoPreviewGroup.tsx'
-import { usePhotosStore } from '@/stores/photosStore.tsx'
 
+import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
+import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
 import { animated, useTransition } from '@react-spring/web'
 import { message } from 'antd'
 import { useEffect, useState } from 'react'
-import { RemarkModal } from '../RemarkModal.tsx'
 import { Photo } from './Photo.tsx'
 
 export function PhotoGrid() {
-  const [visible, setVisible] = useState(false)
+  const [isRemarkOpen, setIsRemarkOpen] = useState(false)
   const [previewVisible, setPreviewVisible] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
-  const [currentPhotoId, setCurrentPhotoId] = useState<number>(-1)
+  const [photoInfo, setPhotoInfo] = useState<PhotoInfo>({ photoId: -1, name: '' })
   const { updateProductSelected, removeSelectedByPhotoId } = useProductsStore()
   const {
     photos,
@@ -23,7 +24,6 @@ export function PhotoGrid() {
     updatePhotoRemoveTagMenus,
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
-    updatePhotoRemark,
   } = usePhotosStore()
 
   const filterPhotos = photos.filter((photo) => {
@@ -50,7 +50,7 @@ export function PhotoGrid() {
     generateAddTagMenu()
   }, [])
 
-  function handleDropDownClick(key: string, photoId: number) {
+  function handleDropDownClick(key: string, { photoId, name }: PhotoInfo) {
     const [actionType, productId] = key.split('_')
 
     switch (actionType) {
@@ -70,21 +70,16 @@ export function PhotoGrid() {
         removeAllMarkedProduct(photoId)
         break
       case 'addNote':
-        setVisible(true)
-        setCurrentPhotoId(photoId)
+        setIsRemarkOpen(true)
+        setPhotoInfo({ photoId, name })
         break
       default:
         message.error('未知操作')
     }
   }
 
-  function handleRemarkClick(photoId: number) {
-    setCurrentPhotoId(photoId)
-    setVisible(true)
-  }
-
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 relative">
+    <div className="grid grid-cols-[repeat(auto-fill,_minmax(360px,_1fr))] gap-4 relative">
       <PhotoPreviewGroup
         preview={{
           visible: previewVisible,
@@ -107,7 +102,6 @@ export function PhotoGrid() {
                 addProductsMenus={photo.addTagMenus}
                 removeProductsMenus={photo.removeTagMenus}
                 onDropDownClick={handleDropDownClick}
-                onRemarkClick={handleRemarkClick}
                 onPreviewClick={() => {
                   setPreviewVisible(true)
                   setCurrentPhotoIndex(index)
@@ -118,11 +112,11 @@ export function PhotoGrid() {
         }
       </PhotoPreviewGroup>
 
-      <RemarkModal
-        photoId={currentPhotoId}
-        open={visible}
-        onClose={() => setVisible(false)}
-        onSave={remark => updatePhotoRemark(currentPhotoId, remark)}
+      <PhotoRemarkModal
+        open={isRemarkOpen}
+        photoId={photoInfo.photoId}
+        photoName={photoInfo.name}
+        onClose={() => setIsRemarkOpen(false)}
       />
     </div>
   )

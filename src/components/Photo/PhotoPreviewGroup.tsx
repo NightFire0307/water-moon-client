@@ -117,6 +117,13 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     }
   }, [previewGroup, childProps])
 
+  // 获取图片名称
+  const photoName = useMemo(() => {
+    if (previewGroup?.current !== undefined) {
+      return childProps[previewGroup.current]?.name
+    }
+  }, [previewGroup, childProps])
+
   useEffect(() => {
     if (previewGroup?.visible !== true)
       return
@@ -153,12 +160,17 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   }
 
   const handleClose = () => {
-    if (previewGroup?.onVisibleChange) {
-      previewGroup.onVisibleChange(!previewGroup.visible)
-    }
-    else {
-      setOpen(false)
-    }
+    setDropdownOpen(false)
+
+    setTimeout(() => {
+      setScale(1)
+      if (previewGroup?.onVisibleChange) {
+        previewGroup.onVisibleChange(false)
+      }
+      else {
+        setOpen(false)
+      }
+    }, 0)
   }
 
   // Scale Photo
@@ -210,7 +222,12 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   }, [scale])
 
   useEffect(() => {
-    document.addEventListener('click', () => setDropdownOpen(false))
+    const closeDropDownMenu = () => setDropdownOpen(false)
+    document.addEventListener('click', closeDropDownMenu)
+
+    return () => {
+      document.removeEventListener('click', closeDropDownMenu)
+    }
   }, [])
 
   return (
@@ -230,7 +247,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
         }}
       >
         <div
-          className="flex justify-center relative px-16 font-medium select-none"
+          className="flex justify-center relative px-16 font-medium select-none min-h-[60vh] max-h-[80vh] "
         >
           <div onClick={(e) => {
             e.stopPropagation()
@@ -259,22 +276,6 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                 onClick={() => handleZoom(1.2)}
               />
             </div>
-
-            <div className="absolute left-4 top-1/2 ">
-              <ToolBtn
-                icon={<LeftOutlined />}
-                onClick={handlePrev}
-                disabled={previewGroup?.current ? previewGroup.current === 0 : false}
-              />
-            </div>
-            <div className="absolute right-4 top-1/2 ">
-              <ToolBtn
-                icon={<RightOutlined />}
-                onClick={handleNext}
-                disabled={previewGroup?.current ? previewGroup.current === childProps.length - 1 : false}
-              />
-            </div>
-
             <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-700/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
               <div>
                 IMG_
@@ -295,7 +296,6 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                 {/* <div className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">缘定今生</div> */}
               </div>
             </div>
-
             <div className="absolute top-4 right-4">
               <ToolBtn
                 icon={<CloseOutlined />}
@@ -303,12 +303,26 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
               />
             </div>
 
+            <div className="absolute left-4 top-1/2 ">
+              <ToolBtn
+                icon={<LeftOutlined />}
+                onClick={handlePrev}
+                disabled={previewGroup?.current ? previewGroup.current === 0 : false}
+              />
+            </div>
+            <div className="absolute right-4 top-1/2 ">
+              <ToolBtn
+                icon={<RightOutlined />}
+                onClick={handleNext}
+                disabled={previewGroup?.current ? previewGroup.current === childProps.length - 1 : false}
+              />
+            </div>
           </div>
 
           <div
-            className="relative flex max-h-[80vh] min-h-[80vh] items-center justify-center overflow-hidden"
+            className="relative flex items-center justify-center"
           >
-            <Watermark content="人像摄影">
+            <Watermark content="人像摄影" className="max-h-full">
               {
                 imgLoaded
                   ? <Spin size="large" />
@@ -324,7 +338,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                             style={{ transform: `scale(${scale}) ` }}
                             src={imgSrc}
                             alt=""
-                            className="max-h-[85vh] object-contain"
+                            className="object-contain max-h-[80vh]"
                           />
                         </div>
                       </Draggable>
@@ -336,7 +350,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
         </div>
       </CustomModal>
 
-      <PhotoRemarkModal open={remarkOpen} onClose={() => setRemarkOpen(false)} />
+      <PhotoRemarkModal open={remarkOpen} photoId={photoId || -1} photoName={photoName ?? ''} onClose={() => setRemarkOpen(false)} />
     </>
   )
 }

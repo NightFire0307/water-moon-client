@@ -7,10 +7,15 @@ import {
   TagRemoveIcon,
 } from '@/assets/icon'
 import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
-import { CommentOutlined, StarFilled, ZoomInOutlined } from '@ant-design/icons'
+import { MessageFilled, StarFilled, ZoomInOutlined } from '@ant-design/icons'
 import { Dropdown, Image, type MenuProps, Tag } from 'antd'
 import cs from 'classnames'
 import { useContext, useEffect, useState } from 'react'
+
+export interface PhotoInfo {
+  photoId: number
+  name: string
+}
 
 export interface PhotoProps {
   photoId: number
@@ -24,12 +29,11 @@ export interface PhotoProps {
   addProductsMenus: MenuItemType[]
   removeProductsMenus: MenuItemType[]
   onPreviewClick?: (photoId: number) => void
-  onDropDownClick?: (key: string, photoId: number) => void
-  onRemarkClick?: (photoId: number) => void
+  onDropDownClick?: (key: string, photoInfo: PhotoInfo) => void
 }
 
 export function Photo(props: PhotoProps) {
-  const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onRemarkClick, onPreviewClick } = props
+  const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onPreviewClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const previewMode = useContext(PreviewModeContext)
@@ -69,14 +73,14 @@ export function Photo(props: PhotoProps) {
     <Dropdown
       menu={{
         items,
-        onClick: ({ key }) => onDropDownClick?.(key, photoId),
+        onClick: ({ key }) => onDropDownClick?.(key, { photoId, name }),
       }}
       trigger={previewMode ? [] : ['contextMenu']}
     >
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="w-full relative overflow-hidden rounded-xl"
+        className="max-w-[360px] relative overflow-hidden rounded-xl"
       >
         <div className="absolute top-2 left-2 z-10">
           {
@@ -89,23 +93,23 @@ export function Photo(props: PhotoProps) {
           isRecommend
           && (
             <div className="absolute top-2 right-2 z-10">
-              <StarFilled className="text-amber-400 text-base" />
+              <StarFilled className="text-amber-400 text-lg" />
             </div>
           )
         }
-        <div className="relative bg-darkBlueGray-200 overflow-hidden rounded-tl-xl rounded-tr-xl flex shadow-md justify-center items-center max-h-[220px]">
-          {
-            remark && (
-              <div
-                className="cursor-pointer rounded-2xl flex justify-center items-center absolute top-2 right-2 text-base text-geekBlue-600 w-[30px] h-[30px] bg-geekBlue-200"
-                onClick={() => onRemarkClick?.(photoId)}
-              >
-                <CommentOutlined />
-              </div>
-            )
-          }
+
+        {
+          remark
+          && (
+            <div className="absolute bottom-12 right-2 z-10">
+              <MessageFilled className="text-darkBlueGray-300 text-lg" />
+            </div>
+          )
+        }
+
+        <div className="relative bg-darkBlueGray-200 overflow-hidden rounded-tl-xl rounded-tr-xl flex shadow-md justify-center items-center">
           <Image
-            className="cursor-pointer object-contain"
+            className="cursor-pointer object-contain min-h-[240px] max-h-[240px]"
             src={thumbnail_url}
             preview={{
               mask: null,

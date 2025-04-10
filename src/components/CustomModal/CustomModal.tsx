@@ -35,7 +35,9 @@ const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCanc
             closeIcon !== null && <Button icon={<CloseOutlined />} shape="circle" onClick={() => onCancel && onCancel()} />
           }
         </div>
-        <p className="text-darkBlueGray-400 font-medium mt-2">{desc}</p>
+        {
+          desc && <p className="text-darkBlueGray-400 font-medium mt-2">{desc}</p>
+        }
       </div>
 
       {children}

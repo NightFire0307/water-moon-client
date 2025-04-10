@@ -9,4 +9,9 @@ interface IPhoto {
   remark?: string
 }
 
-export type IPhotoResponse = ResponsePromise<IPhoto[]>
+export type IPhotoResponse = ResponsePromise<{
+  current: number
+  list: IPhoto[]
+  total: number
+  pageSize: number
+}>

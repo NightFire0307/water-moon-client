@@ -44,6 +44,7 @@ interface PhotosAction {
   removeMarkedProductByPhotoId: (photoId: number, productId: number) => void
   // 移除当前照片所有已标记的产品
   removeAllMarkedProduct: (photoId: number) => void
+  // 更新照片备注
   updatePhotoRemark: (photoId: number, remark: string) => void
 }
 
@@ -57,7 +58,7 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
         const { data } = await getOrderPhotos()
         const photos: IPhoto[] = []
 
-        for (const photo of data) {
+        for (const photo of data.list) {
           photos.push({
             photoId: photo.id,
             thumbnail_url: photo.thumbnail_url,

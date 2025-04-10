@@ -67,7 +67,7 @@ function MainLayout() {
         }
         catch (err) {
           console.error(err)
-          navigate('/404')
+          // navigate('/404')
         }
       })()
     }
