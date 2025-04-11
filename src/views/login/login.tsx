@@ -83,6 +83,15 @@ function Login() {
   return (
     <ConfigProvider
       button={{ className: styles.linearGradientButton }}
+      theme={{
+        components: {
+          Input: {
+            activeBorderColor: '#475569',
+            activeShadow: '#020617',
+            hoverBorderColor: '#94a3b8',
+          },
+        },
+      }}
     >
       <Form form={form} layout="vertical" requiredMark={false} autoComplete="off">
         {
