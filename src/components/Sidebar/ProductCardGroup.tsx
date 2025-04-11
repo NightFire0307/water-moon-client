@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import { ProductCard } from '@/components/Sidebar/ProductCard.tsx'
+import { usePhotosStore } from '@/stores/photosStore.tsx'
 import { useProductsStore } from '@/stores/productsStore.tsx'
 import { animated, useTrail } from '@react-spring/web'
 import { Space } from 'antd'
@@ -14,6 +15,7 @@ interface ProductCardGroupProps {
 const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 0, onChange }) => {
   const products = useProductsStore(state => state.products)
   const [curIndex, setCurIndex] = useState(-1)
+  const filterPhotoByProductId = usePhotosStore(state => state.filterPhotoByProductId)
 
   const [trail, api] = useTrail(
     products.length,
@@ -23,6 +25,8 @@ const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 0, onCh
   function handleCardClick(index: number, productId: number) {
     setCurIndex(index)
     onChange && onChange(productId)
+
+    filterPhotoByProductId(productId)
   }
 
   useEffect(() => {

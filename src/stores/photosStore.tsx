@@ -19,6 +19,7 @@ export interface IPhoto {
 
 interface PhotosStore {
   photos: IPhoto[]
+  filteredPhotos: IPhoto[]
   selectedFilter: FILTER_TYPE
 }
 
@@ -46,12 +47,19 @@ interface PhotosAction {
   removeAllMarkedProduct: (photoId: number) => void
   // 更新照片备注
   updatePhotoRemark: (photoId: number, remark: string) => void
+  // 根据产品ID过滤照片
+  filterPhotoByProductId: (productId: number) => void
+  // 清空过滤照片列表
+  clearFilterPhotos: () => void
+  // 获取照片列表
+  getDisplayPhotos: () => IPhoto[]
 }
 
 export const usePhotosStore = create<PhotosStore & PhotosAction>()(
   devtools(
     (set, get) => ({
       photos: [],
+      filteredPhotos: [],
       selectedFilter: FILTER_TYPE.ALL,
       fetchPhotos: async () => {
         const products = useProductsStore.getState().products
@@ -203,6 +211,27 @@ export const usePhotosStore = create<PhotosStore & PhotosAction>()(
           return ({ photos: [...state.photos] })
         })
       ),
+      filterPhotoByProductId: (productId: number) => (
+        set((state) => {
+          const filteredPhotos = state.photos.filter((photo) => {
+            return photo.markedProducts.some(product => product.productId === productId)
+          })
+
+          return {
+            filteredPhotos: [...filteredPhotos],
+          }
+        })
+      ),
+      clearFilterPhotos: () => (
+        set(() => {
+          return {
+            filteredPhotos: [],
+          }
+        })
+      ),
+      getDisplayPhotos: () => {
+        return get().filteredPhotos.length > 0 ? get().filteredPhotos : get().photos
+      },
     }),
     {
       name: 'photos-store',

@@ -16,7 +16,6 @@ export function PhotoGrid() {
   const [photoInfo, setPhotoInfo] = useState<PhotoInfo>({ photoId: -1, name: '' })
   const { updateProductSelected, removeSelectedByPhotoId } = useProductsStore()
   const {
-    photos,
     selectedFilter,
     updatePhotoAddTagMenus,
     removeAllMarkedProduct,
@@ -25,6 +24,7 @@ export function PhotoGrid() {
     updatePhotoMarkedProductTypes,
     generateAddTagMenu,
   } = usePhotosStore()
+  const photos = usePhotosStore(state => state.getDisplayPhotos())
 
   const filterPhotos = photos.filter((photo) => {
     if (selectedFilter === 'selected')
