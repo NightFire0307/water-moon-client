@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { CameraIcon, CircleCheckIcon, WarningIcon } from '@/assets/icon'
-import { Card, Progress, Tooltip, Typography } from 'antd'
-import cs from 'classnames'
+import CustomCard from '@/components/CustomCard/CustomCard.tsx'
+import { Progress, Tooltip, Typography } from 'antd'
 import { useMemo } from 'react'
 
 const { Text } = Typography
@@ -56,20 +56,10 @@ export function ProductCard(props: ProductCardProps) {
   }
 
   return (
-    <Card
-      size="small"
-      variant="borderless"
-      className={cs('w-full cursor-pointer transition duration-150 ease-in-out hover:shadow-lg', className)}
-      title={<ProductTitle title={title} count={count} />}
-      styles={{
-        header: { background: 'linear-gradient(90deg, #1e293b, #324054)', color: '#fff' },
-        body: { background: '#f9fbfd' },
-      }}
-      onClick={handleCardClick}
-    >
+    <CustomCard title={<ProductTitle title={title} count={count} />} onClick={handleCardClick} className={className}>
       <div className="flex flex-col gap-3 text-darkBlueGray-800">
         <div className="flex justify-between">
-          <div className="pl-2 pr-2 rounded-full inline-block bg-darkBlueGray-200 text-black-firstText text-[12px]">{ type }</div>
+          <div className="pl-2 pr-2 rounded-full inline-block bg-darkBlueGray-200 text-black-firstText text-xs">{ type }</div>
           {
             selectedCount === photoLimit ? <CircleCheckIcon className="text-base text-emerald-600" /> : null
           }
@@ -122,6 +112,6 @@ export function ProductCard(props: ProductCardProps) {
           />
         </div>
       </div>
-    </Card>
+    </CustomCard>
   )
 }

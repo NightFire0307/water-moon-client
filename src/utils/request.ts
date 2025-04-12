@@ -53,9 +53,6 @@ service.interceptors.response.use(
           break
         case 401:
           message.error(error.response.data.message)
-          break
-        case (400):
-          message.error(error.response.data.message || '请求错误，请稍后再试')
           isRefreshing = true
 
           try {
@@ -67,6 +64,9 @@ service.interceptors.response.use(
           finally {
             isRefreshing = false
           }
+          break
+        case (400):
+          message.error(error.response.data.message || '请求错误，请稍后再试')
           break
         case 404:
           return Promise.reject(error.response.data)
