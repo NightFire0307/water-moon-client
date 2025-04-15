@@ -10,7 +10,6 @@ import { ConfirmModal } from './components/ConfirmModal.tsx'
 
 function Home() {
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [confirmLoading, setConfirmLoading] = useState(false)
   const previewMode = useAuthStore(state => state.isPreview)
   const orderInfo = useContext(OrderInfoContext)
   const products = useProductsStore(state => state.products)
@@ -28,14 +27,6 @@ function Home() {
     },
     [products],
   )
-
-  function handleSubmit() {
-    setConfirmLoading(true)
-    setTimeout(() => {
-      setConfirmOpen(false)
-      setConfirmLoading(false)
-    }, 2000)
-  }
 
   return (
     <div className="flex flex-col w-full h-full p-4">
@@ -75,14 +66,12 @@ function Home() {
             )}
         addonIcon={previewMode ? <InfoCircleOutlined /> : <LockOutlined />}
         afterIcon={!previewMode ? <ArrowRightOutlined /> : undefined}
-        onClick={() => setConfirmOpen(true)}
+        onClick={() => !previewMode && setConfirmOpen(true)}
       />
 
       <ConfirmModal
         open={confirmOpen}
-        confirmLoading={confirmLoading}
         onCancel={() => setConfirmOpen(false)}
-        onSubmit={handleSubmit}
       />
     </div>
   )
