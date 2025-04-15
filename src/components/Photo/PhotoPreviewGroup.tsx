@@ -5,8 +5,8 @@ import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { Photo } from '@/components/Photo/Photo.tsx'
 import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
 import ToolBtn from '@/components/Photo/ToolBtn.tsx'
-import { usePhotosStore } from '@/stores/photosStore.tsx'
-import { useProductsStore } from '@/stores/productsStore.tsx'
+import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
+import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import {
   CalendarOutlined,
   CheckOutlined,

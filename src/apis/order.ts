@@ -16,7 +16,7 @@ export function getOrderPhotos(): IPhotoResponse {
   return request({
     url: '/api/selection/photos',
     method: 'GET',
-    params: { pageSize: 100 },
+    params: { pageSize: 50 },
   })
 }
 
@@ -51,5 +51,13 @@ export function getPhotoRemarkById(photoId: number) {
   return request({
     url: `/api/selection/photos/${photoId}/remark`,
     method: 'GET',
+  })
+}
+
+// 锁定选片结果
+export function submitSelection(orderId: number): Promise<Response<number>> {
+  return request({
+    url: `/api/selection/${orderId}`,
+    method: 'POST',
   })
 }

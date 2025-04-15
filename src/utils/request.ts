@@ -1,6 +1,6 @@
 import type { AxiosError } from 'axios'
 import { refreshToken } from '@/apis/login.ts'
-import { useCustomStore } from '@/stores/customStore.tsx'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { message } from 'antd'
 import axios from 'axios'
 
@@ -20,13 +20,13 @@ let isRefreshing = false
 // 刷新 Access_token
 async function refreshAccessToken() {
   const { data } = await refreshToken()
-  useCustomStore.getState().updateAccessToken(data.access_token)
+  useAuthStore.getState().updateAccessToken(data.access_token)
 }
 
 // request interceptor
 service.interceptors.request.use(
   (config) => {
-    const { access_token } = useCustomStore.getState()
+    const { access_token } = useAuthStore.getState()
 
     // 设置请求头部 Authorization
     if (access_token) {

@@ -1,8 +1,8 @@
 import FloatBtn from '@/components/FloatBtn/FloatBtn.tsx'
 import { PhotoGrid } from '@/components/Photo/PhotoGrid.tsx'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
-import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
-import { useProductsStore } from '@/stores/productsStore.tsx'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
+import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { ArrowRightOutlined, InfoCircleOutlined, LockOutlined } from '@ant-design/icons'
 import { useContext, useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
@@ -11,7 +11,7 @@ import { ConfirmModal } from './components/ConfirmModal.tsx'
 function Home() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
-  const previewMode = useContext(PreviewModeContext)
+  const previewMode = useAuthStore(state => state.isPreview)
   const orderInfo = useContext(OrderInfoContext)
   const products = useProductsStore(state => state.products)
 

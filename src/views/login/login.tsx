@@ -1,5 +1,5 @@
 import { login, verifySurl } from '@/apis/login.ts'
-import { useCustomStore } from '@/stores/customStore.tsx'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { ArrowRightOutlined, LockOutlined, MobileOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Form, Input } from 'antd'
 import { createStyles } from 'antd-style'
@@ -43,7 +43,7 @@ function Login() {
   const queryParams = new URLSearchParams(location.search)
   const surl = queryParams.get('surl')
   const pwd = queryParams.get('pwd')
-  const { updateAccessToken } = useCustomStore()
+  const { updateAccessToken } = useAuthStore()
   const navigate = useNavigate()
   const { styles } = useStyle()
 

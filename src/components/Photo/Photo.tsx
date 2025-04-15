@@ -1,16 +1,16 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
-import type { IProduct } from '../../stores/productsStore.tsx'
+import type { IProduct } from '../../stores/useProductsStore.tsx'
 import {
   NoteEditIcon,
   TagAddIcon,
   TagRemoveAllIcon,
   TagRemoveIcon,
 } from '@/assets/icon'
-import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { MessageFilled, StarFilled, ZoomInOutlined } from '@ant-design/icons'
 import { Dropdown, Image, type MenuProps, Tag } from 'antd'
 import cs from 'classnames'
-import { useContext, useEffect, useState } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 
 export interface PhotoInfo {
   photoId: number
@@ -32,11 +32,11 @@ export interface PhotoProps {
   onDropDownClick?: (key: string, photoInfo: PhotoInfo) => void
 }
 
-export function Photo(props: PhotoProps) {
+export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
   const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onPreviewClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
   const [isHovered, setIsHovered] = useState<boolean>(false)
-  const previewMode = useContext(PreviewModeContext)
+  const previewMode = useAuthStore(state => state.isPreview)
 
   useEffect(() => {
     products.length > 0 ? setRemoveDisabled(false) : setRemoveDisabled(true)
@@ -142,4 +142,4 @@ export function Photo(props: PhotoProps) {
       </div>
     </Dropdown>
   )
-}
+})

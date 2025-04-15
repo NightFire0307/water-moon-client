@@ -1,10 +1,10 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
-import type { IProduct } from './productsStore.tsx'
+import type { IProduct } from './useProductsStore.tsx'
 import { getOrderPhotos, removeAllTags } from '@/apis/order.ts'
 import { CheckOutlined } from '@ant-design/icons'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { useProductsStore } from './productsStore.tsx'
+import { useProductsStore } from './useProductsStore.tsx'
 
 export interface IPhoto {
   photoId: number
@@ -17,7 +17,7 @@ export interface IPhoto {
   removeTagMenus: MenuItemType[]
 }
 
-interface PhotosStore {
+interface UsePhotosStore {
   photos: IPhoto[]
   filteredPhotos: IPhoto[]
   selectedFilter: FILTER_TYPE
@@ -55,7 +55,7 @@ interface PhotosAction {
   getDisplayPhotos: () => IPhoto[]
 }
 
-export const usePhotosStore = create<PhotosStore & PhotosAction>()(
+export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
   devtools(
     (set, get) => ({
       photos: [],

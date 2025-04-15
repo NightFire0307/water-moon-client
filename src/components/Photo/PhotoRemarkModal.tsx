@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { getPhotoRemarkById, updatePhotoRemark } from '@/apis/order.ts'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
-import { usePhotosStore } from '@/stores/photosStore.tsx'
+import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { MessageOutlined } from '@ant-design/icons'
 import { Form, Input, message } from 'antd'
 import { useEffect } from 'react'

@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import IconProduct from '@/assets/icon/Product.svg?react'
-import { useProductsStore } from '@/stores/productsStore.tsx'
+import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { AppstoreOutlined } from '@ant-design/icons'
 import { animated, useTrail } from '@react-spring/web'
 import { Button, ConfigProvider, Divider, Space, Tooltip } from 'antd'

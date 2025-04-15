@@ -1,6 +1,6 @@
-import type { IProduct } from '@/stores/productsStore.tsx'
+import type { IProduct } from '@/stores/useProductsStore.tsx'
 import { BoxVariantIcon } from '@/assets/icon'
-import { useProductsStore } from '@/stores/productsStore.tsx'
+import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { Alert, Flex, Result, Space } from 'antd'
 import { useEffect, useState } from 'react'

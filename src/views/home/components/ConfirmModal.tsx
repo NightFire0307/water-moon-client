@@ -1,12 +1,14 @@
-import type { IProduct } from '@/stores/productsStore.tsx'
+import type { IProduct } from '@/stores/useProductsStore.tsx'
 import type { FC, ReactElement } from 'react'
+import { submitSelection } from '@/apis/order.ts'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
-import { useProductsStore } from '@/stores/productsStore.tsx'
+import { useCountDown } from '@/hooks/useCountDown.ts'
+import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { CheckCircleOutlined, LockOutlined, WarningOutlined } from '@ant-design/icons'
-import { Alert } from 'antd'
+import { Alert, message } from 'antd'
 import cs from 'classnames'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 
 interface ConfirmModalProps {
   open: boolean
@@ -52,6 +54,7 @@ export function ConfirmModal(props: ConfirmModalProps) {
   const { open, onCancel } = props
   const products = useProductsStore(state => state.products)
   const orderInfo = useContext(OrderInfoContext)
+  const { countDown, start } = useCountDown({ manual: true })
 
   // 过滤产品
   const filterProducts = useCallback(() => {
@@ -78,6 +81,17 @@ export function ConfirmModal(props: ConfirmModalProps) {
     [filterProducts],
   )
 
+  // 提交选片结果
+  const handleSubmit = async () => {
+    const { msg } = await submitSelection(orderInfo!.id)
+    message.success(msg)
+  }
+
+  useEffect(() => {
+    if (open)
+      start()
+  }, [open])
+
   return (
     <CustomModal
       open={open}
@@ -85,7 +99,9 @@ export function ConfirmModal(props: ConfirmModalProps) {
       centered
       title="确认提交选片结果"
       icon={<LockOutlined />}
-      okText="提交选片"
+      okText={`提交选片 ${countDown === 0 ? '' : `( ${countDown} )`}`}
+      disabledOk={countDown !== 0}
+      onOk={handleSubmit}
     >
       <div className="mt-1 mb-4 text-darkBlueGray-500">提交后将进入预览模式，选片结果将被锁定，无法再进行修改。</div>
       {

@@ -5,10 +5,9 @@ import Navbar from '@/components/Navbar'
 import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
 import Sidebar from '@/components/Sidebar'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
-import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
-import { useCustomStore } from '@/stores/customStore.tsx'
-import { usePhotosStore } from '@/stores/photosStore.tsx'
-import { useProductsStore } from '@/stores/productsStore.tsx'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
+import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
+import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { ConfigProvider, Layout } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import cs from 'classnames'
@@ -19,12 +18,11 @@ const { Sider, Content, Header } = Layout
 
 function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
-  const [previewMode, setPreviewMode] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
-  const access_Token = useCustomStore(state => state.access_token)
+  const { access_token, isPreview, setPreview } = useAuthStore()
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
-  const updateAccessToken = useCustomStore(state => state.updateAccessToken)
+  const updateAccessToken = useAuthStore(state => state.updateAccessToken)
 
   const { surl } = useParams()
   const navigate = useNavigate()
@@ -41,7 +39,7 @@ function MainLayout() {
   async function fetchOrderInfo(surl: string) {
     const { data } = await getOrderInfo(surl)
     if (data.status === 2)
-      setPreviewMode(true)
+      setPreview(true)
     setOrderInfo(data)
     generateProducts(data.order_products)
   }
@@ -50,7 +48,7 @@ function MainLayout() {
     if (surl) {
       (async () => {
         // 刷新 access_token
-        if (!access_Token) {
+        if (!access_token) {
           try {
             const { data } = await refreshToken()
             updateAccessToken(data.access_token)
@@ -76,73 +74,71 @@ function MainLayout() {
 
   return (
     <OrderInfoContext.Provider value={orderInfo}>
-      <PreviewModeContext.Provider value={previewMode}>
-        <ConfigProvider
-          locale={zhCN}
-          theme={{
-            token: {
-              colorBgElevated: '#334155',
-              colorText: '#f8fafc',
-              colorTextDisabled: '#64748b',
-              colorTextDescription: '#94a3b8',
-              controlItemBgHover: '#475569',
+      <ConfigProvider
+        locale={zhCN}
+        theme={{
+          token: {
+            colorBgElevated: '#334155',
+            colorText: '#f8fafc',
+            colorTextDisabled: '#64748b',
+            colorTextDescription: '#94a3b8',
+            controlItemBgHover: '#475569',
+          },
+          components: {
+            Modal: {
+              contentBg: '#1e293b',
             },
-            components: {
-              Modal: {
-                contentBg: '#1e293b',
-              },
-              Button: {
-                borderColorDisabled: '#475569',
-                defaultBg: '#1e293b',
-                defaultColor: '#e2e8f0',
-                defaultBorderColor: '#334155',
-                defaultActiveBg: '#0f172a',
-                defaultActiveBorderColor: '#1e293b',
-                defaultActiveColor: '#e2e8f0',
-                defaultHoverBg: '#334155',
-                defaultHoverBorderColor: '#475569',
-                defaultHoverColor: '#ffffff',
-                textTextColor: '#94a3b8',
-                textHoverBg: '#475569',
-                textTextActiveColor: '#cbd5e1',
-                textTextHoverColor: '#f8fafc',
-              },
-              Input: {
-                activeBg: '#1e293b',
-                activeBorderColor: '#475569',
-                activeShadow: '#020617',
-                hoverBorderColor: '#94a3b8',
-              },
+            Button: {
+              borderColorDisabled: '#475569',
+              defaultBg: '#1e293b',
+              defaultColor: '#e2e8f0',
+              defaultBorderColor: '#334155',
+              defaultActiveBg: '#0f172a',
+              defaultActiveBorderColor: '#1e293b',
+              defaultActiveColor: '#e2e8f0',
+              defaultHoverBg: '#334155',
+              defaultHoverBorderColor: '#475569',
+              defaultHoverColor: '#ffffff',
+              textTextColor: '#94a3b8',
+              textHoverBg: '#475569',
+              textTextActiveColor: '#cbd5e1',
+              textTextHoverColor: '#f8fafc',
             },
-          }}
-        >
-          <Layout className="h-screen bg-gray-500 p-4">
-            {
-              previewMode && <PreviewAlert />
-            }
+            Input: {
+              activeBg: '#1e293b',
+              activeBorderColor: '#475569',
+              activeShadow: '#020617',
+              hoverBorderColor: '#94a3b8',
+            },
+          },
+        }}
+      >
+        <Layout className="h-screen bg-gray-500 p-4">
+          {
+            isPreview && <PreviewAlert />
+          }
 
-            <Header className="h-auto p-0 mb-4 bg-[transparent] rounded-xl ">
-              <Navbar />
-            </Header>
+          <Header className="h-auto p-0 mb-4 bg-[transparent] rounded-xl ">
+            <Navbar />
+          </Header>
 
-            <Layout className="bg-[transparent]">
-              <Sider
-                collapsed={collapsed}
-                collapsedWidth={60}
-                className={cs('rounded-xl shadow-md', collapsed ? 'bg-gradient-to-b from-darkBlueGray-1000 to-darkBlueGray-900 p-2' : 'bg-white p-4')}
-                width={290}
-              >
-                <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
-              </Sider>
+          <Layout className="bg-[transparent]">
+            <Sider
+              collapsed={collapsed}
+              collapsedWidth={60}
+              className={cs('rounded-xl shadow-md', collapsed ? 'bg-gradient-to-b from-darkBlueGray-1000 to-darkBlueGray-900 p-2' : 'bg-white p-4')}
+              width={290}
+            >
+              <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
+            </Sider>
 
-              <Content className="bg-white ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
-                <Outlet />
-              </Content>
-            </Layout>
-
+            <Content className="bg-white ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
+              <Outlet />
+            </Content>
           </Layout>
-        </ConfigProvider>
-      </PreviewModeContext.Provider>
+
+        </Layout>
+      </ConfigProvider>
     </OrderInfoContext.Provider>
   )
 }
