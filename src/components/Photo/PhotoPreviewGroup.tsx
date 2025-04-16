@@ -5,6 +5,7 @@ import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { Photo } from '@/components/Photo/Photo.tsx'
 import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
 import ToolBtn from '@/components/Photo/ToolBtn.tsx'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import {
@@ -19,8 +20,8 @@ import {
   ZoomOutOutlined,
 } from '@ant-design/icons'
 import { Dropdown, Spin, Watermark } from 'antd'
-import { Children, isValidElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Children, isValidElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Draggable from 'react-draggable'
 
 interface PhotoPreviewProps {
@@ -69,6 +70,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const isPreview = useAuthStore(state => state.isPreview)
   const { photos, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus, updatePhotoAddTagMenus, updatePhotoMarkedProductTypes, updatePhotoRemoveTagMenus } = usePhotosStore()
   const { products, removeSelectedByPhotoId, updateProductSelected } = useProductsStore()
 
@@ -255,15 +257,20 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
           }}
           >
             <div className="absolute top-4 left-1/2 -translate-x-1/2 flex justify-center gap-2 z-10">
-              <Dropdown
-                open={dropdownOpen}
-                menu={{ items: [...defaultItems, ...productItems], onClick: ({ key }) => handleProductClick(key) }}
-              >
-                <ToolBtn
-                  icon={<TagOutlined />}
-                  onMouseEnter={() => setDropdownOpen(true)}
-                />
-              </Dropdown>
+              {
+                !isPreview
+                && (
+                  <Dropdown
+                    open={dropdownOpen}
+                    menu={{ items: [...defaultItems, ...productItems], onClick: ({ key }) => handleProductClick(key) }}
+                  >
+                    <ToolBtn
+                      icon={<TagOutlined />}
+                      onMouseEnter={() => setDropdownOpen(true)}
+                    />
+                  </Dropdown>
+                )
+              }
 
               <ToolBtn icon={<MessageOutlined />} onClick={() => setRemarkOpen(true)} />
 

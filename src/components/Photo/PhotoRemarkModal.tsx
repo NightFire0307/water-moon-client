@@ -1,6 +1,7 @@
 import type { FC } from 'react'
 import { getPhotoRemarkById, updatePhotoRemark } from '@/apis/order.ts'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { MessageOutlined } from '@ant-design/icons'
 import { Form, Input, message } from 'antd'
@@ -16,6 +17,7 @@ interface PhotoRemarkModalProps {
 const PhotoRemarkModal: FC<PhotoRemarkModalProps> = ({ open, photoId, photoName, onClose }) => {
   const [form] = Form.useForm()
   const updatePhotoRemarkStore = usePhotosStore(state => state.updatePhotoRemark)
+  const isPreview = useAuthStore(state => state.isPreview)
 
   const handleCancel = () => {
     form.resetFields()
@@ -23,10 +25,12 @@ const PhotoRemarkModal: FC<PhotoRemarkModalProps> = ({ open, photoId, photoName,
   }
 
   const handleOk = async () => {
-    const { remark } = form.getFieldsValue()
-    updatePhotoRemarkStore(photoId, remark)
-    const { msg } = await updatePhotoRemark({ photoId, remark })
-    message.success(msg)
+    if (!isPreview) {
+      const { remark } = form.getFieldsValue()
+      updatePhotoRemarkStore(photoId, remark)
+      const { msg } = await updatePhotoRemark({ photoId, remark })
+      message.success(msg)
+    }
     handleCancel()
   }
 
@@ -57,6 +61,7 @@ const PhotoRemarkModal: FC<PhotoRemarkModalProps> = ({ open, photoId, photoName,
             classNames={{
               textarea: 'bg-darkBlueGray-600 text-darkBlueGray-300 placeholder:text-darkBlueGray-300 border-darkBlueGray-700 hover:border-darkBlueGray-600 hover:bg-darkBlueGray-700',
             }}
+            disabled={isPreview}
           />
         </Form.Item>
       </Form>
