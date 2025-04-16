@@ -6,7 +6,7 @@ import request from '@/utils/request.ts'
 // 获取订单信息
 export function getOrderInfo(surl: string): IOrderResponse {
   return request({
-    url: `/api/selection/${surl}/products/`,
+    url: `/api/selection/${surl}/order_info`,
     method: 'GET',
   })
 }
