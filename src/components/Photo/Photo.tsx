@@ -6,6 +6,7 @@ import {
   TagRemoveAllIcon,
   TagRemoveIcon,
 } from '@/assets/icon'
+import { usePhotoPreviewContext } from '@/contexts/PhotoPreviewContext.ts'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { MessageFilled, StarFilled, ZoomInOutlined } from '@ant-design/icons'
 import { Dropdown, Image, type MenuProps, Tag } from 'antd'
@@ -33,10 +34,11 @@ export interface PhotoProps {
 }
 
 export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
-  const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onPreviewClick } = props
+  const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onPreviewClick, ...restProps } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const previewMode = useAuthStore(state => state.isPreview)
+  const { registerPhoto } = usePhotoPreviewContext()
 
   useEffect(() => {
     products.length > 0 ? setRemoveDisabled(false) : setRemoveDisabled(true)
@@ -69,6 +71,10 @@ export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
     },
   ]
 
+  useEffect(() => {
+    registerPhoto(props)
+  }, [])
+
   return (
     <Dropdown
       menu={{
@@ -81,6 +87,7 @@ export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className="max-w-[360px] relative overflow-hidden rounded-xl"
+        {...restProps}
       >
         <div className="absolute top-2 left-2 z-10">
           {
@@ -141,5 +148,6 @@ export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
         </div>
       </div>
     </Dropdown>
+
   )
 })

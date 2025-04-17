@@ -4,9 +4,9 @@ import PhotoPreviewGroup from '@/components/Photo/PhotoPreviewGroup.tsx'
 import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
-import { animated, useTransition } from '@react-spring/web'
 import { message } from 'antd'
 import { useEffect, useState } from 'react'
+import { Flipped, Flipper } from 'react-flip-toolkit'
 import { Photo } from './Photo.tsx'
 
 export function PhotoGrid() {
@@ -16,7 +16,6 @@ export function PhotoGrid() {
   const [photoInfo, setPhotoInfo] = useState<PhotoInfo>({ photoId: -1, name: '' })
   const { updateProductSelected, removeSelectedByPhotoId } = useProductsStore()
   const {
-    selectedFilter,
     updatePhotoAddTagMenus,
     removeAllMarkedProduct,
     removeMarkedProductByPhotoId,
@@ -25,26 +24,6 @@ export function PhotoGrid() {
     generateAddTagMenu,
   } = usePhotosStore()
   const photos = usePhotosStore(state => state.getDisplayPhotos())
-
-  const filterPhotos = photos.filter((photo) => {
-    if (selectedFilter === 'selected')
-      return photo.markedProducts.length > 0
-    if (selectedFilter === 'unselected')
-      return photo.markedProducts.length === 0
-    return true
-  })
-
-  const [transitions, api] = useTransition(filterPhotos, () => ({
-    from: { opacity: 0, transform: 'scale(0.8)' },
-    enter: { opacity: 1, transform: 'scale(1)' },
-    leave: { opacity: 0, transform: 'scale(0.8)' },
-    keys: photo => photo.photoId,
-    config: { mass: 1, tension: 280, friction: 60 },
-  }))
-
-  useEffect(() => {
-    api.start()
-  }, [filterPhotos])
 
   useEffect(() => {
     generateAddTagMenu()
@@ -79,45 +58,73 @@ export function PhotoGrid() {
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,_minmax(360px,_1fr))] gap-4 relative">
-      <PhotoPreviewGroup
-        preview={{
-          visible: previewVisible,
-          current: currentPhotoIndex,
-          onChange: current => setCurrentPhotoIndex(current),
-          onVisibleChange: visible => setPreviewVisible((visible)),
-        }}
-      >
-        {
-          transitions((style, photo, _, index) => (
-            <animated.div key={photo.photoId} style={{ ...style }}>
-              <Photo
-                photoId={photo.photoId}
-                index={index + 1}
-                thumbnail_url={photo.thumbnail_url}
-                original_url={photo.original_url}
-                name={photo.name}
-                products={photo.markedProducts}
-                remark={photo.remark}
-                addProductsMenus={photo.addTagMenus}
-                removeProductsMenus={photo.removeTagMenus}
-                onDropDownClick={handleDropDownClick}
-                onPreviewClick={() => {
-                  setPreviewVisible(true)
-                  setCurrentPhotoIndex(index)
+    <Flipper flipKey={photos.map(p => p.photoId).join('-')}>
+      <div className="grid grid-cols-[repeat(auto-fill,_minmax(360px,_1fr))] gap-4 relative">
+        <PhotoPreviewGroup
+          preview={{
+            visible: previewVisible,
+            current: currentPhotoIndex,
+            onChange: current => setCurrentPhotoIndex(current),
+            onVisibleChange: visible => setPreviewVisible((visible)),
+          }}
+        >
+          {
+            photos.map((photo, index) => (
+              <Flipped
+                key={photo.photoId}
+                flipId={photo.photoId}
+                onAppear={(el) => {
+                  el.animate([
+                    { opacity: 0, transform: 'scale(0.9)' },
+                    { opacity: 1, transform: 'scale(1)' },
+                  ], {
+                    duration: 300,
+                    easing: 'ease',
+                    fill: 'both',
+                  })
                 }}
-              />
-            </animated.div>
-          ))
-        }
-      </PhotoPreviewGroup>
+                onExit={(el, _, removeElement) => {
+                  el.animate([
+                    { opacity: 1, transform: 'scale(1)' },
+                    { opacity: 0, transform: 'scale(0.9)' },
+                  ], {
+                    duration: 300,
+                    easing: 'ease',
+                  }).onfinish = removeElement
+                }}
+              >
+                {flippedProps => (
+                  <Photo
+                    {...flippedProps} // 注入必要的 props
+                    photoId={photo.photoId}
+                    index={index + 1}
+                    thumbnail_url={photo.thumbnail_url}
+                    original_url={photo.original_url}
+                    name={photo.name}
+                    products={photo.markedProducts}
+                    remark={photo.remark}
+                    addProductsMenus={photo.addTagMenus}
+                    removeProductsMenus={photo.removeTagMenus}
+                    onDropDownClick={handleDropDownClick}
+                    onPreviewClick={() => {
+                      setPreviewVisible(true)
+                      setCurrentPhotoIndex(index)
+                    }}
+                  />
+                )}
+              </Flipped>
+            ))
+          }
+        </PhotoPreviewGroup>
 
-      <PhotoRemarkModal
-        open={isRemarkOpen}
-        photoId={photoInfo.photoId}
-        photoName={photoInfo.name}
-        onClose={() => setIsRemarkOpen(false)}
-      />
-    </div>
+        <PhotoRemarkModal
+          open={isRemarkOpen}
+          photoId={photoInfo.photoId}
+          photoName={photoInfo.name}
+          onClose={() => setIsRemarkOpen(false)}
+        />
+      </div>
+
+    </Flipper>
   )
 }

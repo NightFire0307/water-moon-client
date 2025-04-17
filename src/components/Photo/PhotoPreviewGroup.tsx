@@ -1,13 +1,14 @@
 import type { PhotoProps } from '@/components/Photo/Photo.tsx'
 import type { MenuProps } from 'antd'
-import type { FC, PropsWithChildren, ReactNode } from 'react'
+import type { FC, PropsWithChildren } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
-import { Photo } from '@/components/Photo/Photo.tsx'
 import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
 import ToolBtn from '@/components/Photo/ToolBtn.tsx'
+import { PhotoPreviewContext } from '@/contexts/PhotoPreviewContext.ts'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
+
 import {
   CalendarOutlined,
   CheckOutlined,
@@ -20,8 +21,7 @@ import {
   ZoomOutOutlined,
 } from '@ant-design/icons'
 import { Dropdown, Spin, Watermark } from 'antd'
-
-import { Children, isValidElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Draggable from 'react-draggable'
 
 interface PhotoPreviewProps {
@@ -39,33 +39,16 @@ function getPreviewGroupType(preview: PhotoPreviewProps['preview']): PhotoPrevie
   return typeof preview === 'boolean' ? undefined : preview
 }
 
-// 遍历 Children 获取所有的 Photo 组件下的 Props
-function getPhotosProps(children: ReactNode) {
-  const urls: PhotoProps[] = []
-
-  Children.forEach(children, (child) => {
-    if (!isValidElement(child))
-      return
-
-    if (child.type === Photo) {
-      urls.push(child.props)
-    }
-
-    if (child.props!.children) {
-      urls.push(...getPhotosProps(child.props.children))
-    }
-  })
-
-  return urls
-}
-
 const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, children }) => {
-  const [open, setOpen] = useState(false)
+  const [images, setImages] = useState<PhotoProps[]>([])
+  const [previewState, setPreviewState] = useState({
+    open: false,
+    imgSrc: '',
+    scale: 1,
+    bounds: { left: 0, top: 0, bottom: 0, right: 0 },
+    imgLoaded: true,
+  })
   const [remarkOpen, setRemarkOpen] = useState(false)
-  const [imgLoaded, setImgLoaded] = useState(true)
-  const [imgSrc, setImgSrc] = useState('')
-  const [scale, setScale] = useState(1)
-  const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 })
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -73,8 +56,6 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   const isPreview = useAuthStore(state => state.isPreview)
   const { photos, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus, updatePhotoAddTagMenus, updatePhotoMarkedProductTypes, updatePhotoRemoveTagMenus } = usePhotosStore()
   const { products, removeSelectedByPhotoId, updateProductSelected } = useProductsStore()
-
-  const childProps = useMemo(() => getPhotosProps(children), [children])
 
   const previewGroup = useMemo(() => getPreviewGroupType(preview), [preview])
 
@@ -96,68 +77,62 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
       key: product.productId,
       extra: product.product_type,
       label: product.title,
-      icon: previewGroup?.current !== undefined && product.selected_photos.includes(childProps[previewGroup.current]?.photoId) ? <CheckOutlined /> : null,
+      icon: previewGroup?.current !== undefined && product.selected_photos.includes(images[previewGroup.current]?.photoId) ? <CheckOutlined /> : null,
     }))
-  }, [products, previewGroup, childProps])
+  }, [products, previewGroup])
 
-  // 获取图片标记的产品
+  // 注册图片
+  const registerPhoto = useCallback((image: PhotoProps) => {
+    setImages(prev => [...prev, image])
+  }, [])
+
   const photo_marked_products = useMemo(() => {
     if (previewGroup?.current !== undefined) {
-      const photoId = childProps[previewGroup.current]?.photoId
-      for (const photo of photos) {
-        if (photo.photoId === photoId) {
-          return photo.markedProducts
-        }
-      }
+      const photoId = images[previewGroup.current]?.photoId
+      return photos.find(photo => photo.photoId === photoId)?.markedProducts
     }
-  }, [photos, previewGroup, childProps])
-
-  // 获取图片ID
-  const photoId = useMemo(() => {
-    if (previewGroup?.current !== undefined) {
-      return childProps[previewGroup.current]?.photoId
-    }
-  }, [previewGroup, childProps])
-
-  // 获取图片名称
-  const photoName = useMemo(() => {
-    if (previewGroup?.current !== undefined) {
-      return childProps[previewGroup.current]?.name
-    }
-  }, [previewGroup, childProps])
+  }, [images, photos, previewGroup])
 
   useEffect(() => {
-    if (previewGroup?.visible !== true)
+    if (previewGroup?.visible !== true || previewGroup?.current === undefined)
       return
-    if (previewGroup?.current === undefined)
-      return
-    const src = childProps[previewGroup.current]?.original_url
+    const src = images[previewGroup?.current].original_url
     if (!src)
       return
 
-    setImgLoaded(true)
+    setPreviewState(prev => ({ ...prev, imgLoaded: true }))
 
     const image = new Image()
     image.src = src
     image.onload = () => {
       requestAnimationFrame(() => {
-        setImgSrc(src)
-        setImgLoaded(false)
+        setPreviewState(prev => ({ ...prev, imgSrc: src, imgLoaded: false }))
       })
     }
-  }, [previewGroup?.current, previewGroup?.visible])
+  }, [previewGroup?.current, previewGroup?.visible, images])
+
+  /**
+   * 限制范围
+   * @param value 当前值
+   * @param min 最小值
+   * @param max 最大值
+   * @returns {number}
+   */
+  const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
   // Prev Photo
   const handlePrev = () => {
     if (previewGroup?.onChange && previewGroup?.current !== undefined) {
-      previewGroup.onChange(Math.max(previewGroup.current - 1, 0), previewGroup.current)
+      const newIndex = clamp(previewGroup.current - 1, 0, images.length - 1)
+      previewGroup.onChange(newIndex, previewGroup.current)
     }
   }
 
   // Next Photo
   const handleNext = () => {
     if (previewGroup?.onChange && previewGroup?.current !== undefined) {
-      previewGroup.onChange(Math.min(previewGroup.current + 1, childProps.length - 1), previewGroup.current)
+      const newIndex = clamp(previewGroup.current + 1, 0, images.length - 1)
+      previewGroup.onChange(newIndex, previewGroup.current)
     }
   }
 
@@ -165,63 +140,71 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     setDropdownOpen(false)
 
     setTimeout(() => {
-      setScale(1)
+      setPreviewState({ ...previewState, scale: 1 })
       if (previewGroup?.onVisibleChange) {
         previewGroup.onVisibleChange(false)
       }
       else {
-        setOpen(false)
+        setPreviewState({ ...previewState, open: false })
       }
     }, 0)
   }
 
   // Scale Photo
   const handleZoom = (factor: number) => {
-    const newScale = Number.parseFloat((scale * factor).toFixed(1))
-
-    setScale(Math.max(1, Math.min(newScale, 1.8)))
+    const newScale = Number.parseFloat((previewState.scale * factor).toFixed(1))
+    setPreviewState({ ...previewState, scale: Math.max(1, Math.min(newScale, 1.8)) })
   }
 
+  // 获取图片Props
+  const photoProps = useMemo(() => {
+    if (previewGroup?.current !== undefined) {
+      return images[previewGroup.current]
+    }
+  }, [previewGroup, images])
+
   const handleProductClick = useCallback((productId: string) => {
-    const photo = photos.find(photo => photo.photoId === photoId)
+    const photo = photos.find(photo => photo.photoId === photoProps?.photoId)
     if (!photo)
       return
 
     const productIds = photo.markedProducts.map(product => product.productId)
     if (productIds.includes(+productId)) {
-      console.log('包含该产品')
       removeMarkedProductByPhotoId(photo.photoId, +productId)
       removePhotoRemoveTagMenus(photo.photoId, +productId)
       updatePhotoAddTagMenus(photo.photoId, +productId, false)
       removeSelectedByPhotoId(photo.photoId, +productId)
     }
     else {
-      console.log('不包含该产品')
       updatePhotoMarkedProductTypes(photo.photoId, +productId)
       updatePhotoRemoveTagMenus(photo.photoId, +productId)
       updatePhotoAddTagMenus(photo.photoId, +productId, true)
       updateProductSelected(photo.photoId, +productId)
     }
-  }, [photos, photoId, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus])
+  }, [photos, photoProps, removeMarkedProductByPhotoId, removePhotoRemoveTagMenus])
 
   useEffect(() => {
     if (imgRef.current && containerRef.current) {
       const { width, height } = imgRef.current
       const containerRect = containerRef.current.getBoundingClientRect()
 
-      const maxLeft = Math.max(0, (width * scale - containerRect.width) / 2)
-      const maxRight = Math.max(0, (width * scale - containerRect.width) / 2)
-      const maxTop = Math.max(0, (height * scale - containerRect.height) / 2)
-      const maxBottom = Math.max(0, (height * scale - containerRect.height) / 2)
+      const maxLeft = Math.max(0, (width * previewState.scale - containerRect.width) / 2)
+      const maxRight = Math.max(0, (width * previewState.scale - containerRect.width) / 2)
+      const maxTop = Math.max(0, (height * previewState.scale - containerRect.height) / 2)
+      const maxBottom = Math.max(0, (height * previewState.scale - containerRect.height) / 2)
 
-      setBounds({
-        left: -maxLeft,
-        right: maxRight,
-        top: -maxTop,
-        bottom: maxBottom,
-      })
+      setPreviewState(prev => ({
+        ...prev,
+        bounds: {
+          ...prev.bounds,
+          left: -maxLeft,
+          right: maxRight,
+          top: -maxTop,
+          bottom: maxBottom,
+        },
+      }))
     }
-  }, [scale])
+  }, [previewState.scale])
 
   useEffect(() => {
     const closeDropDownMenu = () => setDropdownOpen(false)
@@ -234,130 +217,137 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
 
   return (
     <>
-      { children }
+      <PhotoPreviewContext.Provider value={{ registerPhoto }}>
+        { children }
 
-      <CustomModal
-        open={previewGroup?.visible ? previewGroup.visible : open}
-        width={1200}
-        centered
-        footer={null}
-        closeIcon={null}
-        styles={{
-          content: {
-            padding: 0,
-          },
-        }}
-      >
-        <div
-          className="flex justify-center relative px-16 font-medium select-none min-h-[60vh] max-h-[80vh] "
-        >
-          <div onClick={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
+        <CustomModal
+          open={previewGroup?.visible ? previewGroup.visible : previewState.open}
+          width={1200}
+          centered
+          footer={null}
+          closeIcon={null}
+          styles={{
+            content: {
+              padding: 0,
+            },
           }}
-          >
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex justify-center gap-2 z-10">
-              {
-                !isPreview
-                && (
-                  <Dropdown
-                    open={dropdownOpen}
-                    menu={{ items: [...defaultItems, ...productItems], onClick: ({ key }) => handleProductClick(key) }}
-                  >
-                    <ToolBtn
-                      icon={<TagOutlined />}
-                      onMouseEnter={() => setDropdownOpen(true)}
-                    />
-                  </Dropdown>
-                )
-              }
-
-              <ToolBtn icon={<MessageOutlined />} onClick={() => setRemarkOpen(true)} />
-
-              <ToolBtn
-                icon={<ZoomOutOutlined />}
-                onClick={() => handleZoom(0.8)}
-              />
-              <ToolBtn
-                icon={<ZoomInOutlined />}
-                onClick={() => handleZoom(1.2)}
-              />
-            </div>
-            <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-700/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
-              <div>
-                IMG_
-                {childProps[previewGroup?.current ? previewGroup.current ?? 0 : 0]?.name}
-              </div>
-              <div className="flex items-center gap-4">
-                <CalendarOutlined />
-                <p>2025-03-24</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <TagOutlined />
-
-                {
-                  photo_marked_products && photo_marked_products.map(product => (
-                    <div key={product.productId} className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">{product.title}</div>
-                  ))
-                }
-                {/* <div className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">缘定今生</div> */}
-              </div>
-            </div>
-            <div className="absolute top-4 right-4">
-              <ToolBtn
-                icon={<CloseOutlined />}
-                onClick={handleClose}
-              />
-            </div>
-
-            <div className="absolute left-4 top-1/2 ">
-              <ToolBtn
-                icon={<LeftOutlined />}
-                onClick={handlePrev}
-                disabled={previewGroup?.current ? previewGroup.current === 0 : false}
-              />
-            </div>
-            <div className="absolute right-4 top-1/2 ">
-              <ToolBtn
-                icon={<RightOutlined />}
-                onClick={handleNext}
-                disabled={previewGroup?.current ? previewGroup.current === childProps.length - 1 : false}
-              />
-            </div>
-          </div>
-
+        >
           <div
-            className="relative flex items-center justify-center"
+            className="flex justify-center relative px-16 font-medium select-none min-h-[60vh] max-h-[80vh] "
           >
-            <Watermark content="人像摄影" className="max-h-full">
-              {
-                imgLoaded
-                  ? <Spin size="large" />
-                  : (
-                      <Draggable
-                        bounds={bounds}
-                        scale={scale}
-                      >
-                        <div ref={containerRef} className="cursor-grab">
-                          <img
-                            ref={imgRef}
-                            draggable={false}
-                            style={{ transform: `scale(${scale}) ` }}
-                            src={imgSrc}
-                            alt=""
-                            className="object-contain max-h-[80vh]"
-                          />
-                        </div>
-                      </Draggable>
-                    )
-              }
-            </Watermark>
+            <div onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+            >
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex justify-center gap-2 z-10">
+                {
+                  !isPreview
+                  && (
+                    <Dropdown
+                      open={dropdownOpen}
+                      menu={{ items: [...defaultItems, ...productItems], onClick: ({ key }) => handleProductClick(key) }}
+                    >
+                      <ToolBtn
+                        icon={<TagOutlined />}
+                        onMouseEnter={() => setDropdownOpen(true)}
+                      />
+                    </Dropdown>
+                  )
+                }
+
+                <ToolBtn icon={<MessageOutlined />} onClick={() => setRemarkOpen(true)} />
+
+                <ToolBtn
+                  icon={<ZoomOutOutlined />}
+                  onClick={() => handleZoom(0.8)}
+                />
+                <ToolBtn
+                  icon={<ZoomInOutlined />}
+                  onClick={() => handleZoom(1.2)}
+                />
+              </div>
+              <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-700/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
+                <div>
+                  IMG_
+                  {photoProps?.name ?? ''}
+                </div>
+                <div className="flex items-center gap-4">
+                  <CalendarOutlined />
+                  <p>2025-03-24</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TagOutlined />
+
+                  {
+                    photo_marked_products?.map(product => (
+                      <div key={product.productId} className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">{product.title}</div>
+                    ))
+                  }
+                </div>
+              </div>
+              <div className="absolute top-4 right-4">
+                <ToolBtn
+                  icon={<CloseOutlined />}
+                  onClick={handleClose}
+                />
+              </div>
+
+              <div className="absolute left-4 top-1/2 ">
+                <ToolBtn
+                  icon={<LeftOutlined />}
+                  onClick={handlePrev}
+                  disabled={previewGroup?.current ? previewGroup.current === 0 : false}
+                />
+              </div>
+              <div className="absolute right-4 top-1/2 ">
+                <ToolBtn
+                  icon={<RightOutlined />}
+                  onClick={handleNext}
+                  disabled={previewGroup?.current ? previewGroup.current === images.length - 1 : false}
+                />
+              </div>
+            </div>
+
+            <div
+              className="relative flex items-center justify-center"
+            >
+              <Watermark content="人像摄影" className="max-h-full">
+                {
+                  previewState.imgLoaded
+                    ? <Spin size="large" />
+                    : (
+                        <Draggable
+                          bounds={previewState.bounds}
+                          scale={previewState.scale}
+                        >
+                          <div ref={containerRef} className="cursor-grab">
+                            <img
+                              ref={imgRef}
+                              draggable={false}
+                              style={{ transform: `scale(${previewState.scale}) ` }}
+                              src={previewState.imgSrc}
+                              alt=""
+                              className="object-contain max-h-[80vh]"
+                            />
+                          </div>
+                        </Draggable>
+                      )
+                }
+              </Watermark>
+            </div>
+
           </div>
+        </CustomModal>
 
-        </div>
-      </CustomModal>
+      </PhotoPreviewContext.Provider>
 
-      <PhotoRemarkModal open={remarkOpen} photoId={photoId || -1} photoName={photoName ?? ''} onClose={() => setRemarkOpen(false)} />
+      <PhotoRemarkModal
+        open={remarkOpen}
+        photoId={photoProps?.photoId ?? -1}
+        photoName={photoProps?.name ?? ''}
+        onClose={() => setRemarkOpen(false)}
+      />
     </>
   )
 }

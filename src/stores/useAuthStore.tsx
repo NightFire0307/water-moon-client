@@ -14,7 +14,7 @@ interface CustomAction {
 export const useAuthStore = create<UseAuthStore & CustomAction>()(
   devtools(set => ({
     access_token: sessionStorage.getItem('access_token') !== 'undefined' ? sessionStorage.getItem('access_token') : '',
-    isPreview: true,
+    isPreview: false,
     updateAccessToken: (token: string) => set(() => {
       // 更新 Session Storage
       sessionStorage.setItem('access_token', token)
