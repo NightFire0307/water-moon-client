@@ -12,7 +12,8 @@ import { useCallback, useContext, useEffect, useMemo } from 'react'
 
 interface ConfirmModalProps {
   open: boolean
-  onCancel: () => void
+  onCancel?: () => void
+
 }
 
 interface AlertContentProps {
@@ -20,6 +21,7 @@ interface AlertContentProps {
   type: 'success' | 'warning'
   icon?: ReactElement
   unFinishedProducts?: IProduct[]
+
 }
 
 // 警告内容
@@ -85,6 +87,7 @@ export function ConfirmModal(props: ConfirmModalProps) {
   const handleSubmit = async () => {
     const { msg } = await submitSelection(orderInfo!.id)
     message.success(msg)
+    onCancel?.()
   }
 
   useEffect(() => {

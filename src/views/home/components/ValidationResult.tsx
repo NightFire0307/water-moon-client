@@ -19,12 +19,12 @@ export function ValidationResult(props: ValidationResultProps) {
   const products = useProductsStore(state => state.products)
 
   useEffect(() => {
-    const failed = products.filter(product => product.selected.length < product.total)
+    const failed = products.filter(product => product.selected_photos.length < product.count * product.photo_limit)
     setFailedProducts(failed)
   }, [products])
 
   useEffect(() => {
-    const overLimit = products.filter(product => product.selected.length > product.total)
+    const overLimit = products.filter(product => product.selected_photos.length > product.count * product.photo_limit)
     setOverLimitProducts(overLimit)
   }, [products])
 
@@ -48,9 +48,9 @@ export function ValidationResult(props: ValidationResultProps) {
                             <div key={product.productId}>
                               {product.title}
                               ：应选
-                              {product.total}
+                              {product.count * product.photo_limit}
                               张 / 实选
-                              {product.selected.length}
+                              {product.selected_photos.length}
                               张
                             </div>
                           ))
@@ -84,9 +84,9 @@ export function ValidationResult(props: ValidationResultProps) {
                             <Flex gap={8}>
                               <div>
                                 应选：
-                                {product.total}
+                                {product.count * product.photo_limit}
                                 张 / 实选：
-                                {product.selected.length}
+                                {product.selected_photos.length}
                                 张
                               </div>
                               <CloseCircleOutlined className="text-xl text-[#f5222d]" />

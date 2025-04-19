@@ -1,5 +1,5 @@
 import type { IOrder } from '@/types/order.ts'
-import { refreshToken, verifySurl } from '@/apis/login.ts'
+import { verifySurl } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import Navbar from '@/components/Navbar'
 import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
@@ -19,10 +19,9 @@ const { Sider, Content, Header } = Layout
 function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
-  const { access_token, isPreview, setPreview } = useAuthStore()
+  const { isPreview, setPreview } = useAuthStore()
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
-  const updateAccessToken = useAuthStore(state => state.updateAccessToken)
 
   const { surl } = useParams()
   const navigate = useNavigate()
@@ -47,26 +46,17 @@ function MainLayout() {
   useEffect(() => {
     if (surl) {
       (async () => {
-        // 刷新 access_token
-        if (!access_token) {
-          try {
-            const { data } = await refreshToken()
-            updateAccessToken(data.access_token)
-          }
-          catch {
-            navigate('/')
-          }
-        }
+        //
 
         // 验证短链和 token
         try {
           await verify(surl)
           await fetchOrderInfo(surl)
-          await fetchPhotos()
+          fetchPhotos()
         }
         catch (err) {
           console.error(err)
-          // navigate('/404')
+          navigate(`/share/init?surl=${surl}`)
         }
       })()
     }
@@ -118,7 +108,7 @@ function MainLayout() {
             isPreview && <PreviewAlert />
           }
 
-          <Header className="h-auto p-0 mb-4 bg-[transparent] rounded-xl ">
+          <Header className="p-0 mb-4 bg-[transparent] rounded-xl">
             <Navbar />
           </Header>
 

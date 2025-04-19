@@ -9,9 +9,9 @@ import {
 import { usePhotoPreviewContext } from '@/contexts/PhotoPreviewContext.ts'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { MessageFilled, StarFilled, ZoomInOutlined } from '@ant-design/icons'
-import { Dropdown, Image, type MenuProps, Tag } from 'antd'
+import { Dropdown, type MenuProps, Tag } from 'antd'
 import cs from 'classnames'
-import { forwardRef, useEffect, useState } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 
 export interface PhotoInfo {
   photoId: number
@@ -34,8 +34,10 @@ export interface PhotoProps {
 }
 
 export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
-  const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onPreviewClick, ...restProps } = props
+  const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onPreviewClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
+  const [imgSrc, setImgSrc] = useState<string>('')
+  const imageRef = useRef<HTMLImageElement | null>(null)
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const previewMode = useAuthStore(state => state.isPreview)
   const { registerPhoto } = usePhotoPreviewContext()
@@ -72,7 +74,28 @@ export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
   ]
 
   useEffect(() => {
+    // 注册图片到预览上下文中
     registerPhoto(props)
+
+    const el = imageRef.current
+    if (!el)
+      return
+
+    const observer = new IntersectionObserver((entires) => {
+      entires.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setImgSrc(thumbnail_url)
+          observer.unobserve(el)
+        }
+      })
+    }, {
+      root: null,
+      threshold: 0.5,
+    })
+
+    observer.observe(el)
+
+    return () => observer.disconnect()
   }, [])
 
   return (
@@ -86,8 +109,7 @@ export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="max-w-[360px] relative overflow-hidden rounded-xl"
-        {...restProps}
+        className="min-h-[280px] relative overflow-hidden rounded-xl"
       >
         <div className="absolute top-2 left-2 z-10">
           {
@@ -114,17 +136,20 @@ export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
           )
         }
 
-        <div className="relative bg-darkBlueGray-200 overflow-hidden rounded-tl-xl rounded-tr-xl flex shadow-md justify-center items-center">
-          <Image
-            className="cursor-pointer object-contain min-h-[240px] max-h-[240px]"
-            src={thumbnail_url}
-            preview={{
-              mask: null,
-            }}
+        <div
+          className="relative bg-darkBlueGray-200 overflow-hidden rounded-tl-xl rounded-tr-xl flex shadow-md justify-center items-center"
+        >
+          <img
+            className="cursor-pointer object-contain max-h-[240px]"
+            loading="lazy"
+            decoding="async"
+            ref={imageRef}
+            src={imgSrc}
+            alt=""
           />
         </div>
         <div
-          className="p-2 flex justify-between items-center h-10
+          className="absolute bottom-0 left-0 right-0 p-2 flex justify-between items-center h-10
           bg-gradient-to-r from-darkBlueGray-900 to-darkBlueGray-700
           font-mono text-darkBlueGray-50 font-semibold"
         >

@@ -1,39 +1,38 @@
 import type { FC } from 'react'
 import NavbarExpand from '@/components/Navbar/NavbarExpand.tsx'
 import { DownOutlined } from '@ant-design/icons'
-import { animated, useSpring, useTransition } from '@react-spring/web'
+import { animated, useSpring } from '@react-spring/web'
 import { Button } from 'antd'
 import cs from 'classnames'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 const Navbar: FC = () => {
   const [extended, setExtended] = useState(false)
-  const [props, api] = useSpring(
-    () => ({
-      from: { rotateZ: extended ? 180 : 0 },
-    }),
-    [],
-  )
-  const transitions = useTransition(extended, {
-    from: { translateY: '-100%' },
-    enter: { translateY: '0%' },
-    leave: { translateY: '-100%' },
+
+  const props = useSpring({
+    rotateZ: extended ? 180 : 0,
+    config: { tension: 200, friction: 20 },
   })
 
+  const dropdownStyle = useSpring({
+    translateY: extended ? '0%' : '-100%',
+    config: { tension: 200, friction: 20 },
+  })
+
+  const navbarClass = useMemo(() => {
+    return cs(
+      'rounded-xl bg-gradient-to-r from-darkBlueGray-900 to-darkBlueGray-700 pl-4 pr-4 pt-2 pb-2 h-full flex justify-between items-center text-white relative z-10',
+      extended ? 'rounded-bl-none rounded-br-none' : '',
+    )
+  }, [extended])
+
   const handleExtended = () => {
-    api.start({
-      from: { rotateZ: extended ? 180 : 0 },
-      to: { rotateZ: extended ? 0 : 180 },
-    })
-    setExtended(!extended)
+    setExtended(prev => !prev)
   }
 
   return (
-    <div className="relative">
-      <div className={
-        cs('rounded-xl bg-gradient-to-r from-darkBlueGray-900 to-darkBlueGray-700 pl-4 pr-4 pt-2 pb-2 h-full flex justify-between items-center text-white relative z-10', extended ? 'rounded-bl-none rounded-br-none' : '')
-      }
-      >
+    <div className="relative w-full h-full">
+      <div className={navbarClass}>
         <div className="flex items-center">
           <div className="w-1.5 h-10 bg-darkBlueGray-400 rounded-lg" />
           <div className="flex flex-col leading-none ml-4">
@@ -53,11 +52,11 @@ const Navbar: FC = () => {
           </Button>
         </div>
       </div>
-      {
-        transitions((style, item) =>
-          item ? <animated.div style={{ ...style, position: 'absolute', width: '100%', zIndex: 1 }}><NavbarExpand /></animated.div> : null,
-        )
-      }
+      {extended && (
+        <animated.div style={{ ...dropdownStyle, position: 'absolute', width: '100%', zIndex: 1 }}>
+          <NavbarExpand />
+        </animated.div>
+      )}
     </div>
   )
 }

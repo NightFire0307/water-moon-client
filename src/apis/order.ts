@@ -16,7 +16,7 @@ export function getOrderPhotos(): IPhotoResponse {
   return request({
     url: '/api/selection/photos',
     method: 'GET',
-    params: { pageSize: 50 },
+    params: { pageSize: 200 },
   })
 }
 

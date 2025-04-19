@@ -15,8 +15,6 @@ const service = axios.create({
   timeout: 8000,
 })
 
-let isRefreshing = false
-
 // 刷新 Access_token
 async function refreshAccessToken() {
   const { data } = await refreshToken()
@@ -53,7 +51,6 @@ service.interceptors.response.use(
           break
         case 401:
           message.error(error.response.data.message)
-          isRefreshing = true
 
           try {
             await refreshAccessToken()
@@ -61,13 +58,10 @@ service.interceptors.response.use(
           catch (e) {
             return Promise.reject(e)
           }
-          finally {
-            isRefreshing = false
-          }
           break
         case (400):
           message.error(error.response.data.message || '请求错误，请稍后再试')
-          break
+          return Promise.reject(error.response.data)
         case 404:
           return Promise.reject(error.response.data)
         default:

@@ -1,9 +1,10 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
+import type { WritableDraft } from 'immer'
 import type { IProduct } from './useProductsStore.tsx'
 import { getOrderPhotos, removeAllTags } from '@/apis/order.ts'
 import { CheckOutlined } from '@ant-design/icons'
 import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import { immer } from 'zustand/middleware/immer'
 import { useProductsStore } from './useProductsStore.tsx'
 
 export interface IPhoto {
@@ -19,6 +20,7 @@ export interface IPhoto {
 
 interface UsePhotosStore {
   photos: IPhoto[]
+  isLoading: boolean
   filteredPhotos: IPhoto[]
   selectedFilter: FILTER_TYPE
 }
@@ -53,21 +55,57 @@ interface PhotosAction {
   clearFilterPhotos: () => void
   // 获取照片列表
   getDisplayPhotos: () => IPhoto[]
+  // 设置加载状态
+  setLoading: (isLoading: boolean) => void
 }
 
-export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
-  devtools(
-    (set, get) => ({
-      photos: [],
-      filteredPhotos: [],
-      selectedFilter: FILTER_TYPE.ALL,
-      fetchPhotos: async () => {
-        const products = useProductsStore.getState().products
-        const { data } = await getOrderPhotos()
-        const photos: IPhoto[] = []
+const BATCH_SIZE = 5
 
-        for (const photo of data.list) {
-          photos.push({
+export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
+
+  immer((set, get) => ({
+    photos: [],
+    isLoading: true,
+    filteredPhotos: [],
+    selectedFilter: FILTER_TYPE.ALL,
+    fetchPhotos: async () => {
+      const products = useProductsStore.getState().products
+      const { data } = await getOrderPhotos()
+      const allList = data.list
+      const photos: IPhoto[] = []
+
+      for (const photo of allList.slice(0, BATCH_SIZE)) {
+        photos.push({
+          photoId: photo.id,
+          thumbnail_url: photo.thumbnail_url,
+          original_url: photo.original_url,
+          name: photo.file_name,
+          remark: photo.remark ?? '',
+          markedProducts: products.filter(product => product.selected_photos.includes(photo.id)),
+          addTagMenus: products.map(product => ({
+            label: product.title,
+            key: `addTag_${product.productId}`,
+            disabled: product.selected_photos.includes(photo.id),
+          })),
+          removeTagMenus: products.map(product => ({
+            label: product.title,
+            key: `removeTag_${product.productId}`,
+            disabled: !product.selected_photos.includes(photo.id),
+          })),
+        })
+      }
+
+      set({ photos, isLoading: false })
+
+      // 异步加载后续照片
+      const appendPhotos = async (startIndex: number) => {
+        const nextBatch = allList.slice(startIndex, startIndex + BATCH_SIZE)
+        if (nextBatch.length === 0)
+          return
+
+        const newPhotos: IPhoto[] = []
+        for (const photo of nextBatch) {
+          newPhotos.push({
             photoId: photo.id,
             thumbnail_url: photo.thumbnail_url,
             original_url: photo.original_url,
@@ -87,155 +125,151 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           })
         }
 
-        set({ photos })
-      },
-      filterPhotos: (value: FILTER_TYPE) => (set({ selectedFilter: value })),
-      generateAddTagMenu: () => (
         set((state) => {
-          const products = useProductsStore.getState().products
-          for (const photo of state.photos) {
-            const dropdownMenus: MenuItemType[] = []
-            for (const product of products) {
-              const isSelect = product.selected_photos.includes(photo.photoId)
-              dropdownMenus.push({
-                label: product.title,
-                key: `addTag_${product.productId}`,
-                disabled: isSelect,
-                icon: isSelect ? <CheckOutlined /> : '',
-              })
-            }
-            photo.addTagMenus = dropdownMenus
-          }
-          return { photos: [...state.photos] }
+          state.photos = [...state.photos, ...newPhotos as WritableDraft<IPhoto>[]]
         })
-      ),
-      updatePhotoMarkedProductTypes: (photoId: number, productId: number) => (
-        set((state) => {
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-          const product = useProductsStore.getState().products.find(product => product.productId === productId)
-          if (photo && product) {
-            photo.markedProducts = [...photo.markedProducts, product]
-          }
+        requestIdleCallback(() => appendPhotos(startIndex + BATCH_SIZE))
+      }
 
-          return { photos: [...state.photos] }
-        })
-      ),
-      updatePhotoAddTagMenus: (photoId: number, productId: number, disable?: boolean) => (
-        set((state) => {
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-          if (photo) {
-            for (const menu of photo.addTagMenus) {
-              const key = (menu.key as string).split('_')[1]
-              if (Number(key) === productId) {
-                menu.disabled = disable ?? true
-                menu.icon = disable === undefined ? <CheckOutlined /> : ''
-              }
-            }
-          }
-
-          return { photos: [...state.photos] }
-        })
-      ),
-      updatePhotoRemoveTagMenus: (photoId: number, productId: number, disable?: boolean) => (
-        set((state) => {
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-
-          if (photo) {
-            for (const menu of photo.removeTagMenus) {
-              const key = (menu.key as string).split('_')[1]
-              if (Number(key) === productId) {
-                menu.disabled = disable ?? true
-                break
-              }
-            }
-          }
-          return { photos: [...state.photos] }
-        })
-      ),
-      removePhotoRemoveTagMenus: (photoId: number, productId: number) => (
-        set((state) => {
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-          if (photo) {
-            photo.removeTagMenus = photo.removeTagMenus.filter((menu) => {
-              const key = (menu.key as string).split('_')[1]
-              return productId !== Number(key)
+      requestIdleCallback(() => appendPhotos(BATCH_SIZE))
+    },
+    filterPhotos: (value: FILTER_TYPE) => (set({ selectedFilter: value })),
+    generateAddTagMenu: () => (
+      set((state) => {
+        const products = useProductsStore.getState().products
+        for (const photo of state.photos) {
+          const dropdownMenus: MenuItemType[] = []
+          for (const product of products) {
+            const isSelect = product.selected_photos.includes(photo.photoId)
+            dropdownMenus.push({
+              label: product.title,
+              key: `addTag_${product.productId}`,
+              disabled: isSelect,
+              icon: isSelect ? <CheckOutlined /> : '',
             })
           }
-
-          return { photos: [...state.photos] }
-        })
-      ),
-      removeMarkedProductByPhotoId: (photoId: number, productId: number) => (
-        set((state) => {
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-          if (photo) {
-            // 移除已标记的产品
-            photo.markedProducts = photo.markedProducts.filter(product => product.productId !== productId)
-
-            // 重置添加标签菜单
-            for (const menus of photo.addTagMenus) {
-              if (Number(menus.key) === productId) {
-                menus.disabled = false
-                menus.icon = ''
-              }
+          photo.addTagMenus = dropdownMenus as WritableDraft<MenuItemType>[]
+        }
+      })
+    ),
+    updatePhotoMarkedProductTypes: (photoId: number, productId: number) => (
+      set((state) => {
+        const photo = state.photos.find(photo => photo.photoId === photoId)
+        const product = useProductsStore.getState().products.find(product => product.productId === productId)
+        if (photo && product) {
+          photo.markedProducts = [...photo.markedProducts, product]
+        }
+      })
+    ),
+    updatePhotoAddTagMenus: (photoId: number, productId: number, disable?: boolean) => (
+      set((state) => {
+        const photo = state.photos.find(photo => photo.photoId === photoId)
+        if (photo) {
+          for (const menu of photo.addTagMenus) {
+            const key = (menu.key as string).split('_')[1]
+            if (Number(key) === productId) {
+              menu.disabled = disable ?? true
+              menu.icon = disable === undefined ? <CheckOutlined /> : ''
             }
           }
+        }
+      })
+    ),
+    updatePhotoRemoveTagMenus: (photoId: number, productId: number, disable?: boolean) => (
+      set((state) => {
+        const photo = state.photos.find(photo => photo.photoId === photoId)
 
-          return { photos: [...state.photos] }
-        })
-      ),
-      removeAllMarkedProduct: async (photoId: number) => {
-        const removeSelectedByPhotoId = useProductsStore.getState().removeSelectedByPhotoId
-        // 移除当前照片所有已标记的产品
-        await removeAllTags(photoId)
-
-        set((state) => {
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-
-          if (photo) {
-            for (const markedProduct of photo.markedProducts) {
-              removeSelectedByPhotoId(photoId, markedProduct.productId)
-              get().updatePhotoAddTagMenus(photoId, markedProduct.productId, false)
+        if (photo) {
+          for (const menu of photo.removeTagMenus) {
+            const key = (menu.key as string).split('_')[1]
+            if (Number(key) === productId) {
+              menu.disabled = disable ?? true
+              break
             }
-            photo.markedProducts = []
           }
-          return { photos: [...state.photos] }
-        })
-      },
-      updatePhotoRemark: (photoId: number, remark: string) => (
-        set((state) => {
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-          if (photo) {
-            photo.remark = remark
-          }
-          return ({ photos: [...state.photos] })
-        })
-      ),
-      filterPhotoByProductId: (productId: number) => (
-        set((state) => {
-          const filteredPhotos = state.photos.filter((photo) => {
-            return photo.markedProducts.some(product => product.productId === productId)
+        }
+      })
+    ),
+    removePhotoRemoveTagMenus: (photoId: number, productId: number) => (
+      set((state) => {
+        const photo = state.photos.find(photo => photo.photoId === photoId)
+        if (photo) {
+          photo.removeTagMenus = photo.removeTagMenus.filter((menu) => {
+            const key = (menu.key as string).split('_')[1]
+            return productId !== Number(key)
           })
+        }
+      })
+    ),
+    removeMarkedProductByPhotoId: (photoId: number, productId: number) => (
+      set((state) => {
+        const photo = state.photos.find(photo => photo.photoId === photoId)
+        if (photo) {
+          // 移除已标记的产品
+          photo.markedProducts = photo.markedProducts.filter(product => product.productId !== productId)
 
-          return {
-            filteredPhotos: [...filteredPhotos],
+          // 重置添加标签菜单
+          for (const menus of photo.addTagMenus) {
+            if (Number(menus.key) === productId) {
+              menus.disabled = false
+              menus.icon = ''
+            }
           }
-        })
-      ),
-      clearFilterPhotos: () => (
-        set(() => {
-          return {
-            filteredPhotos: [],
+        }
+      })
+    ),
+    removeAllMarkedProduct: async (photoId: number) => {
+      const removeSelectedByPhotoId = useProductsStore.getState().removeSelectedByPhotoId
+      // 移除当前照片所有已标记的产品
+      await removeAllTags(photoId)
+
+      set((state) => {
+        const photo = state.photos.find(photo => photo.photoId === photoId)
+
+        if (photo) {
+          for (const markedProduct of photo.markedProducts) {
+            removeSelectedByPhotoId(photoId, markedProduct.productId)
+            get().updatePhotoAddTagMenus(photoId, markedProduct.productId, false)
           }
-        })
-      ),
-      getDisplayPhotos: () => {
-        return get().filteredPhotos.length > 0 ? get().filteredPhotos : get().photos
-      },
-    }),
-    {
-      name: 'photos-store',
-      enabled: true,
+          photo.markedProducts = []
+        }
+      })
     },
-  ),
+    updatePhotoRemark: (photoId: number, remark: string) => (
+      set((state) => {
+        const photo = state.photos.find(photo => photo.photoId === photoId)
+        if (photo) {
+          photo.remark = remark
+        }
+        return ({ photos: [...state.photos] })
+      })
+    ),
+    filterPhotoByProductId: (productId: number) => (
+      set((state) => {
+        const filteredPhotos = state.photos.filter((photo) => {
+          return photo.markedProducts.some(product => product.productId === productId)
+        })
+
+        return {
+          filteredPhotos: [...filteredPhotos],
+        }
+      })
+    ),
+    clearFilterPhotos: () => (
+      set(() => {
+        return {
+          filteredPhotos: [],
+        }
+      })
+    ),
+    getDisplayPhotos: () => {
+      return get().filteredPhotos.length > 0 ? get().filteredPhotos : get().photos
+    },
+    setLoading: (isLoading: boolean) => (
+      set(() => {
+        return { isLoading }
+      })
+    ),
+  })),
+
 )

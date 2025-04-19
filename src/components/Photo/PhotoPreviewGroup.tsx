@@ -93,6 +93,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     }
   }, [images, photos, previewGroup])
 
+  // 预加载图片
   useEffect(() => {
     if (previewGroup?.visible !== true || previewGroup?.current === undefined)
       return

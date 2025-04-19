@@ -84,17 +84,13 @@ export function ProductCard(props: ProductCardProps) {
             <Text className="text-black-secondText text-[12px]">应选 / 实选</Text>
           </div>
 
-          <Text
-            className="text-black-secondText font-semibold "
-          >
-            {photoLimit}
-            {' '}
-            /
-            {' '}
+          <div className="flex items-center gap-1 text-black-secondText font-semibold">
+            <span>{photoLimit}</span>
+            <span>/</span>
             <span className={selectedCount < photoLimit ? 'text-amber-600' : 'text-emerald-600'}>
               {selectedCount}
             </span>
-          </Text>
+          </div>
         </div>
 
         <div>

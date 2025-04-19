@@ -22,7 +22,7 @@ const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 0, onCh
   const [trail, api] = useTrail(
     products.length,
     () => ({
-      from: { opacity: 0, scale: 0.5 },
+      from: { opacity: 0 },
       config: {
         duration: 150,
       },
@@ -43,7 +43,7 @@ const ProductCardGroup: FC<ProductCardGroupProps> = ({ maxSelectPhotos = 0, onCh
   }
 
   useEffect(() => {
-    api.start({ opacity: 1, scale: 1 })
+    api.start({ opacity: 1 })
   }, [products])
 
   return (

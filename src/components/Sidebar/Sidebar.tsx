@@ -12,7 +12,7 @@ interface SidebarProps {
 
 const Sidebar: FC<SidebarProps> = ({ collapsed, onClick, maxSelectPhotos }) => {
   return (
-    <>
+    <div className="h-full overflow-y-auto">
       <div className={cs('flex items-center mb-4', collapsed ? 'justify-center' : 'justify-between')}>
         {
           !collapsed && (
@@ -34,7 +34,7 @@ const Sidebar: FC<SidebarProps> = ({ collapsed, onClick, maxSelectPhotos }) => {
           ? <ProductCardGroup maxSelectPhotos={maxSelectPhotos ?? 0} />
           : <SidebarBtn />
       }
-    </>
+    </div>
   )
 }
 
