@@ -43,7 +43,7 @@ function Login() {
   const queryParams = new URLSearchParams(location.search)
   const surl = queryParams.get('surl')
   const pwd = queryParams.get('pwd')
-  const { updateAccessToken } = useAuthStore()
+  const { setAccessToken } = useAuthStore()
   const navigate = useNavigate()
   const { styles } = useStyle()
 
@@ -53,7 +53,7 @@ function Login() {
       .then(async ({ password }) => {
         const { data } = await login({ short_url: surl || '', password })
         if (data) {
-          updateAccessToken(data.access_token)
+          setAccessToken(data.access_token)
           navigate(`/s/${surl}`)
         }
       })

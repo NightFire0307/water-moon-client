@@ -1,6 +1,6 @@
 import type { ResponsePromise } from '@/types/common.ts'
 
-interface IPhoto {
+export interface IPhoto {
   id: number
   file_name: string
   thumbnail_url: string
