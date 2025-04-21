@@ -8,7 +8,6 @@ import { PhotoPreviewContext } from '@/contexts/PhotoPreviewContext.ts'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
-
 import {
   CalendarOutlined,
   CheckOutlined,
@@ -22,6 +21,7 @@ import {
 } from '@ant-design/icons'
 import { Dropdown, Spin, Watermark } from 'antd'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
 import Draggable from 'react-draggable'
 
 interface PhotoPreviewProps {
@@ -117,7 +117,6 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
    * @param value 当前值
    * @param min 最小值
    * @param max 最大值
-   * @returns {number}
    */
   const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
@@ -216,6 +215,31 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
     }
   }, [])
 
+  useEffect(() => {
+    if (previewGroup?.visible || previewState.open) {
+      // 事件处理函数
+      const keyDownHandler = (e: KeyboardEventInit) => {
+        switch (e.key) {
+          case 'ArrowLeft':
+            handlePrev()
+            break
+          case 'ArrowRight':
+            handleNext()
+            break
+          default:
+            break
+        }
+      }
+
+      document.addEventListener('keydown', keyDownHandler)
+
+      // 清理函数
+      return () => {
+        document.removeEventListener('keydown', keyDownHandler)
+      }
+    }
+  }, [previewGroup?.visible, previewState.open, handlePrev, handleNext])
+
   return (
     <>
       <PhotoPreviewContext.Provider value={{ registerPhoto }}>
@@ -234,7 +258,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
           }}
         >
           <div
-            className="flex justify-center relative px-16 font-medium select-none min-h-[60vh] max-h-[80vh] "
+            className="flex justify-center relative px-16 font-medium select-none min-h-[60vh] max-h-[80vh]"
           >
             <div onClick={(e) => {
               e.stopPropagation()
@@ -298,7 +322,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                 <ToolBtn
                   icon={<LeftOutlined />}
                   onClick={handlePrev}
-                  disabled={previewGroup?.current ? previewGroup.current === 0 : false}
+                  disabled={previewGroup?.current !== undefined ? previewGroup.current === 0 : false}
                 />
               </div>
               <div className="absolute right-4 top-1/2 ">

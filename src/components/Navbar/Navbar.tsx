@@ -42,7 +42,7 @@ const Navbar: FC = () => {
           <div className="flex flex-col leading-none ml-4">
             <div className="flex items-center mb-1">
               <div className="text-xl font-bold ">在线选片系统</div>
-              <div className="text-sm font-medium bg-darkBlueGray-600 ml-2 pr-2 pl-2 pt-1 pb-1 rounded-md">{`当前订单号: WK-${order_number}`}</div>
+              <div className="text-sm font-medium bg-darkBlueGray-600 ml-2 pr-2 pl-2 pt-1 pb-1 rounded-md">{`当前订单号: WK-${order_number ?? ''}`}</div>
             </div>
             <span className="text-darkBlueGray-400">张先生 & 李小姐 · 2025年10月15日</span>
           </div>
