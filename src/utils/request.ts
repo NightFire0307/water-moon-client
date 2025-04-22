@@ -6,7 +6,7 @@ import axios from 'axios'
 
 interface ErrorResponse {
   error: string
-  message: string
+  msg: string
   statusCode: number
 }
 
@@ -50,7 +50,7 @@ service.interceptors.response.use(
           message.error('服务器错误，请稍后再试')
           break
         case 401:
-          message.error(error.response.data.message)
+          message.error(error.response.data.msg)
 
           try {
             await refreshAccessToken()
@@ -60,7 +60,7 @@ service.interceptors.response.use(
           }
           break
         case (400):
-          message.error(error.response.data.message || '请求错误，请稍后再试')
+          message.error(error.response.data.msg || '请求错误，请稍后再试')
           return Promise.reject(error.response.data)
         case 404:
           return Promise.reject(error.response.data)
@@ -68,7 +68,7 @@ service.interceptors.response.use(
           message.error('未知错误，请稍后再试')
       }
     }
-    return Promise.resolve({ data: null, error: true, message: '请求失败' })
+    return Promise.resolve({ data: null, error: true, msg: '请求失败' })
   },
 )
 
