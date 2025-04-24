@@ -1,6 +1,5 @@
 import type { PhotoInfo } from './Photo.tsx'
 import PhotoPreviewGroup from '@/components/Photo/PhotoPreviewGroup.tsx'
-
 import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
@@ -28,21 +27,21 @@ export function PhotoGrid() {
     generateAddTagMenu()
   }, [])
 
-  function handleDropDownClick(key: string, { photoId, name }: PhotoInfo) {
+  async function handleDropDownClick(key: string, { photoId, name }: PhotoInfo) {
     const [actionType, productId] = key.split('_')
 
     switch (actionType) {
       case 'addTag':
-        updateProductSelected(photoId, +productId)
-        updatePhotoAddTagMenus(photoId, +productId)
+        updatePhotoAddTagMenus(photoId, +productId, true)
         updatePhotoRemoveTagMenus(photoId, +productId, false)
         updatePhotoMarkedProductTypes(photoId, +productId)
+        await updateProductSelected(photoId, +productId)
         break
       case 'removeTag':
-        removeSelectedByPhotoId(photoId, +productId)
         updatePhotoAddTagMenus(photoId, +productId, false)
-        updatePhotoRemoveTagMenus(photoId, +productId)
+        updatePhotoRemoveTagMenus(photoId, +productId, true)
         removeMarkedProductByPhotoId(photoId, +productId)
+        await removeSelectedByPhotoId(photoId, +productId)
         break
       case 'removeAllTag':
         removeAllMarkedProduct(photoId)

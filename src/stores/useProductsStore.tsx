@@ -2,6 +2,7 @@ import type { IOrderProduct } from '@/types/order.ts'
 import { updateOrderPhotos } from '@/apis/order.ts'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import { usePhotosStore } from './usePhotosStore'
 
 export interface IType {
   id: number
@@ -48,39 +49,51 @@ export const useProductsStore = create<ProductStore & ProductAction>()(
       },
       updateProductSelected: async (photoId: number, orderProductId: number) => {
         const product = get().products.find(item => item.productId === orderProductId)
+        const { restorePreviousPhotoData } = usePhotosStore.getState()
         if (!product)
           return
 
-        const { data } = await updateOrderPhotos({ orderProductId, photoIds: [photoId, ...product.selected_photos] })
+        try {
+          const { data } = await updateOrderPhotos({ orderProductId, photoIds: [photoId, ...product.selected_photos] })
 
-        // 更新产品照片
-        set((state) => {
-          const updatedProducts = state.products.map((product) => {
-            if (product.productId === orderProductId) {
-              return { ...product, selected_photos: [...data.selected_photos] }
-            }
-            return product
+          // 更新产品照片
+          set((state) => {
+            const updatedProducts = state.products.map((product) => {
+              if (product.productId === orderProductId) {
+                return { ...product, selected_photos: [...data.selected_photos] }
+              }
+              return product
+            })
+
+            return { products: updatedProducts }
           })
-
-          return { products: updatedProducts }
-        })
+        }
+        catch {
+          restorePreviousPhotoData(photoId)
+        }
       },
       removeSelectedByPhotoId: async (photoId: number, orderProductId: number) => {
         const product = get().products.find(item => item.productId === orderProductId)
+        const { restorePreviousPhotoData } = usePhotosStore.getState()
         if (!product)
           return
 
-        const { data } = await updateOrderPhotos({ orderProductId, photoIds: product.selected_photos.filter(item => item !== photoId) })
+        try {
+          const { data } = await updateOrderPhotos({ orderProductId, photoIds: product.selected_photos.filter(item => item !== photoId) })
 
-        set((state) => {
-          const updatedProducts = state.products.map((product) => {
-            if (product.productId === orderProductId) {
-              return { ...product, selected_photos: [...data.selected_photos] }
-            }
-            return product
+          set((state) => {
+            const updatedProducts = state.products.map((product) => {
+              if (product.productId === orderProductId) {
+                return { ...product, selected_photos: [...data.selected_photos] }
+              }
+              return product
+            })
+            return { products: updatedProducts }
           })
-          return { products: updatedProducts }
-        })
+        }
+        catch {
+          restorePreviousPhotoData(photoId)
+        }
       },
       saveSelected: () => {
 

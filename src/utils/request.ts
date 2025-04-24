@@ -61,9 +61,9 @@ service.interceptors.response.use(
           break
         case (400):
           message.error(error.response.data.msg || '请求错误，请稍后再试')
-          return Promise.reject(error.response.data)
+          return Promise.reject(error)
         case 404:
-          return Promise.reject(error.response.data)
+          return Promise.reject(error)
         default:
           message.error('未知错误，请稍后再试')
       }

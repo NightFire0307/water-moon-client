@@ -1,9 +1,10 @@
 import type { IPhoto } from '@/types/photos.ts'
 import type { MenuItemType } from 'antd/es/menu/interface'
-import type { WritableDraft } from 'immer'
 import type { IProduct } from './useProductsStore.tsx'
 import { getOrderPhotos, removeAllTags } from '@/apis/order.ts'
 import { CheckOutlined } from '@ant-design/icons'
+import { current, type WritableDraft } from 'immer'
+import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
@@ -25,6 +26,7 @@ interface UsePhotosStore {
   isLoading: boolean
   filteredPhotos: Photo[]
   selectedFilter: FILTER_TYPE
+  previousPhotosData: Record<number, Omit<Photo, 'original_url' | 'thumbnail_url' | 'name' | 'photoId'>>
 }
 
 export enum FILTER_TYPE {
@@ -48,7 +50,7 @@ interface PhotosAction {
   // 移除照片制作产品的类型
   removeMarkedProductByPhotoId: (photoId: number, productId: number) => void
   // 移除当前照片所有已标记的产品
-  removeAllMarkedProduct: (photoId: number) => void
+  removeAllMarkedProduct: (photoId: number) => Promise<void>
   // 更新照片备注
   updatePhotoRemark: (photoId: number, remark: string) => void
   // 根据产品ID过滤照片
@@ -59,6 +61,8 @@ interface PhotosAction {
   getDisplayPhotos: () => Photo[]
   // 设置加载状态
   setLoading: (isLoading: boolean) => void
+  // 还原上一次的数据
+  restorePreviousPhotoData: (photoId: number) => void
 }
 
 const BATCH_SIZE = 10
@@ -70,6 +74,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       isLoading: true,
       filteredPhotos: [],
       selectedFilter: FILTER_TYPE.ALL,
+      previousPhotosData: {},
       fetchPhotos: async () => {
       // 设置加载状态
         set({ isLoading: true })
@@ -178,6 +183,15 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       updatePhotoMarkedProductTypes: (photoId: number, productId: number) => (
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
+
+          // 保存旧数据
+          state.previousPhotosData[photoId] = {
+            remark: photo?.remark ?? '',
+            markedProducts: cloneDeep(photo?.markedProducts ?? []),
+            addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
+            removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
+          }
+
           const product = useProductsStore.getState().products.find(product => product.productId === productId)
           if (photo && product) {
             photo.markedProducts = [...photo.markedProducts, product]
@@ -187,20 +201,44 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       updatePhotoAddTagMenus: (photoId: number, productId: number, disable?: boolean) => (
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
-          if (photo) {
-            for (const menu of photo.addTagMenus) {
-              const key = (menu.key as string).split('_')[1]
-              if (Number(key) === productId) {
-                menu.disabled = disable ?? true
-                menu.icon = disable === undefined ? <CheckOutlined /> : ''
-              }
+
+          if (!photo)
+            return
+
+          const rawPhoto = current(photo)
+          // 保存旧数据
+          state.previousPhotosData[photoId] = {
+            remark: rawPhoto.remark,
+            markedProducts: cloneDeep(rawPhoto.markedProducts),
+            addTagMenus: cloneDeep(rawPhoto.addTagMenus),
+            removeTagMenus: cloneDeep(rawPhoto.removeTagMenus),
+          }
+
+          // 深拷贝 addTagMenus 后再修改
+          const updatedAddTagMenus = cloneDeep(rawPhoto.addTagMenus)
+          for (const menu of updatedAddTagMenus) {
+            const key = (menu.key as string).split('_')[1]
+            if (Number(key) === productId) {
+              menu.disabled = disable ?? false
+              menu.icon = disable === undefined ? <CheckOutlined /> : ''
             }
           }
+
+          // 更新 photo 的 addTagMenus
+          photo.addTagMenus = [...updatedAddTagMenus]
         })
       ),
       updatePhotoRemoveTagMenus: (photoId: number, productId: number, disable?: boolean) => (
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
+
+          // 保存旧数据
+          state.previousPhotosData[photoId] = {
+            remark: photo?.remark ?? '',
+            markedProducts: cloneDeep(photo?.markedProducts ?? []),
+            addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
+            removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
+          }
 
           if (photo) {
             for (const menu of photo.removeTagMenus) {
@@ -216,6 +254,15 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       removePhotoRemoveTagMenus: (photoId: number, productId: number) => (
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
+
+          // 保存旧数据
+          state.previousPhotosData[photoId] = {
+            remark: photo?.remark ?? '',
+            markedProducts: cloneDeep(photo?.markedProducts ?? []),
+            addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
+            removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
+          }
+
           if (photo) {
             photo.removeTagMenus = photo.removeTagMenus.filter((menu) => {
               const key = (menu.key as string).split('_')[1]
@@ -227,6 +274,9 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       removeMarkedProductByPhotoId: (photoId: number, productId: number) => (
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
+
+          // 保存旧数据
+
           if (photo) {
           // 移除已标记的产品
             photo.markedProducts = photo.markedProducts.filter(product => product.productId !== productId)
@@ -249,6 +299,14 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
 
+          // 保存旧数据
+          state.previousPhotosData[photoId] = {
+            remark: photo?.remark ?? '',
+            markedProducts: cloneDeep(photo?.markedProducts ?? []),
+            addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
+            removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
+          }
+
           if (photo) {
             for (const markedProduct of photo.markedProducts) {
               removeSelectedByPhotoId(photoId, markedProduct.productId)
@@ -261,6 +319,15 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       updatePhotoRemark: (photoId: number, remark: string) => (
         set((state) => {
           const photo = state.photos.find(photo => photo.photoId === photoId)
+
+          // 保存旧数据
+          state.previousPhotosData[photoId] = {
+            remark: photo?.remark ?? '',
+            markedProducts: cloneDeep(photo?.markedProducts ?? []),
+            addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
+            removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
+          }
+
           if (photo) {
             photo.remark = remark
           }
@@ -293,6 +360,21 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           return { isLoading }
         })
       ),
+      restorePreviousPhotoData: (photoId: number) => {
+        set((state) => {
+          const photo = state.photos.find(photo => photo.photoId === photoId)
+          if (photo) {
+            const previousData = state.previousPhotosData[photoId]
+            console.log(current(previousData))
+            if (previousData) {
+              photo.remark = previousData.remark
+              photo.markedProducts = cloneDeep(previousData.markedProducts)
+              photo.addTagMenus = cloneDeep(previousData.addTagMenus)
+              photo.removeTagMenus = cloneDeep(previousData.removeTagMenus)
+            }
+          }
+        })
+      },
     })),
     {
       name: 'photos-store',
