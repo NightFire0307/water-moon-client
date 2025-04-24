@@ -18,7 +18,7 @@ const service = axios.create({
 // 刷新 Access_token
 async function refreshAccessToken() {
   const { data } = await refreshToken()
-  useAuthStore.getState().updateAccessToken(data.access_token)
+  useAuthStore.getState().setAccessToken(data.access_token)
 }
 
 // request interceptor
