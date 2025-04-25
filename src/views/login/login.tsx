@@ -65,10 +65,15 @@ function Login() {
 
   useEffect(() => {
     if (!surl) {
+      navigate('/')
       setLoginType('phone')
     }
     else {
-      verifySurl(surl).then().catch(() => setLoginType('phone'))
+      verifySurl(surl)
+        .catch(() => {
+          navigate('/')
+          setLoginType('phone')
+        })
     }
   }, [surl])
 
@@ -101,8 +106,21 @@ function Login() {
             </Form.Item>
           )
         }
-        <Form.Item name="password" label="动态密码" rules={[{ required: true, message: '请输入您的动态密码' }]}>
-          <Input placeholder="请输入您的动态密码" prefix={<LockOutlined />}></Input>
+        <Form.Item
+          name="password"
+          label="动态密码"
+          rules={[{ required: true, message: '请输入您的动态密码' }]}
+        >
+          <Input
+            placeholder="请输入您的动态密码"
+            prefix={<LockOutlined />}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSubmit()
+              }
+            }}
+          >
+          </Input>
         </Form.Item>
         <Button
           type="primary"

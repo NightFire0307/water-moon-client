@@ -65,7 +65,8 @@ service.interceptors.response.use(
         case 404:
           return Promise.reject(error)
         default:
-          message.error('未知错误，请稍后再试')
+          message.error(error.response.data.msg)
+          return Promise.reject(error)
       }
     }
     return Promise.resolve({ data: null, error: true, msg: '请求失败' })
