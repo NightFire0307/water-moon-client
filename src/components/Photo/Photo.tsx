@@ -131,7 +131,7 @@ export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
           remark
           && (
             <div className="absolute bottom-12 right-2 z-10">
-              <MessageFilled className="text-darkBlueGray-300 text-lg" />
+              <MessageFilled className="text-darkBlueGray-700 text-lg" />
             </div>
           )
         }

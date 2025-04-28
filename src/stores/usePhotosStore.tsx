@@ -339,7 +339,6 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           if (photo) {
             photo.remark = remark
           }
-          return ({ photos: [...state.photos] })
         })
       ),
       filterPhotoByProductId: (productId: number) => (
