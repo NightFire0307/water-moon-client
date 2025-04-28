@@ -77,6 +77,7 @@ export function PhotoGrid() {
                 name={photo.name}
                 products={photo.markedProducts}
                 remark={photo.remark}
+                isRecommend={photo.isRecommend}
                 addProductsMenus={photo.addTagMenus}
                 removeProductsMenus={photo.removeTagMenus}
                 onDropDownClick={handleDropDownClick}

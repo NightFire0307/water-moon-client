@@ -16,6 +16,7 @@ export interface Photo {
   thumbnail_url: string
   name: string
   remark: string
+  isRecommend: boolean
   markedProducts: IProduct[]
   addTagMenus: MenuItemType[]
   removeTagMenus: MenuItemType[]
@@ -96,6 +97,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
               name: photo.file_name,
               remark: photo.remark ?? '',
               markedProducts: selectedProducts,
+              isRecommend: photo.is_recommend,
               addTagMenus: products.map(product => ({
                 label: product.title,
                 key: `addTag_${product.productId}`,
@@ -187,6 +189,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           // 保存旧数据
           state.previousPhotosData[photoId] = {
             remark: photo?.remark ?? '',
+            isRecommend: photo?.isRecommend ?? false,
             markedProducts: cloneDeep(photo?.markedProducts ?? []),
             addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
             removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
@@ -209,6 +212,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           // 保存旧数据
           state.previousPhotosData[photoId] = {
             remark: rawPhoto.remark,
+            isRecommend: photo?.isRecommend ?? false,
             markedProducts: cloneDeep(rawPhoto.markedProducts),
             addTagMenus: cloneDeep(rawPhoto.addTagMenus),
             removeTagMenus: cloneDeep(rawPhoto.removeTagMenus),
@@ -235,6 +239,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           // 保存旧数据
           state.previousPhotosData[photoId] = {
             remark: photo?.remark ?? '',
+            isRecommend: photo?.isRecommend ?? false,
             markedProducts: cloneDeep(photo?.markedProducts ?? []),
             addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
             removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
@@ -258,6 +263,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           // 保存旧数据
           state.previousPhotosData[photoId] = {
             remark: photo?.remark ?? '',
+            isRecommend: photo?.isRecommend ?? false,
             markedProducts: cloneDeep(photo?.markedProducts ?? []),
             addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
             removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
@@ -302,6 +308,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           // 保存旧数据
           state.previousPhotosData[photoId] = {
             remark: photo?.remark ?? '',
+            isRecommend: photo?.isRecommend ?? false,
             markedProducts: cloneDeep(photo?.markedProducts ?? []),
             addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
             removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
@@ -323,6 +330,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           // 保存旧数据
           state.previousPhotosData[photoId] = {
             remark: photo?.remark ?? '',
+            isRecommend: photo?.isRecommend ?? false,
             markedProducts: cloneDeep(photo?.markedProducts ?? []),
             addTagMenus: cloneDeep(photo?.addTagMenus ?? []),
             removeTagMenus: cloneDeep(photo?.removeTagMenus ?? []),
@@ -365,7 +373,6 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           const photo = state.photos.find(photo => photo.photoId === photoId)
           if (photo) {
             const previousData = state.previousPhotosData[photoId]
-            console.log(current(previousData))
             if (previousData) {
               photo.remark = previousData.remark
               photo.markedProducts = cloneDeep(previousData.markedProducts)
