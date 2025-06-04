@@ -26,6 +26,7 @@ interface UsePhotosStore {
   photos: Photo[]
   isLoading: boolean
   filteredPhotos: Photo[]
+  isFiltering: boolean
   selectedFilter: FILTER_TYPE
   previousPhotosData: Record<number, Omit<Photo, 'original_url' | 'thumbnail_url' | 'name' | 'photoId'>>
 }
@@ -74,6 +75,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       photos: [],
       isLoading: true,
       filteredPhotos: [],
+      isFiltering: false,
       selectedFilter: FILTER_TYPE.ALL,
       previousPhotosData: {},
       fetchPhotos: async () => {
@@ -348,6 +350,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           })
 
           return {
+            isFiltering: true,
             filteredPhotos: [...filteredPhotos],
           }
         })
@@ -355,12 +358,14 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       clearFilterPhotos: () => (
         set(() => {
           return {
+            isFiltering: false,
             filteredPhotos: [],
           }
         })
       ),
       getDisplayPhotos: () => {
-        return get().filteredPhotos.length > 0 ? get().filteredPhotos : get().photos
+        const { isFiltering, filteredPhotos, photos } = get()
+        return isFiltering ? filteredPhotos : photos
       },
       setLoading: (isLoading: boolean) => (
         set(() => {

@@ -12,6 +12,7 @@ interface ErrorResponse {
 
 // create an axios instance
 const service = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 8000,
 })
 
