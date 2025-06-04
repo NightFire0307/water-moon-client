@@ -16,6 +16,7 @@ export default defineConfig({
   },
   server: {
     port: 5174,
+    host: '0.0.0.0',
     proxy: {
       // '/api': 'https://apifoxmock.com/m1/4320757-3963744-default',
       '/api': {
