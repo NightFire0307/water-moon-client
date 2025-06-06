@@ -4,7 +4,7 @@ import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
-import { ArrowRightOutlined, InfoCircleOutlined, LockOutlined, SyncOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, LockOutlined, SyncOutlined } from '@ant-design/icons'
 import { useContext, useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { ConfirmModal } from './components/ConfirmModal.tsx'
@@ -39,6 +39,14 @@ function Home() {
     [products],
   )
 
+  // 计算额外需要支付的照片费用
+  const diffCount = useMemo(() => {
+    if (orderInfo && orderInfo.max_select_photos) {
+      return Math.max(0, selectCount - orderInfo.max_select_photos)
+    }
+    return 0
+  }, [orderInfo, selectCount])
+
   return (
     <div className="flex flex-col w-full h-full p-4">
       <div className="flex items-center gap-2 mb-2 flex-grow-0">
@@ -72,7 +80,7 @@ function Home() {
       </div>
 
       <FloatBtn
-        title={previewMode ? '预览模式' : '提交选片结果'}
+        title={previewMode ? '预览模式' : '提交选片'}
         desc={previewMode
           ? '当前模式不可修改'
           : (
@@ -87,7 +95,8 @@ function Home() {
               </span>
             )}
         addonIcon={previewMode ? <InfoCircleOutlined /> : <LockOutlined />}
-        afterIcon={!previewMode ? <ArrowRightOutlined /> : undefined}
+        diffCount={diffCount}
+        price={diffCount * orderInfo!.extra_photo_price}
         onClick={() => !previewMode && setConfirmOpen(true)}
       />
 
