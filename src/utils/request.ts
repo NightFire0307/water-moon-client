@@ -1,32 +1,31 @@
 import type { AxiosError } from 'axios'
 import { refreshToken } from '@/apis/login.ts'
-import { useCustomStore } from '@/stores/customStore.tsx'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { message } from 'antd'
 import axios from 'axios'
 
 interface ErrorResponse {
   error: string
-  message: string
+  msg: string
   statusCode: number
 }
 
 // create an axios instance
 const service = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 8000,
 })
-
-let isRefreshing = false
 
 // 刷新 Access_token
 async function refreshAccessToken() {
   const { data } = await refreshToken()
-  useCustomStore.getState().updateAccessToken(data.access_token)
+  useAuthStore.getState().setAccessToken(data.access_token)
 }
 
 // request interceptor
 service.interceptors.request.use(
   (config) => {
-    const { access_token } = useCustomStore.getState()
+    const { access_token } = useAuthStore.getState()
 
     // 设置请求头部 Authorization
     if (access_token) {
@@ -52,11 +51,7 @@ service.interceptors.response.use(
           message.error('服务器错误，请稍后再试')
           break
         case 401:
-          message.error(error.response.data.message)
-          break
-        case (400):
-          message.error(error.response.data.message || '请求错误，请稍后再试')
-          isRefreshing = true
+          message.error(error.response.data.msg)
 
           try {
             await refreshAccessToken()
@@ -64,17 +59,18 @@ service.interceptors.response.use(
           catch (e) {
             return Promise.reject(e)
           }
-          finally {
-            isRefreshing = false
-          }
           break
+        case (400):
+          message.error(error.response.data.msg || '请求错误，请稍后再试')
+          return Promise.reject(error)
         case 404:
-          return Promise.reject(error.response.data)
+          return Promise.reject(error)
         default:
-          message.error('未知错误，请稍后再试')
+          message.error(error.response.data.msg)
+          return Promise.reject(error)
       }
     }
-    return Promise.resolve({ data: null, error: true, message: '请求失败' })
+    return Promise.resolve({ data: null, error: true, msg: '请求失败' })
   },
 )
 

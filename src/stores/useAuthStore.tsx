@@ -1,22 +1,27 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
-interface CustomStore {
+interface UseAuthStore {
   access_token: string
+  isPreview: boolean
 }
 
 interface CustomAction {
-  updateAccessToken: (token: string) => void
+  setAccessToken: (token: string) => void
+  setPreview: (isPreview: boolean) => void
 }
 
-export const useCustomStore = create<CustomStore & CustomAction>()(
+export const useAuthStore = create<UseAuthStore & CustomAction>()(
   devtools(set => ({
     access_token: sessionStorage.getItem('access_token') !== 'undefined' ? sessionStorage.getItem('access_token') : '',
-    updateAccessToken: (token: string) => set(() => {
+    isPreview: false,
+    orderInfo: {},
+    setAccessToken: (token: string) => set(() => {
       // 更新 Session Storage
       sessionStorage.setItem('access_token', token)
       return { access_token: token }
     }),
+    setPreview: isPreview => set({ isPreview }),
   }), {
     name: 'custom-store',
     enabled: true,

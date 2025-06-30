@@ -62,8 +62,7 @@ const AuthLayout: FC = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-darkBlueGray-100">
         <div className="flex flex-col justify-between gap-4 p-8 w-2/3 shadow-xl rounded-xl bg-darkBlueGray-50 border  border-darkBlueGray-300/60">
           <div>
-            <h2 className="text-2xl font-bold text-text-primary">欢迎访问</h2>
-            <p className="my-3 text-sm text-text-secondary">请输入您收到的动态密码进行登录</p>
+            <h2 className="text-2xl font-bold text-text-primary">欢迎访问在线选片系统</h2>
           </div>
           <Outlet />
           <p className="text-center text-sm text-text-muted">

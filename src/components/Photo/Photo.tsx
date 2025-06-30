@@ -1,35 +1,46 @@
 import type { MenuItemType } from 'antd/es/menu/interface'
-import type { IProduct } from '../../stores/productsStore.tsx'
+import type { IProduct } from '../../stores/useProductsStore.tsx'
 import {
   NoteEditIcon,
   TagAddIcon,
   TagRemoveAllIcon,
   TagRemoveIcon,
 } from '@/assets/icon'
-import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
-import { CommentOutlined, ZoomInOutlined } from '@ant-design/icons'
-import { Dropdown, Image, type MenuProps, Tag } from 'antd'
+import { usePhotoPreviewContext } from '@/contexts/PhotoPreviewContext.ts'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
+import { MessageFilled, StarFilled, ZoomInOutlined } from '@ant-design/icons'
+import { Dropdown, type MenuProps, Tag } from 'antd'
 import cs from 'classnames'
-import { useContext, useEffect, useState } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 
-interface PhotoProps {
+export interface PhotoInfo {
   photoId: number
-  src: string
   name: string
-  remark: string
+}
+
+export interface PhotoProps {
+  photoId: number
+  index: number
+  thumbnail_url: string
+  original_url: string
+  name: string
+  remark?: string
+  isRecommend?: boolean
   products: IProduct[]
   addProductsMenus: MenuItemType[]
   removeProductsMenus: MenuItemType[]
   onPreviewClick?: (photoId: number) => void
-  onDropDownClick?: (key: string, photoId: number) => void
-  onRemarkClick?: (photoId: number) => void
+  onDropDownClick?: (key: string, photoInfo: PhotoInfo) => void
 }
 
-export function Photo(props: PhotoProps) {
-  const { photoId, src, products, name, remark, addProductsMenus, removeProductsMenus, onDropDownClick, onRemarkClick, onPreviewClick } = props
+export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
+  const { photoId, index, thumbnail_url, products, name, remark, addProductsMenus, removeProductsMenus, isRecommend, onDropDownClick, onPreviewClick } = props
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true)
+  const [imgSrc, setImgSrc] = useState<string>('')
+  const imageRef = useRef<HTMLImageElement | null>(null)
   const [isHovered, setIsHovered] = useState<boolean>(false)
-  const previewMode = useContext(PreviewModeContext)
+  const previewMode = useAuthStore(state => state.isPreview)
+  const { registerPhoto } = usePhotoPreviewContext()
 
   useEffect(() => {
     products.length > 0 ? setRemoveDisabled(false) : setRemoveDisabled(true)
@@ -62,57 +73,91 @@ export function Photo(props: PhotoProps) {
     },
   ]
 
+  useEffect(() => {
+    // 注册图片到预览上下文中
+    registerPhoto(props)
+
+    const el = imageRef.current
+    if (!el)
+      return
+
+    const observer = new IntersectionObserver((entires) => {
+      entires.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setImgSrc(thumbnail_url)
+          observer.unobserve(el)
+        }
+      })
+    }, {
+      root: null,
+      threshold: 0.5,
+    })
+
+    observer.observe(el)
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <Dropdown
       menu={{
         items,
-        onClick: ({ key }) => onDropDownClick?.(key, photoId),
+        onClick: ({ key }) => onDropDownClick?.(key, { photoId, name }),
       }}
       trigger={previewMode ? [] : ['contextMenu']}
-      className="mt-4"
     >
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="w-full relative overflow-hidden rounded-xl"
+        className="min-h-[280px] max-w-[360px] relative overflow-hidden rounded-xl"
       >
         <div className="absolute top-2 left-2 z-10">
           {
             products.map(product => (
-              <Tag bordered={false} color="#324054" key={product.productId}>{product.product_type}</Tag>
+              <Tag bordered={false} color="#1e293b" key={product.productId}>{product.product_type}</Tag>
             ))
           }
         </div>
-        <div className="relative bg-darkBlueGray-200 overflow-hidden rounded-xl flex shadow-md justify-center items-center h-[300px] object-contain">
-          {
-            remark && (
-              <div
-                className="cursor-pointer rounded-2xl flex justify-center items-center absolute top-2 right-2 text-base text-geekBlue-600 w-[30px] h-[30px] bg-geekBlue-200"
-                onClick={() => onRemarkClick?.(photoId)}
-              >
-                <CommentOutlined />
-              </div>
-            )
-          }
-          <Image
-            className="max-w-[300px] max-h-[300px] w-auto h-auto cursor-pointer"
-            src={src}
-            preview={{
-              mask: null,
-            }}
+        {
+          isRecommend
+          && (
+            <div className="absolute top-2 right-2 z-10">
+              <StarFilled className="text-amber-400 text-lg" />
+            </div>
+          )
+        }
+
+        {
+          remark
+          && (
+            <div className="absolute bottom-12 right-2 z-10">
+              <MessageFilled className="text-darkBlueGray-700 text-lg" />
+            </div>
+          )
+        }
+
+        <div
+          className="relative bg-darkBlueGray-200 overflow-hidden rounded-tl-xl rounded-tr-xl flex shadow-md justify-center items-center"
+        >
+          <img
+            className="cursor-pointer object-contain max-h-[240px]"
+            loading="lazy"
+            decoding="async"
+            ref={imageRef}
+            src={imgSrc}
+            alt=""
           />
         </div>
         <div
-          className="absolute p-2 flex justify-between items-center
-          bottom-0 left-0 right-0 h-10
+          className="absolute bottom-0 left-0 right-0 p-2 flex justify-between items-center h-10
           bg-gradient-to-r from-darkBlueGray-900 to-darkBlueGray-700
-          text-white font-mono"
+          font-mono text-darkBlueGray-50 font-semibold"
         >
           <div>
             IMG_
             {name}
           </div>
-          <div className="text-sm text-darkBlueGray-200">1.3MB</div>
+          <div className="text-darkBlueGray-400">{index}</div>
         </div>
 
         {/* Mask */}
@@ -122,11 +167,12 @@ export function Photo(props: PhotoProps) {
           }
           onClick={() => onPreviewClick && onPreviewClick(photoId)}
         >
-          <div className="w-10 h-10 rounded-md bg-white text-xl flex justify-center items-center">
-            <ZoomInOutlined />
+          <div className="w-10 h-10 rounded-md bg-darkBlueGray-50 text-xl flex justify-center items-center">
+            <ZoomInOutlined className="text-darkBlueGray-800" />
           </div>
         </div>
       </div>
     </Dropdown>
+
   )
-}
+})

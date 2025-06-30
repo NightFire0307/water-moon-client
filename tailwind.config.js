@@ -2,9 +2,13 @@
 export default {
   content: [
     './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
+    './src/**/*.{jsx,tsx}',
   ],
   theme: {
+    backgroundPosition: {
+      'left-center': 'left center',
+      'right-center': 'right center',
+    },
     screens: {
       'sm': '576px',
       'md': '768px',
@@ -58,7 +62,16 @@ export default {
         dark: '#94a3b8',
       },
       amber: {
+        50: '#fefce8',
+        100: '#fef3c7',
+        200: '#fde68a',
+        300: '#fcd34d',
+        400: '#fbbf24',
+        500: '#f59e0b',
         600: '#d97706',
+        700: '#b45309',
+        800: '#92400e',
+        900: '#78350f',
       },
       emerald: {
         600: '#10b981',

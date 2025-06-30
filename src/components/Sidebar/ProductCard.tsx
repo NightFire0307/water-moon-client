@@ -1,7 +1,8 @@
 import type { FC } from 'react'
 import { CameraIcon, CircleCheckIcon, WarningIcon } from '@/assets/icon'
-import { Card, Progress, Tooltip, Typography } from 'antd'
-import cs from 'classnames'
+import CustomCard from '@/components/CustomCard/CustomCard.tsx'
+import { Progress, Tooltip, Typography } from 'antd'
+import { useMemo } from 'react'
 
 const { Text } = Typography
 
@@ -45,25 +46,20 @@ const ProductTitle: FC<ProductTitleProps> = ({ title, count }) => {
 export function ProductCard(props: ProductCardProps) {
   const { productId, title, count, selectedCount, photoLimit, type, onClick, className } = props
 
+  // 完成进度
+  const completePercent = useMemo(() => {
+    return Math.round((selectedCount / photoLimit) * 100)
+  }, [selectedCount, photoLimit])
+
   function handleCardClick() {
     onClick && onClick(productId)
   }
 
   return (
-    <Card
-      size="small"
-      variant="borderless"
-      className={cs('w-full cursor-pointer transition duration-150 ease-in-out hover:shadow-lg', className)}
-      title={<ProductTitle title={title} count={count} />}
-      styles={{
-        header: { background: 'linear-gradient(90deg, #1e293b, #324054)', color: '#fff' },
-        body: { background: '#f9fbfd' },
-      }}
-      onClick={handleCardClick}
-    >
-      <div className="flex flex-col gap-3">
+    <CustomCard title={<ProductTitle title={title} count={count} />} onClick={handleCardClick} className={className}>
+      <div className="flex flex-col gap-3 text-darkBlueGray-800">
         <div className="flex justify-between">
-          <div className="pl-2 pr-2 rounded-full inline-block bg-darkBlueGray-200 text-black-firstText text-[12px]">{ type }</div>
+          <div className="pl-2 pr-2 rounded-full inline-block bg-darkBlueGray-200 text-black-firstText text-xs">{ type }</div>
           {
             selectedCount === photoLimit ? <CircleCheckIcon className="text-base text-emerald-600" /> : null
           }
@@ -83,39 +79,35 @@ export function ProductCard(props: ProductCardProps) {
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
             <div className="bg-darkBlueGray-200 w-6 h-6 rounded-full flex justify-center items-center">
-              <CameraIcon className="text-darkBlueGray-1000 text-base" />
+              <CameraIcon className=" text-base" />
             </div>
             <Text className="text-black-secondText text-[12px]">应选 / 实选</Text>
           </div>
 
-          <Text
-            className="text-black-secondText font-semibold "
-          >
-            {photoLimit}
-            {' '}
-            /
-            {' '}
+          <div className="flex items-center gap-1 text-black-secondText font-semibold">
+            <span>{photoLimit}</span>
+            <span>/</span>
             <span className={selectedCount < photoLimit ? 'text-amber-600' : 'text-emerald-600'}>
               {selectedCount}
             </span>
-          </Text>
+          </div>
         </div>
 
         <div>
           <div className="flex justify-between">
             <div className="text-[12px]">完成进度</div>
             <div className="text-[12px] font-medium">
-              {(selectedCount / photoLimit) * 100 > 100 ? 100 : (selectedCount / photoLimit) * 100 }
+              {completePercent > 100 ? 100 : completePercent }
               %
             </div>
           </div>
           <Progress
             showInfo={false}
-            percent={(selectedCount / photoLimit) * 100}
-            strokeColor={(selectedCount / photoLimit) * 100 < 100 ? '#475569' : '#10b981'}
+            percent={completePercent}
+            strokeColor={completePercent < 100 ? '#475569' : '#10b981'}
           />
         </div>
       </div>
-    </Card>
+    </CustomCard>
   )
 }

@@ -1,17 +1,19 @@
-import type { IProduct } from '@/stores/productsStore.tsx'
+import type { IProduct } from '@/stores/useProductsStore.tsx'
 import type { FC, ReactElement } from 'react'
-import { useProductsStore } from '@/stores/productsStore.tsx'
+import { submitSelection } from '@/apis/order.ts'
+import CustomModal from '@/components/CustomModal/CustomModal.tsx'
+import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
+import { useCountDown } from '@/hooks/useCountDown.ts'
+import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { CheckCircleOutlined, LockOutlined, WarningOutlined } from '@ant-design/icons'
-import { Alert, Button, ConfigProvider, Modal, Space } from 'antd'
-import { createStyles } from 'antd-style'
+import { Alert, message } from 'antd'
 import cs from 'classnames'
-import { useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 
 interface ConfirmModalProps {
   open: boolean
-  confirmLoading: boolean
-  onSubmit: () => void
-  onCancel: () => void
+  onCancel?: () => void
+
 }
 
 interface AlertContentProps {
@@ -19,6 +21,7 @@ interface AlertContentProps {
   type: 'success' | 'warning'
   icon?: ReactElement
   unFinishedProducts?: IProduct[]
+
 }
 
 // 警告内容
@@ -38,7 +41,7 @@ const AlertContent: FC<AlertContentProps> = ({ title, type, icon, unFinishedProd
               <span>{product.title}</span>
               <div>
                 {
-                  `${product.selected_photos.length} / ${(product.photo_limit * product.count)} (${(product.selected_photos.length / (product.photo_limit * product.count)) * 100})%`
+                  `${product.selected_photos.length} / ${(product.photo_limit * product.count)} (${Math.round((product.selected_photos.length / (product.photo_limit * product.count)) * 100)})%`
                 }
               </div>
             </div>
@@ -49,87 +52,66 @@ const AlertContent: FC<AlertContentProps> = ({ title, type, icon, unFinishedProd
   )
 }
 
-const useStyle = createStyles(({ prefixCls, css }) => ({
-  linearGradientButton: css`
-    &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
-      > span {
-        position: relative;
-      }
-        
-      & {
-          background: #1e293b;
-      }
-
-      &::before {
-        content: '';
-        background: linear-gradient(90deg, #324054, #1e293b);
-        position: absolute;
-        inset: -1px;
-        opacity: 1;
-        transition: all 0.3s;
-        border-radius: inherit;
-      }
-
-      &:hover::before {
-        opacity: 0;
-      }
-    };
-    &.${prefixCls}-btn-default:not([disabled]):not(.${prefixCls}-btn-dangerous) {
-      & {
-        border-color: #94a3b8;
-      }
-
-      &:hover {
-        color: inherit;
-        background: #f1f5f9;
-      }
-    },
-  `,
-}))
-
 export function ConfirmModal(props: ConfirmModalProps) {
-  const { open, onCancel, onSubmit, confirmLoading } = props
+  const { open, onCancel } = props
   const products = useProductsStore(state => state.products)
-  const { styles } = useStyle()
+  const orderInfo = useContext(OrderInfoContext)
+  const { countDown, start } = useCountDown({ manual: true })
+
+  // 过滤产品
+  const filterProducts = useCallback(() => {
+    return products
+      .map((product) => {
+        if (product.selected_photos.length < product.photo_limit * product.count) {
+          return product
+        }
+
+        if (product.photo_limit === 0 && product.selected_photos.length < orderInfo!.max_select_photos) {
+          return {
+            ...product,
+            photo_limit: orderInfo?.max_select_photos ?? product.photo_limit,
+          }
+        }
+        return null
+      })
+      .filter(product => product !== null) // 确保过滤掉 null 和 undefined
+  }, [products, orderInfo])
 
   // 未完成选片的产品
   const unFinishedProducts = useMemo(
-    () => products.filter(product => (product.photo_limit * product.count) > product.selected_photos.length),
-    [products],
+    () => filterProducts(),
+    [filterProducts],
   )
 
+  // 提交选片结果
+  const handleSubmit = async () => {
+    const { msg } = await submitSelection(orderInfo!.id)
+    message.success(msg)
+    onCancel?.()
+  }
+
+  useEffect(() => {
+    if (open)
+      start()
+  }, [open])
+
   return (
-    <ConfigProvider
-      button={{
-        className: styles.linearGradientButton,
-      }}
+    <CustomModal
+      open={open}
+      onCancel={onCancel}
+      centered
+      title="确认提交选片结果"
+      icon={<LockOutlined />}
+      okText={`提交选片 ${countDown === 0 ? '' : `( ${countDown} )`}`}
+      disabledOk={countDown !== 0}
+      onOk={handleSubmit}
     >
-      <Modal
-        footer={(
-          <Space>
-            <Button onClick={() => onCancel()}>取消</Button>
-            <Button type="primary" onClick={() => onSubmit()} loading={confirmLoading}>确认提交</Button>
-          </Space>
-        )}
-        open={open}
-        onCancel={onCancel}
-        centered
-      >
-        <div className="flex gap-2 items-center">
-          <div className="flex items-center justify-center w-8 h-8 rounded-full text-white bg-darkBlueGray-800">
-            <LockOutlined />
-          </div>
-          <span className="text-xl font-bold">确认提交选片结果</span>
-        </div>
-
-        <div className="mt-1 mb-4 text-darkBlueGray-600">提交后将进入预览模式，选片结果将被锁定，无法再进行修改。</div>
-
-        {
-          unFinishedProducts.length > 0
-            ? <Alert type="warning" message={<AlertContent title="以下产品选片进度未达到100%" type="warning" unFinishedProducts={unFinishedProducts} />} />
-            : <Alert type="success" message={<AlertContent title="所有产品均已完成选片" type="success" />} />
-        }
-      </Modal>
-    </ConfigProvider>
+      <div className="mt-1 mb-4 text-darkBlueGray-500">提交后将进入预览模式，选片结果将被锁定，无法再进行修改。</div>
+      {
+        unFinishedProducts.length > 0
+          ? <Alert type="warning" message={<AlertContent title="以下产品选片进度未达到100%" type="warning" unFinishedProducts={unFinishedProducts} />} />
+          : <Alert type="success" message={<AlertContent title="所有产品均已完成选片" type="success" />} />
+      }
+    </CustomModal>
   )
 }

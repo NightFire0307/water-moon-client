@@ -1,15 +1,15 @@
 import type { IOrder } from '@/types/order.ts'
-import { refreshToken, verifySurl } from '@/apis/login.ts'
+import { verifySurl } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import Navbar from '@/components/Navbar'
 import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
 import Sidebar from '@/components/Sidebar'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
-import { PreviewModeContext } from '@/contexts/PreviewModeContext.ts'
-import { useCustomStore } from '@/stores/customStore.tsx'
-import { usePhotosStore } from '@/stores/photosStore.tsx'
-import { useProductsStore } from '@/stores/productsStore.tsx'
-import { Layout } from 'antd'
+import { useAuthStore } from '@/stores/useAuthStore.tsx'
+import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
+import { useProductsStore } from '@/stores/useProductsStore.tsx'
+import { ConfigProvider, Layout } from 'antd'
+import zhCN from 'antd/locale/zh_CN'
 import cs from 'classnames'
 import { useEffect, useState } from 'react'
 import { Outlet, useNavigate, useParams } from 'react-router'
@@ -18,12 +18,10 @@ const { Sider, Content, Header } = Layout
 
 function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
-  const [previewMode, setPreviewMode] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
-  const access_Token = useCustomStore(state => state.access_token)
+  const { isPreview, setPreview } = useAuthStore()
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
-  const updateAccessToken = useCustomStore(state => state.updateAccessToken)
 
   const { surl } = useParams()
   const navigate = useNavigate()
@@ -40,7 +38,7 @@ function MainLayout() {
   async function fetchOrderInfo(surl: string) {
     const { data } = await getOrderInfo(surl)
     if (data.status === 2)
-      setPreviewMode(true)
+      setPreview(true)
     setOrderInfo(data)
     generateProducts(data.order_products)
   }
@@ -48,26 +46,17 @@ function MainLayout() {
   useEffect(() => {
     if (surl) {
       (async () => {
-        // 刷新 access_token
-        if (!access_Token) {
-          try {
-            const { data } = await refreshToken()
-            updateAccessToken(data.access_token)
-          }
-          catch {
-            navigate('/')
-          }
-        }
+        //
 
         // 验证短链和 token
         try {
           await verify(surl)
           await fetchOrderInfo(surl)
-          await fetchPhotos()
+          fetchPhotos()
         }
         catch (err) {
           console.error(err)
-          navigate('/404')
+          navigate(`/share/init?surl=${surl}`)
         }
       })()
     }
@@ -75,13 +64,51 @@ function MainLayout() {
 
   return (
     <OrderInfoContext.Provider value={orderInfo}>
-      <PreviewModeContext.Provider value={previewMode}>
+      <ConfigProvider
+        locale={zhCN}
+        theme={{
+          token: {
+            colorBgElevated: '#334155',
+            colorText: '#f8fafc',
+            colorTextDisabled: '#64748b',
+            colorTextDescription: '#94a3b8',
+            controlItemBgHover: '#475569',
+          },
+          components: {
+            Modal: {
+              contentBg: '#1e293b',
+            },
+            Button: {
+              borderColorDisabled: '#475569',
+              defaultBg: '#1e293b',
+              defaultColor: '#e2e8f0',
+              defaultBorderColor: '#334155',
+              defaultActiveBg: '#0f172a',
+              defaultActiveBorderColor: '#1e293b',
+              defaultActiveColor: '#e2e8f0',
+              defaultHoverBg: '#334155',
+              defaultHoverBorderColor: '#475569',
+              defaultHoverColor: '#ffffff',
+              textTextColor: '#94a3b8',
+              textHoverBg: '#475569',
+              textTextActiveColor: '#cbd5e1',
+              textTextHoverColor: '#f8fafc',
+            },
+            Input: {
+              activeBg: '#1e293b',
+              activeBorderColor: '#475569',
+              activeShadow: '#020617',
+              hoverBorderColor: '#94a3b8',
+            },
+          },
+        }}
+      >
         <Layout className="h-screen bg-gray-500 p-4">
           {
-            previewMode && <PreviewAlert />
+            isPreview && <PreviewAlert />
           }
 
-          <Header className="h-auto p-0 mb-4 bg-[transparent] rounded-xl ">
+          <Header className="p-0 mb-4 bg-[transparent] rounded-xl">
             <Navbar />
           </Header>
 
@@ -101,7 +128,7 @@ function MainLayout() {
           </Layout>
 
         </Layout>
-      </PreviewModeContext.Provider>
+      </ConfigProvider>
     </OrderInfoContext.Provider>
   )
 }
