@@ -57,4 +57,4 @@ http://localhost:5174/share/init?surl=[your-share-url]
 项目目前还不完善，欢迎任何形式的贡献！无论是大佬指点，提交 bug、提建议、添加功能，还是改进文档，都是对项目的重要支持
 
 [license-src]: https://img.shields.io/github/license/productdevbook/unemail.svg?style=flat&colorA=080f12&colorB=1fa669
-[license-href]: https://github.com/productdevbook/unemail/blob/main/LICENSE
+[license-href]: https://github.com/NightFire0307/water-moon-client/blob/main/LICENSE
