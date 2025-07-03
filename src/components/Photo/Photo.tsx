@@ -109,7 +109,7 @@ export const Photo = forwardRef<HTMLDivElement, PhotoProps>((props, _) => {
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="min-h-[280px] max-w-[360px] relative overflow-hidden rounded-xl"
+        className="min-h-[280px] w-auto relative overflow-hidden rounded-xl"
       >
         <div className="absolute top-2 left-2 z-10">
           {
