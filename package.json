@@ -24,10 +24,12 @@
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
     "react-flip-toolkit": "^7.2.4",
+    "react-responsive": "^10.0.1",
     "react-router": "^7.1.1",
     "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11",
     "simplebar-react": "^3.3.0",
+    "swiper": "^11.2.10",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

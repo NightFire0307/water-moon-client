@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
 import Sidebar from '@/components/Sidebar'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
+import { useResponsive } from '@/contexts/ResponsiveContext'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
@@ -22,6 +23,7 @@ function MainLayout() {
   const { isPreview, setPreview } = useAuthStore()
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
+  const { isMobile } = useResponsive()
 
   const { surl } = useParams()
   const navigate = useNavigate()
@@ -103,7 +105,7 @@ function MainLayout() {
           },
         }}
       >
-        <Layout className="h-screen bg-gray-500 p-4">
+        <Layout className="h-auto md:h-screen bg-gray-500 p-4">
           {
             isPreview && <PreviewAlert />
           }
@@ -113,16 +115,20 @@ function MainLayout() {
           </Header>
 
           <Layout className="bg-[transparent]">
-            <Sider
-              collapsed={collapsed}
-              collapsedWidth={60}
-              className={cs('rounded-xl shadow-md', collapsed ? 'bg-gradient-to-b from-darkBlueGray-1000 to-darkBlueGray-900 p-2' : 'bg-white p-4')}
-              width={290}
-            >
-              <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
-            </Sider>
+            {
+              !isMobile && (
+                <Sider
+                  collapsed={collapsed}
+                  collapsedWidth={60}
+                  className={cs('rounded-xl shadow-md', collapsed ? 'bg-gradient-to-b from-darkBlueGray-1000 to-darkBlueGray-900 p-2' : 'bg-white p-4')}
+                  width={290}
+                >
+                  <Sidebar collapsed={collapsed} maxSelectPhotos={orderInfo.max_select_photos} onClick={() => setCollapsed(!collapsed)} />
+                </Sider>
+              )
+            }
 
-            <Content className="bg-white ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
+            <Content className="bg-white md:ml-4 rounded-xl shadow-md overflow-hidden flex flex-col" onContextMenu={e => e.preventDefault()}>
               <Outlet />
             </Content>
           </Layout>

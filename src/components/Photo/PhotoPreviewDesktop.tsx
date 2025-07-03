@@ -25,21 +25,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Draggable from 'react-draggable'
 
 interface PhotoPreviewProps {
-  preview: boolean | PhotoPreviewGroupType
+  preview: boolean | PhotoReviewDesktopType
 }
 
-interface PhotoPreviewGroupType {
+interface PhotoReviewDesktopType {
   visible?: boolean
   current?: number
   onChange?: (current: number, prevCurrent: number) => void
   onVisibleChange?: (visible: boolean) => void
 }
 
-function getPreviewGroupType(preview: PhotoPreviewProps['preview']): PhotoPreviewGroupType | undefined {
+function getPreviewGroupType(preview: PhotoPreviewProps['preview']): PhotoReviewDesktopType | undefined {
   return typeof preview === 'boolean' ? undefined : preview
 }
 
-const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, children }) => {
+const PhotoReviewDesktop: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, children }) => {
   const [images, setImages] = useState<PhotoProps[]>([])
   const [previewState, setPreviewState] = useState({
     open: false,
@@ -265,7 +265,7 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
               e.preventDefault()
             }}
             >
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex justify-center gap-2 z-10">
+              <div className="absolute top-2 md:top-4 left-1/2 -translate-x-1/2 flex justify-center gap-2 z-10">
                 {
                   !isPreview
                   && (
@@ -292,26 +292,34 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
                   onClick={() => handleZoom(1.2)}
                 />
               </div>
-              <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-700/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
-                <div>
-                  IMG_
-                  {photoProps?.name ?? ''}
+              <div className="text-xs md:text-xs z-10 absolute left-1/2 -translate-x-1/2 bottom-2 md:bottom-4 p-2 md:p-4 h-auto bg-darkBlueGray-700/60 backdrop-blur-md flex flex-col gap-1 items-center rounded-xl text-white ">
+                <div className="flex gap-2">
+                  <div>
+                    IMG_
+                    {photoProps?.name ?? ''}
+                  </div>
+                  <div className="flex items-center gap-2 md:gap-4">
+                    <CalendarOutlined />
+                    <p>2025-03-24</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <CalendarOutlined />
-                  <p>2025-03-24</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TagOutlined />
 
-                  {
-                    photo_marked_products?.map(product => (
-                      <div key={product.productId} className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">{product.title}</div>
-                    ))
-                  }
-                </div>
+                {
+                  (photo_marked_products?.length ?? 0) > 0 && (
+                    <div className="flex items-center gap-1 md:gap-2 w-full overflow-auto">
+                      <TagOutlined />
+
+                      {
+                        photo_marked_products?.map(product => (
+                          <div key={product.productId} className="flex-shrink-0 text-xs bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">{product.title}</div>
+                        ))
+                      }
+                    </div>
+                  )
+                }
+
               </div>
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-2 md:top-4 right-4">
                 <ToolBtn
                   icon={<CloseOutlined />}
                   onClick={handleClose}
@@ -377,4 +385,4 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
   )
 }
 
-export default PhotoPreviewGroup
+export default PhotoReviewDesktop

@@ -5,27 +5,30 @@ import Home from '@/views/home/home.tsx'
 import Login from '@/views/login/login.tsx'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
+import { ResponsiveProvider } from './contexts/ResponsiveContext'
 import './index.css'
 import './assets/normal.css'
 import 'simplebar-react/dist/simplebar.min.css'
 
 createRoot(document.getElementById('root')!).render(
-  <BrowserRouter>
+  <ResponsiveProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AuthLayout />}>
+          <Route index element={<Login />} />
+        </Route>
 
-    <Routes>
-      <Route path="/" element={<AuthLayout />}>
-        <Route index element={<Login />} />
-      </Route>
+        <Route path="/share/init" element={<AuthLayout />}>
+          <Route index element={<Login />} />
+        </Route>
 
-      <Route path="/share/init" element={<AuthLayout />}>
-        <Route index element={<Login />} />
-      </Route>
+        <Route path="/s/:surl" element={<App />}>
+          <Route index element={<Home />} />
+        </Route>
 
-      <Route path="/s/:surl" element={<App />}>
-        <Route index element={<Home />} />
-      </Route>
+        <Route path="/404" element={<Error404Page />} />
+      </Routes>
 
-      <Route path="/404" element={<Error404Page />} />
-    </Routes>
-  </BrowserRouter>,
+    </BrowserRouter>
+  </ResponsiveProvider>,
 )

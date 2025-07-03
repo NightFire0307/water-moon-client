@@ -14,7 +14,7 @@ const FloatBtn: FC<FloatBtnProps> = ({ title, desc, addonIcon, diffCount = 0, pr
   const [isHover, setIsHover] = useState(false)
 
   const floatBtnContent = (
-    <div className="absolute w-[300px] bottom-10 right-12 group select-none cursor-pointer" onClick={onClick} onMouseOver={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+    <div className="fixed w-[300px] bottom-10 right-12 group select-none cursor-pointer" onClick={onClick} onMouseOver={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
       <div
         className="shadow-xl bg-gradient-to-r from-darkBlueGray-600 to-darkBlueGray-800 group-hover:from-darkBlueGray-700 group-hover:to-darkBlueGray-800 px-2 py-1 text-white  h-auto rounded-full flex items-center"
       >

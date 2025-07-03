@@ -1,6 +1,7 @@
 import FloatBtn from '@/components/FloatBtn/FloatBtn.tsx'
 import { PhotoGrid } from '@/components/Photo/PhotoGrid.tsx'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
+import { useResponsive } from '@/contexts/ResponsiveContext.tsx'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
@@ -15,6 +16,7 @@ function Home() {
   const orderInfo = useContext(OrderInfoContext)
   const products = useProductsStore(state => state.products)
   const isLoading = usePhotosStore(state => state.isLoading)
+  const { isMobile, isDesktop } = useResponsive()
 
   const loadingCls = useMemo(() => {
     const cls = ['w-full', 'h-full']
@@ -71,9 +73,13 @@ function Home() {
                   </div>
                 )
               : (
-                  <SimpleBar className="max-h-full">
-                    <PhotoGrid />
-                  </SimpleBar>
+                  isMobile
+                    ? <PhotoGrid />
+                    : (
+                        <SimpleBar className="max-h-full">
+                          <PhotoGrid />
+                        </SimpleBar>
+                      )
                 )
           }
         </div>

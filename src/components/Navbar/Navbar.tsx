@@ -38,17 +38,17 @@ const Navbar: FC = () => {
     <div className="relative w-full h-full">
       <div className={navbarClass}>
         <div className="flex items-center">
-          <div className="w-1.5 h-10 bg-darkBlueGray-400 rounded-lg" />
-          <div className="flex flex-col leading-none ml-4">
-            <div className="flex items-center mb-1">
-              <div className="text-xl font-bold ">在线选片系统</div>
-              <div className="text-sm font-medium bg-darkBlueGray-600 ml-2 pr-2 pl-2 pt-1 pb-1 rounded-md">{`当前订单号: WK-${order_number ?? ''}`}</div>
+          <div className="w-1 md:w-1.5 h-10 bg-darkBlueGray-400 rounded-lg" />
+          <div className="flex flex-col leading-none ml-2 md:ml-4">
+            <div className="flex items-center mb-0.5 md:mb-1">
+              <div className="text-xs md:text-xl font-bold">在线选片系统</div>
+              <div className="text-xs md:text-sm font-medium bg-darkBlueGray-600 ml-1 px-1 py-0.5 md:ml-2 md:px-2 md:py-1 rounded-md">{`当前订单号: WK-${order_number ?? ''}`}</div>
             </div>
-            <span className="text-darkBlueGray-400">张先生 & 李小姐 · 2025年10月15日</span>
+            <span className="text-xs md:text-sm text-darkBlueGray-400">张先生 & 李小姐 · 2025年10月15日</span>
           </div>
         </div>
         <div>
-          <Button type="text" className="text-white" onClick={handleExtended}>
+          <Button type="text" className="text-white" onClick={handleExtended} size="small">
             详情
             <animated.span style={props}>
               <DownOutlined />

@@ -1,11 +1,13 @@
 import type { PhotoInfo } from './Photo.tsx'
-import PhotoPreviewGroup from '@/components/Photo/PhotoPreviewGroup.tsx'
+import PhotoReviewDesktop from '@/components/Photo/PhotoPreviewDesktop.tsx'
 import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
+import { useResponsive } from '@/contexts/ResponsiveContext.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { message } from 'antd'
 import { useEffect, useState } from 'react'
 import { Photo } from './Photo.tsx'
+import PhotoPreviewMobile from './PhotoPreviewMobile.tsx'
 
 export function PhotoGrid() {
   const [isRemarkOpen, setIsRemarkOpen] = useState(false)
@@ -22,6 +24,7 @@ export function PhotoGrid() {
     generateAddTagMenu,
   } = usePhotosStore()
   const photos = usePhotosStore(state => state.getDisplayPhotos())
+  const { isMobile } = useResponsive()
 
   useEffect(() => {
     generateAddTagMenu()
@@ -57,8 +60,9 @@ export function PhotoGrid() {
 
   return (
     <>
-      <div className="grid grid-cols-[repeat(auto-fill,_minmax(360px,_1fr))] gap-4 relative">
-        <PhotoPreviewGroup
+      <div className="grid grid-cols-[repeat(auto-fill,_minmax(auto,_1fr))] md:grid-cols-[repeat(auto-fill,_minmax(360px,_1fr))] gap-4 relative">
+
+        <PhotoReviewDesktop
           preview={{
             visible: previewVisible,
             current: currentPhotoIndex,
@@ -88,7 +92,8 @@ export function PhotoGrid() {
               />
             ))
           }
-        </PhotoPreviewGroup>
+        </PhotoReviewDesktop>
+
       </div>
 
       <PhotoRemarkModal
