@@ -1,11 +1,16 @@
-import { login, verifySurl } from '@/apis/login.ts'
+import { login, verifyShortUrl } from '@/apis/login.ts'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { ArrowRightOutlined, LockOutlined, MobileOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Form, Input } from 'antd'
+import { Button, ConfigProvider, Form, Input, message } from 'antd'
 import { createStyles } from 'antd-style'
 import { useForm } from 'antd/es/form/Form'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+
+interface ILoginForm {
+  order_number?: string
+  credential: string
+}
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
   linearGradientButton: css`
@@ -37,8 +42,8 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 
 function Login() {
   const [isLoading, setIsLoading] = useState(false)
-  const [loginType, setLoginType] = useState<'link' | 'phone'>('link')
-  const [form] = useForm()
+  const [loginType, setLoginType] = useState<'link' | 'order'>('link')
+  const [form] = useForm<ILoginForm>()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
   const surl = queryParams.get('surl')
@@ -47,32 +52,39 @@ function Login() {
   const navigate = useNavigate()
   const { styles } = useStyle()
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setIsLoading(true)
-    form.validateFields()
-      .then(async ({ password }) => {
-        const { data } = await login({ short_url: surl || '', password })
-        if (data) {
-          setAccessToken(data.access_token)
-          navigate(`/s/${surl}`)
-        }
+
+    try {
+      await form.validateFields()
+      const values = form.getFieldsValue()
+      const { data } = await login({
+        login_type: loginType,
+        short_url: surl || '',
+        ...values,
       })
-      .catch((errorInfo) => {
-        console.error(errorInfo)
-      })
-      .finally(() => setIsLoading(false))
+      setAccessToken(data.accessToken)
+      message.success('登录成功')
+      navigate('/order')
+    }
+    catch (err) {
+      console.error(err)
+    }
+    finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
     if (!surl) {
       navigate('/')
-      setLoginType('phone')
+      setLoginType('order')
     }
     else {
-      verifySurl(surl)
+      verifyShortUrl(surl)
         .catch(() => {
           navigate('/')
-          setLoginType('phone')
+          setLoginType('order')
         })
     }
   }, [surl])
@@ -80,7 +92,7 @@ function Login() {
   useEffect(() => {
     if (pwd) {
       form.setFieldsValue({
-        password: pwd,
+        credential: pwd,
       })
     }
   }, [pwd, form])
@@ -100,19 +112,19 @@ function Login() {
     >
       <Form form={form} layout="vertical" requiredMark={false} autoComplete="off">
         {
-          loginType === 'phone' && (
-            <Form.Item name="phone" label="手机号" rules={[{ required: true, message: '请输入您的手机号' }]}>
-              <Input placeholder="请输入您的手机号" prefix={<MobileOutlined />}></Input>
+          loginType === 'order' && (
+            <Form.Item name="order_number" label="订单号" rules={[{ required: true, message: '请输入你的订单号' }]}>
+              <Input placeholder="请输入您的订单号" prefix={<MobileOutlined />}></Input>
             </Form.Item>
           )
         }
         <Form.Item
-          name="password"
-          label="动态密码"
-          rules={[{ required: true, message: '请输入您的动态密码' }]}
+          name="credential"
+          label={loginType === 'link' ? '动态密码' : '手机号'}
+          rules={[{ required: true, message: '请输入您的密码' }]}
         >
           <Input
-            placeholder="请输入您的动态密码"
+            placeholder={loginType === 'link' ? '请输入你的动态密码' : '请输入你的手机号'}
             prefix={<LockOutlined />}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {

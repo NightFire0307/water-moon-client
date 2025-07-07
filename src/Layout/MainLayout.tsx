@@ -1,5 +1,5 @@
 import type { IOrder } from '@/types/order.ts'
-import { verifySurl } from '@/apis/login.ts'
+import { verifyShortUrl } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import Navbar from '@/components/Navbar'
 import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
@@ -8,35 +8,25 @@ import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
-import { ConfigProvider, Layout } from 'antd'
+import { ConfigProvider, Layout, message } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import cs from 'classnames'
 import { useEffect, useState } from 'react'
-import { Outlet, useNavigate, useParams } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 const { Sider, Content, Header } = Layout
 
 function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
-  const { isPreview, setPreview } = useAuthStore()
+  const { isPreview, setPreview, access_token } = useAuthStore()
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
 
-  const { surl } = useParams()
   const navigate = useNavigate()
 
-  async function verify(surl: string) {
-    try {
-      await verifySurl(surl)
-    }
-    catch {
-      navigate('/')
-    }
-  }
-
-  async function fetchOrderInfo(surl: string) {
-    const { data } = await getOrderInfo(surl)
+  async function fetchOrderInfo() {
+    const { data } = await getOrderInfo()
     if (data.status === 2)
       setPreview(true)
     setOrderInfo(data)
@@ -44,23 +34,16 @@ function MainLayout() {
   }
 
   useEffect(() => {
-    if (surl) {
-      (async () => {
-        //
-
-        // 验证短链和 token
-        try {
-          await verify(surl)
-          await fetchOrderInfo(surl)
-          fetchPhotos()
-        }
-        catch (err) {
-          console.error(err)
-          navigate(`/share/init?surl=${surl}`)
-        }
-      })()
+    // 判断是否登录成功
+    if (access_token) {
+      fetchOrderInfo()
+      fetchPhotos()
     }
-  }, [surl])
+    else {
+      message.error('请先登录')
+      navigate('/')
+    }
+  }, [])
 
   return (
     <OrderInfoContext.Provider value={orderInfo}>

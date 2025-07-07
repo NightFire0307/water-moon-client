@@ -23,6 +23,7 @@ import { Dropdown, Spin, Watermark } from 'antd'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import Draggable from 'react-draggable'
+import PhotoPreviewToolbar from './PhotoPreviewToolbar'
 
 interface PhotoPreviewProps {
   preview: boolean | PhotoPreviewGroupType
@@ -265,72 +266,36 @@ const PhotoPreviewGroup: FC<PropsWithChildren<PhotoPreviewProps>> = ({ preview, 
               e.preventDefault()
             }}
             >
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex justify-center gap-2 z-10">
+              <PhotoPreviewToolbar
+                isPreview={isPreview}
+                dropdownOpen={dropdownOpen}
+                productItems={productItems}
+                onDropdownMouseEnter={() => setDropdownOpen(true)}
+                onProductClick={handleProductClick}
+                onRemarkClick={() => setRemarkOpen(true)}
+                onZoomOut={() => handleZoom(0.9)}
+                onZoomIn={() => handleZoom(1.1)}
+                onClose={handleClose}
+                onPrev={handlePrev}
+                onNext={handleNext}
+                canPrev={previewGroup?.current !== undefined && previewGroup.current > 0}
+                canNext={previewGroup?.current !== undefined && previewGroup.current < images.length - 1}
+              />
+            </div>
+
+            <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-700/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
+              <div>
+                IMG_
+                {photoProps?.name ?? ''}
+              </div>
+              <div className="flex items-center gap-2">
+                <TagOutlined />
+
                 {
-                  !isPreview
-                  && (
-                    <Dropdown
-                      open={dropdownOpen}
-                      menu={{ items: [...defaultItems, ...productItems], onClick: ({ key }) => handleProductClick(key) }}
-                    >
-                      <ToolBtn
-                        icon={<TagOutlined />}
-                        onMouseEnter={() => setDropdownOpen(true)}
-                      />
-                    </Dropdown>
-                  )
+                  photo_marked_products?.map(product => (
+                    <div key={product.productId} className="text-xs bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">{product.title}</div>
+                  ))
                 }
-
-                <ToolBtn icon={<MessageOutlined />} onClick={() => setRemarkOpen(true)} />
-
-                <ToolBtn
-                  icon={<ZoomOutOutlined />}
-                  onClick={() => handleZoom(0.8)}
-                />
-                <ToolBtn
-                  icon={<ZoomInOutlined />}
-                  onClick={() => handleZoom(1.2)}
-                />
-              </div>
-              <div className="z-10 absolute left-1/2 -translate-x-1/2 bottom-4 p-4 h-10 bg-darkBlueGray-700/60 backdrop-blur-md flex items-center gap-4 rounded-xl text-white ">
-                <div>
-                  IMG_
-                  {photoProps?.name ?? ''}
-                </div>
-                <div className="flex items-center gap-4">
-                  <CalendarOutlined />
-                  <p>2025-03-24</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TagOutlined />
-
-                  {
-                    photo_marked_products?.map(product => (
-                      <div key={product.productId} className="text-sm bg-darkBlueGray-700 px-3 rounded-full border border-darkBlueGray-600">{product.title}</div>
-                    ))
-                  }
-                </div>
-              </div>
-              <div className="absolute top-4 right-4">
-                <ToolBtn
-                  icon={<CloseOutlined />}
-                  onClick={handleClose}
-                />
-              </div>
-
-              <div className="absolute left-4 top-1/2 ">
-                <ToolBtn
-                  icon={<LeftOutlined />}
-                  onClick={handlePrev}
-                  disabled={previewGroup?.current !== undefined ? previewGroup.current === 0 : false}
-                />
-              </div>
-              <div className="absolute right-4 top-1/2 ">
-                <ToolBtn
-                  icon={<RightOutlined />}
-                  onClick={handleNext}
-                  disabled={previewGroup?.current ? previewGroup.current === images.length - 1 : false}
-                />
               </div>
             </div>
 

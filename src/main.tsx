@@ -25,6 +25,10 @@ createRoot(document.getElementById('root')!).render(
         <Route index element={<Home />} />
       </Route>
 
+      <Route path="/order" element={<App />}>
+        <Route index element={<Home />} />
+      </Route>
+
       <Route path="/404" element={<Error404Page />} />
     </Routes>
   </BrowserRouter>,

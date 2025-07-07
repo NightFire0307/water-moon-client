@@ -4,9 +4,9 @@ import type { IPhotoResponse } from '@/types/photos.ts'
 import request from '@/utils/request.ts'
 
 // 获取订单信息
-export function getOrderInfo(surl: string): IOrderResponse {
+export function getOrderInfo(): IOrderResponse {
   return request({
-    url: `/selection/${surl}/order_info`,
+    url: `/selection/order_info`,
     method: 'GET',
   })
 }
