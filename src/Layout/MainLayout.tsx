@@ -1,5 +1,5 @@
 import type { IOrder } from '@/types/order.ts'
-import { verifyShortUrl } from '@/apis/login.ts'
+import { refreshToken, verifyShortUrl } from '@/apis/login.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import Navbar from '@/components/Navbar'
 import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
@@ -19,7 +19,7 @@ const { Sider, Content, Header } = Layout
 function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
-  const { isPreview, setPreview, access_token } = useAuthStore()
+  const { isPreview, setPreview, access_token, setAccessToken } = useAuthStore()
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
 
@@ -34,15 +34,9 @@ function MainLayout() {
   }
 
   useEffect(() => {
-    // 判断是否登录成功
-    if (access_token) {
-      fetchOrderInfo()
+    fetchOrderInfo().then(() => {
       fetchPhotos()
-    }
-    else {
-      message.error('请先登录')
-      navigate('/')
-    }
+    })
   }, [])
 
   return (

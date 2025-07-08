@@ -1,3 +1,4 @@
+import { message } from 'antd'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
@@ -9,6 +10,7 @@ interface UseAuthStore {
 interface CustomAction {
   setAccessToken: (token: string) => void
   setPreview: (isPreview: boolean) => void
+  redirectLogin: () => void
 }
 
 export const useAuthStore = create<UseAuthStore & CustomAction>()(
@@ -22,6 +24,14 @@ export const useAuthStore = create<UseAuthStore & CustomAction>()(
       return { access_token: token }
     }),
     setPreview: isPreview => set({ isPreview }),
+    redirectLogin: () => {
+      // 清除 Session Storage 中的 access_token
+      sessionStorage.removeItem('access_token')
+      // 重定向到登录页面
+      window.location.href = '/'
+      //
+      message.error('未登录或登录已过期，请重新登录')
+    },
   }), {
     name: 'custom-store',
     enabled: true,

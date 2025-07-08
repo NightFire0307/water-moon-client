@@ -3,23 +3,15 @@ import type { MenuProps } from 'antd'
 import type { FC, PropsWithChildren } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import PhotoRemarkModal from '@/components/Photo/PhotoRemarkModal.tsx'
-import ToolBtn from '@/components/Photo/ToolBtn.tsx'
 import { PhotoPreviewContext } from '@/contexts/PhotoPreviewContext.ts'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import {
-  CalendarOutlined,
   CheckOutlined,
-  CloseOutlined,
-  LeftOutlined,
-  MessageOutlined,
-  RightOutlined,
   TagOutlined,
-  ZoomInOutlined,
-  ZoomOutOutlined,
 } from '@ant-design/icons'
-import { Dropdown, Spin, Watermark } from 'antd'
+import { Spin, Watermark } from 'antd'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import Draggable from 'react-draggable'
