@@ -1,4 +1,3 @@
-import { message } from 'antd'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
@@ -28,9 +27,9 @@ export const useAuthStore = create<UseAuthStore & CustomAction>()(
       // 清除 Session Storage 中的 access_token
       sessionStorage.removeItem('access_token')
       // 重定向到登录页面
-      window.location.href = '/'
-      //
-      message.error('未登录或登录已过期，请重新登录')
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 1500)
     },
   }), {
     name: 'custom-store',

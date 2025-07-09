@@ -55,6 +55,9 @@ service.interceptors.response.use(
         case 500:
           message.error('服务器错误，请稍后再试')
           break
+        case 403:
+          message.error('登录已过期，请重新登录')
+          return Promise.reject(error)
         case 401:
 
           if (originalRequest && !originalRequest._retry) {
@@ -102,8 +105,6 @@ service.interceptors.response.use(
           return Promise.reject(error)
         case (400):
           message.error(error.response.data.msg || '请求错误，请稍后再试')
-          return Promise.reject(error)
-        case 404:
           return Promise.reject(error)
         default:
           message.error(error.response.data.msg)
