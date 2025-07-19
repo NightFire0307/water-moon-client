@@ -48,62 +48,8 @@ function Home() {
   }, [orderInfo, selectCount])
 
   return (
-    <div className="flex flex-col w-full h-full p-4">
-      <div className="flex items-center gap-2 mb-2 flex-grow-0">
-        <div className="w-[4px] h-5 bg-darkBlueGray-800 rounded-lg" />
-        <div className="text-xl font-bold text-darkBlueGray-800">全部照片库</div>
-        <div className="text-darkBlueGray-600 font-medium">
-          (
-          {orderInfo?.total_photos}
-          {' '}
-          张照片)
-        </div>
-      </div>
+    <div className="bg-white">
 
-      <div className="flex-1 overflow-hidden">
-        <div className={loadingCls}>
-          {
-            isLoading
-              ? (
-                  <div className="text-darkBlueGray-800 font-medium text-center">
-                    <SyncOutlined spin className="text-3xl" />
-                    <div className="mt-2">图片加载中...</div>
-                  </div>
-                )
-              : (
-                  <SimpleBar className="max-h-full">
-                    <PhotoGrid />
-                  </SimpleBar>
-                )
-          }
-        </div>
-      </div>
-
-      <FloatBtn
-        title={previewMode ? '预览模式' : '提交选片'}
-        desc={previewMode
-          ? '当前模式不可修改'
-          : (
-              <span>
-                已选:
-                {' '}
-                {selectCount}
-                {' '}
-                / 应选:
-                {' '}
-                {orderInfo?.max_select_photos}
-              </span>
-            )}
-        addonIcon={previewMode ? <InfoCircleOutlined /> : <LockOutlined />}
-        diffCount={diffCount}
-        price={diffCount * orderInfo!.extra_photo_price}
-        onClick={() => !previewMode && setConfirmOpen(true)}
-      />
-
-      <ConfirmModal
-        open={confirmOpen}
-        onCancel={() => setConfirmOpen(false)}
-      />
     </div>
   )
 }
