@@ -43,11 +43,10 @@ export function ThumbnailBar() {
         {
           isHover && (
             <motion.div
-              key="box"
+              key="thumbnail-bar"
               initial={{ translateY: '100%' }}
               animate={{ translateY: '0%' }}
               exit={{ translateY: '100%' }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
               className="px-4 h-full flex items-center bg-darkBlueGray-800"
             >
 

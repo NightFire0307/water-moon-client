@@ -1,30 +1,24 @@
 import type { IOrder } from '@/types/order.ts'
 import { getOrderInfo } from '@/apis/order.ts'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
-import Navbar from '@/components/Navbar'
 import { PhotoStatusBar } from '@/components/PhotoStatusBar/PhotoStatusBar'
-import PreviewAlert from '@/components/PreviewAlert/PreviewAlert.tsx'
-import Sidebar from '@/components/Sidebar'
+import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
 import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
 import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
 import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
-import { ThumbnailContext } from '@/contexts/ThumbnailContext'
-import { useAuthStore } from '@/stores/useAuthStore.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { ConfigProvider, Layout } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import cs from 'classnames'
-import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router'
-import { Thumbnail } from '../components/ThumbnailBar/Thumbnail'
+import { useState } from 'react'
 
-const { Sider, Content, Header } = Layout
+const { Content } = Layout
 
 function MainLayout() {
   const [thumbnailVisible, setThumbnailVisible] = useState(false)
-  const [viewerControlVisible, setViewerControlVisible] = useState(false)
+  const [viewerControlVisible, setViewerControlVisible] = useState(true)
+  const [productSidebarVisible, setProductSidebarVisible] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
@@ -36,6 +30,8 @@ function MainLayout() {
         setThumbnailVisible,
         viewerControlVisible,
         setViewerControlVisible,
+        productSidebarVisible,
+        setProductSidebarVisible,
       }}
       >
         <ConfigProvider
@@ -78,6 +74,8 @@ function MainLayout() {
           }}
         >
           <Layout className="h-screen relative bg-darkBlueGray-950 overflow-hidden ">
+
+            <ProductSidebar />
 
             <Content>
               <ViewerControl />

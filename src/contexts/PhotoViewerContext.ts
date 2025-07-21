@@ -8,13 +8,19 @@ interface IPhotoViewerContext {
   // 主视图工具栏的可见性
   viewerControlVisible: boolean
   setViewerControlVisible: (visible: boolean) => void
+
+  // 侧边产品栏的可见性
+  productSidebarVisible: boolean
+  setProductSidebarVisible: (visible: boolean) => void
 }
 
 export const PhotoViewerContext = createContext<IPhotoViewerContext>({
   thumbnailVisible: false,
   setThumbnailVisible: () => { },
-  viewerControlVisible: false,
+  viewerControlVisible: true,
   setViewerControlVisible: () => { },
+  productSidebarVisible: false,
+  setProductSidebarVisible: () => { },
 })
 
 export function usePhotoViewerContext() {
