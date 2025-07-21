@@ -41,7 +41,7 @@ export function ThumbnailBar() {
     >
       <AnimatePresence>
         {
-          isHover && (
+          true && (
             <motion.div
               key="thumbnail-bar"
               initial={{ translateY: '100%' }}
@@ -54,7 +54,7 @@ export function ThumbnailBar() {
                 <div className="h-full flex gap-1 items-center">
                   {
                     Array.from({ length: 30 }).map((_, index) => (
-                      <Thumbnail key={index} />
+                      <Thumbnail key={index} id={index.toString()} isSelected={index === 3} />
                     ))
                   }
                 </div>
