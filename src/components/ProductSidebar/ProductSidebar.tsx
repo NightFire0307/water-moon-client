@@ -72,21 +72,20 @@ const ProductSidebar: FC = () => {
 
   return (
     <div
-      className="absolute top-0 left-0 bottom-0 w-10"
+      className="absolute top-0 left-0 bottom-0 w-10 z-20"
       onMouseEnter={() => setProductSidebarVisible(true)}
       onMouseLeave={() => setProductSidebarVisible(false)}
     >
       <AnimatePresence>
         {
           productSidebarVisible
-
           && (
             <motion.div
               key="product-sidebar"
               initial={{ translateX: '-100%' }}
               animate={{ translateX: '0' }}
               exit={{ translateX: '-100%' }}
-              className="absolute top-0 left-0 bottom-0 w-80 p-2 bg-darkBlueGray-800/70 backdrop-blur-md z-10 -translate-x-full"
+              className="absolute top-0 left-0 bottom-0 w-80 p-2 bg-darkBlueGray-800/70 backdrop-blur-md -translate-x-full"
             >
               <div className="text-white text-2xl font-bold mx-4 my-4">产品列表</div>
 

@@ -1,6 +1,7 @@
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import useMouseOver from '@/hooks/useMouseOver'
 import { usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import SimpleBar from 'simplebar-react'
@@ -11,8 +12,8 @@ export function ThumbnailBar() {
   const { isHover, handleMouseEnter, handleMouseLeave } = useMouseOver({ delay: 150 })
   const scrollRef = useRef<HTMLDivElement>(null)
   const { setThumbnailVisible } = usePhotoViewerContext()
-  const photos = usePhotosStore(state => state.photos)
-  const currentPhoto = usePhotosStore(state => state.currentPhoto)
+  const { currentIndex } = usePhotoViewerStore()
+  const filteredPhotos = usePhotosStore(state => state.filteredPhotos)
   const setCurrentPhoto = usePhotosStore(state => state.setCurrentPhoto)
 
   useEffect(() => {
@@ -45,24 +46,24 @@ export function ThumbnailBar() {
     >
       <AnimatePresence>
         {
-          true && (
+          isHover && (
             <motion.div
               key="thumbnail-bar"
               initial={{ translateY: '100%' }}
               animate={{ translateY: '0%' }}
               exit={{ translateY: '100%' }}
-              className="px-4 h-full flex items-center bg-darkBlueGray-800"
+              className="px-4 h-full flex items-center bg-darkBlueGray-800/80 backdrop-blur-md"
             >
               <SimpleBar scrollableNodeProps={{ ref: scrollRef }} className="overflow-y-hidden">
                 <div className="h-full flex gap-1 items-center">
                   {
-                    photos.map(photo => (
+                    filteredPhotos.map((photo, index) => (
                       <Thumbnail
                         key={photo.photoId}
-                        id={photo.photoId}
-                        isSelected={currentPhoto?.photoId === photo.photoId}
+                        index={index}
+                        isSelected={currentIndex === index}
                         thumbnailUrl={photo.thumbnail_url}
-                        thumbnailClick={id => setCurrentPhoto(Number(id))}
+                        thumbnailClick={index => setCurrentPhoto(index)}
                       />
                     ))
                   }

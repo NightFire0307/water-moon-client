@@ -64,13 +64,13 @@ interface PhotosAction {
   filterPhotoByProductId: (productId: number) => void
   // 清空过滤照片列表
   clearFilterPhotos: () => void
-  // 获取照片列表
-  getDisplayPhotos: () => Photo[]
   // 设置加载状态
   setLoading: (isLoading: boolean) => void
   // 还原上一次的数据
   restorePreviousPhotoData: (photoId: number) => void
-  setCurrentPhoto: (photo: number) => void
+  // 获取当前照片信息
+  getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number }
+  setCurrentPhoto: (index: number) => void
 }
 
 const BATCH_SIZE = 10
@@ -128,7 +128,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
               photos.push(createPhotoObject(photo, products))
             }
 
-            set({ photos, isLoading: false, currentPhoto: photos[0] ?? null })
+            set({ photos, isLoading: false, filteredPhotos: [...photos], currentPhoto: photos[0] ?? null })
 
             // 启动第二阶段空闲时加载
             if (allList.length > BATCH_SIZE) {
@@ -370,10 +370,6 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           }
         })
       ),
-      getDisplayPhotos: () => {
-        const { isFiltering, filteredPhotos, photos } = get()
-        return isFiltering ? filteredPhotos : photos
-      },
       setLoading: (isLoading: boolean) => (
         set(() => {
           return { isLoading }
@@ -393,17 +389,19 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           }
         })
       },
-      setCurrentPhoto: (photoId: number) => (
+      getCurrentPhotoInfo: () => ({
+        currentIndex: get().photos.findIndex(photo => photo.photoId === get().currentPhoto?.photoId) + 1,
+        name: get().currentPhoto?.name ?? '',
+        totalCount: get().filteredPhotos.length,
+      }),
+      setCurrentPhoto: (index: number) => {
         set((state) => {
-          const photo = state.photos.find(photo => photo.photoId === photoId)
-          if (photo) {
-            state.currentPhoto = photo
-          }
-          else {
-            state.currentPhoto = null
-          }
+          if (index < 0 || index >= state.photos.length)
+            return { currentPhoto: null }
+          const photo = state.photos[index]
+          return { currentPhoto: photo }
         })
-      ),
+      },
     })),
     {
       name: 'photos-store',

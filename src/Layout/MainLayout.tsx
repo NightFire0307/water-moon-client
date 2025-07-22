@@ -8,6 +8,7 @@ import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
 import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { ConfigProvider, Layout } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
@@ -22,10 +23,33 @@ function MainLayout() {
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
+  const { next, previous } = usePhotoViewerStore()
+
+  function handleKeydown(e: KeyboardEvent) {
+    switch (e.key) {
+      case 'ArrowLeft':
+        previous()
+        break
+      case 'ArrowRight':
+        next()
+        break
+      default:
+        break
+    }
+  }
 
   useEffect(() => {
     fetchPhotos()
   }, [fetchPhotos])
+
+  // 全局按键事件
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeydown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydown)
+    }
+  }, [])
 
   return (
     <OrderInfoContext.Provider value={orderInfo}>
@@ -77,7 +101,9 @@ function MainLayout() {
             },
           }}
         >
-          <Layout className="h-screen relative bg-darkBlueGray-950 overflow-hidden ">
+          <Layout
+            className="h-screen relative bg-darkBlueGray-950 overflow-hidden"
+          >
 
             <ProductSidebar />
 
