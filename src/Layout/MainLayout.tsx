@@ -1,4 +1,5 @@
 import type { IOrder } from '@/types/order.ts'
+import { stat } from 'node:fs'
 import { getOrderInfo } from '@/apis/order.ts'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import { PhotoStatusBar } from '@/components/PhotoStatusBar/PhotoStatusBar'
@@ -38,9 +39,17 @@ function MainLayout() {
     }
   }
 
-  useEffect(() => {
+  // 获取订单信息和照片
+  const fetchOrderInfoAndPhotos = async () => {
     fetchPhotos()
-  }, [fetchPhotos])
+    const { data } = await getOrderInfo()
+    setOrderInfo(data)
+    generateProducts(data.order_products)
+  }
+
+  useEffect(() => {
+    fetchOrderInfoAndPhotos()
+  }, [])
 
   // 全局按键事件
   useEffect(() => {

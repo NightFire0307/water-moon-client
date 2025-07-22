@@ -1,4 +1,5 @@
 import type { IOrderProduct } from '@/types/order.ts'
+import type { MenuProps } from 'antd'
 import { updateOrderPhotos } from '@/apis/order.ts'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
@@ -11,97 +12,62 @@ export interface IType {
 
 export interface IProduct {
   productId: number
-  count: number
-  title: string
-  photo_limit: number
-  selected_photos: number[]
-  product_type: string
+  name: string
+  productType: string
+  photoLimit: number
+  selectedPhotoIds: number[]
+  allowOverLimit: boolean
+  remark: string
 }
 
-interface ProductStore {
+interface ProductState {
   products: IProduct[]
+  dropDownItems: MenuProps['items']
 }
 
-interface ProductAction {
+interface ProductActions {
   generateProducts: (orderProducts: IOrderProduct[]) => void
+  generateDropDownItems: (products: IProduct[]) => MenuProps['items']
   updateProductSelected: (photoId: number, orderProductId: number) => Promise<void>
   removeSelectedByPhotoId: (photoId: number, orderProductId: number) => Promise<void>
   saveSelected: () => void
 }
 
-export const useProductsStore = create<ProductStore & ProductAction>()(
+export const useProductsStore = create<ProductState & ProductActions>()(
   devtools(
     (set, get) => ({
       products: [],
-      generateProducts: (orderProducts) => {
-        const products = orderProducts.map((orderProduct) => {
+      dropDownItems: [],
+      generateProducts: orderProducts => set(() => {
+        const products = orderProducts.map(product => ({
+          productId: product.product.id,
+          name: product.product.name,
+          productType: product.product.product_type,
+          photoLimit: product.product.photo_limit,
+          selectedPhotoIds: product.selected_photos,
+          allowOverLimit: product.product.photo_limit === 0,
+          remark: product.remark || '',
+        }))
+
+        // 生成下拉菜单项
+        get().generateDropDownItems(products)
+        return {
+          products: [...products],
+        }
+      }),
+      generateDropDownItems: (products) => {
+        set(() => {
           return {
-            productId: orderProduct.id,
-            title: orderProduct.product.name,
-            selected_photos: orderProduct.selected_photos ?? [],
-            product_type: orderProduct.product.product_type,
-            photo_limit: orderProduct.product.photo_limit,
-            count: orderProduct.count,
+            dropDownItems: products.map(product => ({
+              key: product.productId,
+              label: product.name,
+              extra: `${product.selectedPhotoIds.length}/${product.photoLimit}`,
+            })),
           }
         })
-
-        set({ products: [...products] })
       },
-      updateProductSelected: async (photoId: number, orderProductId: number) => {
-        const product = get().products.find(item => item.productId === orderProductId)
-        const { restorePreviousPhotoData } = usePhotosStore.getState()
-        if (!product)
-          return
-
-        try {
-          const { data } = await updateOrderPhotos({ orderProductId, photoIds: [photoId, ...product.selected_photos] })
-
-          // 更新产品照片
-          set((state) => {
-            const updatedProducts = state.products.map((product) => {
-              if (product.productId === orderProductId) {
-                return { ...product, selected_photos: [...data.selected_photos] }
-              }
-              return product
-            })
-
-            return { products: updatedProducts }
-          })
-        }
-        catch {
-          restorePreviousPhotoData(photoId)
-        }
-      },
-      removeSelectedByPhotoId: async (photoId: number, orderProductId: number) => {
-        const product = get().products.find(item => item.productId === orderProductId)
-        const { restorePreviousPhotoData } = usePhotosStore.getState()
-        if (!product)
-          return
-
-        try {
-          const { data } = await updateOrderPhotos({ orderProductId, photoIds: product.selected_photos.filter(item => item !== photoId) })
-
-          set((state) => {
-            const updatedProducts = state.products.map((product) => {
-              if (product.productId === orderProductId) {
-                return { ...product, selected_photos: [...data.selected_photos] }
-              }
-              return product
-            })
-            return { products: updatedProducts }
-          })
-        }
-        catch {
-          restorePreviousPhotoData(photoId)
-        }
-      },
-      saveSelected: () => {
-
-      },
+      updateProductSelected: () => {},
+      removeSelectedByPhotoId: () => {},
     }),
-    {
-      name: 'products-store',
-      enabled: true,
-    },
   ),
 )

@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
+import { useProductsStore } from '@/stores/useProductsStore'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import SimpleBar from 'simplebar-react'
@@ -9,6 +10,7 @@ import 'simplebar-react/dist/simplebar.min.css'
 const ProductSidebar: FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<number | null>(0) // 默认选中"所有照片"
   const { productSidebarVisible, setProductSidebarVisible } = usePhotoViewerContext()
+  const products = useProductsStore(state => state.products)
 
   // "所有照片"固定选项
   const allPhotosOption = {
@@ -22,44 +24,44 @@ const ProductSidebar: FC = () => {
   }
 
   // 模拟产品数据
-  const mockProducts = [
-    {
-      productId: 1,
-      name: '6寸照片',
-      type: '标准尺寸',
-      selectedCount: 5,
-      limitCount: 10,
-      allowOverLimit: false,
-      remark: '适合家庭聚会，朋友合影等场景使用',
-    },
-    {
-      productId: 2,
-      name: '5寸照片',
-      type: '经典尺寸',
-      selectedCount: 8,
-      limitCount: 8,
-      allowOverLimit: true,
-      remark: '经典尺寸，适合各种场合，支持超张制作',
-    },
-    {
-      productId: 3,
-      name: '7寸照片',
-      type: '大尺寸',
-      selectedCount: 12,
-      limitCount: 10,
-      allowOverLimit: true,
-      remark: '大尺寸照片，适合重要场合纪念',
-    },
-    {
-      productId: 4,
-      name: '4寸照片',
-      type: '迷你尺寸',
-      selectedCount: 0,
-      limitCount: 15,
-      allowOverLimit: false,
-      remark: '小巧精致，适合制作相册或礼品',
-    },
-  ]
+  // const mockProducts = [
+  //   {
+  //     productId: 1,
+  //     name: '6寸照片',
+  //     type: '标准尺寸',
+  //     selectedCount: 5,
+  //     limitCount: 10,
+  //     allowOverLimit: false,
+  //     remark: '适合家庭聚会，朋友合影等场景使用',
+  //   },
+  //   {
+  //     productId: 2,
+  //     name: '5寸照片',
+  //     type: '经典尺寸',
+  //     selectedCount: 8,
+  //     limitCount: 8,
+  //     allowOverLimit: true,
+  //     remark: '经典尺寸，适合各种场合，支持超张制作',
+  //   },
+  //   {
+  //     productId: 3,
+  //     name: '7寸照片',
+  //     type: '大尺寸',
+  //     selectedCount: 12,
+  //     limitCount: 10,
+  //     allowOverLimit: true,
+  //     remark: '大尺寸照片，适合重要场合纪念',
+  //   },
+  //   {
+  //     productId: 4,
+  //     name: '4寸照片',
+  //     type: '迷你尺寸',
+  //     selectedCount: 0,
+  //     limitCount: 15,
+  //     allowOverLimit: false,
+  //     remark: '小巧精致，适合制作相册或礼品',
+  //   },
+  // ]
 
   const handleProductClick = (productId: number) => {
     // 设置选中状态
@@ -72,7 +74,7 @@ const ProductSidebar: FC = () => {
 
   return (
     <div
-      className="absolute top-0 left-0 bottom-0 w-10 z-20"
+      className="absolute top-0 left-0 bottom-0 w-4 z-20"
       onMouseEnter={() => setProductSidebarVisible(true)}
       onMouseLeave={() => setProductSidebarVisible(false)}
     >
@@ -110,14 +112,14 @@ const ProductSidebar: FC = () => {
                     <div className="mx-2 mb-4 border-t border-darkBlueGray-600/50"></div>
 
                     {/* 其他产品选项 */}
-                    {mockProducts.map(product => (
+                    {products.map(product => (
                       <ProductCard
                         key={product.productId}
                         productId={product.productId}
                         name={product.name}
-                        type={product.type}
-                        selectedCount={product.selectedCount}
-                        limitCount={product.limitCount}
+                        type={product.productType}
+                        selectedCount={product.selectedPhotoIds.length}
+                        limitCount={product.photoLimit}
                         allowOverLimit={product.allowOverLimit}
                         remark={product.remark}
                         isSelected={selectedProductId === product.productId}

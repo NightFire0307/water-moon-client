@@ -1,7 +1,8 @@
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
-import { DownOutlined, HeartOutlined, LeftOutlined, LogoutOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
+import { useProductsStore } from '@/stores/useProductsStore'
+import { DownOutlined, LeftOutlined, LogoutOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import { Button, Divider, Dropdown, Form, Input, Space } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
@@ -10,6 +11,7 @@ export function ViewerControl() {
   const [remarkModalVisible, setRemarkModalVisible] = useState(false)
   const { viewerControlVisible } = usePhotoViewerContext()
   const { next, previous, rotateLeft, rotateRight, zoomIn, zoomOut } = usePhotoViewerStore()
+  const dropDownItems = useProductsStore(state => state.dropDownItems)
 
   return (
     <>
@@ -26,7 +28,7 @@ export function ViewerControl() {
               {/* 顶部控制栏 */}
               <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-xl p-2 bg-darkBlueGray-800/60 z-50">
                 <Space>
-                  <Dropdown menu={{ items: [{ label: '产品1', key: '1' }, { label: '产品2', key: '2' }] }}>
+                  <Dropdown menu={{ items: dropDownItems }}>
                     <Button icon={<PlusOutlined />}>
                       加入产品
                       <DownOutlined />
@@ -45,7 +47,7 @@ export function ViewerControl() {
               </div>
 
               {/* 退出选片 */}
-              <div className="absolute top-6 right-4">
+              <div className="absolute top-6 right-4 z-50">
                 <Button icon={<LogoutOutlined />} />
               </div>
 

@@ -1,5 +1,5 @@
 import { Progress } from 'antd'
-import { motion, percent } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useMemo } from 'react'
 
 interface ProductCardProps {
@@ -14,7 +14,7 @@ interface ProductCardProps {
   // 照片数量限制
   limitCount: number
   // 是否允许超张
-  allowOverLimit?: boolean
+  allowOverLimit: boolean
   // 产品备注
   remark?: string
   // 是否选中
@@ -30,15 +30,19 @@ export function ProductCard(props: ProductCardProps) {
     type,
     selectedCount,
     limitCount,
-    allowOverLimit = false,
+    allowOverLimit,
     remark,
     isSelected = false,
     onClick,
     className,
   } = props
 
-  const isOverLimit = selectedCount > limitCount
-  const isAtLimit = selectedCount === limitCount
+  const { isAtLimit, isOverLimit } = useMemo(() => {
+    return {
+      isOverLimit: selectedCount > limitCount,
+      isAtLimit: selectedCount === limitCount,
+    }
+  }, [selectedCount, limitCount])
 
   function handleCardClick() {
     onClick && onClick(productId)
@@ -57,7 +61,7 @@ export function ProductCard(props: ProductCardProps) {
       }
     }
 
-    if (progressPercent > 100) {
+    if (progressPercent > 100 && !allowOverLimit) {
       return {
         progressPercent: 100,
         strokeColor: {
@@ -116,7 +120,7 @@ export function ProductCard(props: ProductCardProps) {
             <span className="text-white text-sm font-bold">
               {selectedCount}
               <span className="text-darkBlueGray-300 mx-1">/</span>
-              {limitCount}
+              {limitCount === 0 ? '∞' : limitCount}
             </span>
           </div>
 
@@ -126,7 +130,7 @@ export function ProductCard(props: ProductCardProps) {
 
         {/* 状态标签 */}
         <div className="flex items-center mb-4">
-          {isOverLimit && allowOverLimit && (
+          {isOverLimit && !allowOverLimit && (
             <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/30 rounded-lg">
               <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse mr-2"></div>
               <span className="text-orange-200 text-xs font-semibold">已超限制</span>
