@@ -23,8 +23,13 @@ export interface Photo {
 }
 
 interface UsePhotosStore {
+  // 原始照片列表
   photos: Photo[]
+  // 当前照片
+  currentPhoto: Photo | null
+  // 是否正在加载照片
   isLoading: boolean
+  // 过滤后的照片列表
   filteredPhotos: Photo[]
   isFiltering: boolean
   selectedFilter: FILTER_TYPE
@@ -65,6 +70,7 @@ interface PhotosAction {
   setLoading: (isLoading: boolean) => void
   // 还原上一次的数据
   restorePreviousPhotoData: (photoId: number) => void
+  setCurrentPhoto: (photo: number) => void
 }
 
 const BATCH_SIZE = 10
@@ -73,6 +79,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
   devtools(
     immer((set, get) => ({
       photos: [],
+      currentPhoto: null,
       isLoading: true,
       filteredPhotos: [],
       isFiltering: false,
@@ -121,7 +128,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
               photos.push(createPhotoObject(photo, products))
             }
 
-            set({ photos, isLoading: false })
+            set({ photos, isLoading: false, currentPhoto: photos[0] ?? null })
 
             // 启动第二阶段空闲时加载
             if (allList.length > BATCH_SIZE) {
@@ -386,6 +393,17 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           }
         })
       },
+      setCurrentPhoto: (photoId: number) => (
+        set((state) => {
+          const photo = state.photos.find(photo => photo.photoId === photoId)
+          if (photo) {
+            state.currentPhoto = photo
+          }
+          else {
+            state.currentPhoto = null
+          }
+        })
+      ),
     })),
     {
       name: 'photos-store',

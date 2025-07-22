@@ -11,7 +11,7 @@ import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { ConfigProvider, Layout } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const { Content } = Layout
 
@@ -22,6 +22,10 @@ function MainLayout() {
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
+
+  useEffect(() => {
+    fetchPhotos()
+  }, [fetchPhotos])
 
   return (
     <OrderInfoContext.Provider value={orderInfo}>

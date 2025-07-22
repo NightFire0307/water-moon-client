@@ -1,5 +1,6 @@
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import useMouseOver from '@/hooks/useMouseOver'
+import { usePhotosStore } from '@/stores/usePhotosStore'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import SimpleBar from 'simplebar-react'
@@ -10,6 +11,9 @@ export function ThumbnailBar() {
   const { isHover, handleMouseEnter, handleMouseLeave } = useMouseOver({ delay: 150 })
   const scrollRef = useRef<HTMLDivElement>(null)
   const { setThumbnailVisible } = usePhotoViewerContext()
+  const photos = usePhotosStore(state => state.photos)
+  const currentPhoto = usePhotosStore(state => state.currentPhoto)
+  const setCurrentPhoto = usePhotosStore(state => state.setCurrentPhoto)
 
   useEffect(() => {
     const el = scrollRef.current
@@ -49,12 +53,17 @@ export function ThumbnailBar() {
               exit={{ translateY: '100%' }}
               className="px-4 h-full flex items-center bg-darkBlueGray-800"
             >
-
               <SimpleBar scrollableNodeProps={{ ref: scrollRef }} className="overflow-y-hidden">
                 <div className="h-full flex gap-1 items-center">
                   {
-                    Array.from({ length: 30 }).map((_, index) => (
-                      <Thumbnail key={index} id={index.toString()} isSelected={index === 3} />
+                    photos.map(photo => (
+                      <Thumbnail
+                        key={photo.photoId}
+                        id={photo.photoId}
+                        isSelected={currentPhoto?.photoId === photo.photoId}
+                        thumbnailUrl={photo.thumbnail_url}
+                        thumbnailClick={id => setCurrentPhoto(Number(id))}
+                      />
                     ))
                   }
                 </div>
@@ -62,7 +71,6 @@ export function ThumbnailBar() {
             </motion.div>
           )
         }
-
       </AnimatePresence>
 
     </div>

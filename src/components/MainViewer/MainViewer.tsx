@@ -1,11 +1,13 @@
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
+import { usePhotosStore } from '@/stores/usePhotosStore'
 
 export function MainViewer() {
   const { viewerControlVisible, setViewerControlVisible } = usePhotoViewerContext()
+  const currentPhoto = usePhotosStore(state => state.currentPhoto)
 
   return (
     <div className="h-screen w-auto" onClick={() => setViewerControlVisible(!viewerControlVisible)}>
-      <img src="/src/assets/placeholder.svg" alt="Main Viewer" className="w-full h-full object-contain" />
+      <img src={currentPhoto?.thumbnail_url} alt={currentPhoto?.name} className="w-full h-full object-contain" />
     </div>
   )
 }
