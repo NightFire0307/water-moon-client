@@ -1,6 +1,7 @@
 import type { IOrderProduct } from '@/types/order.ts'
-import type { MenuProps } from 'antd'
 import { updateOrderPhotos } from '@/apis/order.ts'
+import { CheckOutlined } from '@ant-design/icons'
+import { type MenuProps, message } from 'antd'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { usePhotosStore } from './usePhotosStore'
@@ -22,23 +23,18 @@ export interface IProduct {
 
 interface ProductState {
   products: IProduct[]
-  dropDownItems: MenuProps['items']
 }
 
 interface ProductActions {
   generateProducts: (orderProducts: IOrderProduct[]) => void
-  generateDropDownItems: (products: IProduct[]) => MenuProps['items']
-  updateProductSelected: (photoId: number, orderProductId: number) => Promise<void>
-  removeSelectedByPhotoId: (photoId: number, orderProductId: number) => Promise<void>
-  saveSelected: () => void
+  setSelectedPhotoIds: (productId: number, photoIds: number[]) => void
 }
 
 export const useProductsStore = create<ProductState & ProductActions>()(
   devtools(
     (set, get) => ({
       products: [],
-      dropDownItems: [],
-      generateProducts: orderProducts => set(() => {
+      generateProducts: orderProducts => set((state) => {
         const products = orderProducts.map(product => ({
           productId: product.product.id,
           name: product.product.name,
@@ -50,24 +46,16 @@ export const useProductsStore = create<ProductState & ProductActions>()(
         }))
 
         // 生成下拉菜单项
-        get().generateDropDownItems(products)
+        // usePhotosStore.getState().generateDropdownItems(products)
+
         return {
           products: [...products],
         }
       }),
-      generateDropDownItems: (products) => {
-        set(() => {
-          return {
-            dropDownItems: products.map(product => ({
-              key: product.productId,
-              label: product.name,
-              extra: `${product.selectedPhotoIds.length}/${product.photoLimit}`,
-            })),
-          }
-        })
-      },
-      updateProductSelected: () => {},
-      removeSelectedByPhotoId: () => {},
+      setSelectedPhotoIds: (productId, photoIds) => {},
     }),
+    {
+      name: 'products-store',
+    },
   ),
 )

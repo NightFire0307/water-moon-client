@@ -1,5 +1,4 @@
 import type { IOrder } from '@/types/order.ts'
-import { stat } from 'node:fs'
 import { getOrderInfo } from '@/apis/order.ts'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import { PhotoStatusBar } from '@/components/PhotoStatusBar/PhotoStatusBar'
@@ -22,8 +21,8 @@ function MainLayout() {
   const [viewerControlVisible, setViewerControlVisible] = useState(true)
   const [productSidebarVisible, setProductSidebarVisible] = useState(false)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
-  const fetchPhotos = usePhotosStore(state => state.fetchPhotos)
   const generateProducts = useProductsStore(state => state.generateProducts)
+  const { fetchPhotos } = usePhotosStore()
   const { next, previous } = usePhotoViewerStore()
 
   function handleKeydown(e: KeyboardEvent) {
@@ -41,10 +40,10 @@ function MainLayout() {
 
   // 获取订单信息和照片
   const fetchOrderInfoAndPhotos = async () => {
-    fetchPhotos()
     const { data } = await getOrderInfo()
     setOrderInfo(data)
     generateProducts(data.order_products)
+    fetchPhotos()
   }
 
   useEffect(() => {
