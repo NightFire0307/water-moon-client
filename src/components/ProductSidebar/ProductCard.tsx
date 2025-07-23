@@ -90,7 +90,7 @@ export function ProductCard(props: ProductCardProps) {
       onClick={handleCardClick}
     >
       {/* 背景渐变 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-darkBlueGray-700/90 via-darkBlueGray-800/95 to-darkBlueGray-900/90"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-darkBlueGray-600/90 via-darkBlueGray-800/95 to-darkBlueGray-900/90"></div>
 
       {/* 内容区域 */}
       <div className="relative p-5">

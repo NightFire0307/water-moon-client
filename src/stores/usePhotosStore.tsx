@@ -24,8 +24,6 @@ interface UsePhotosStore {
   isLoading: boolean
   // 过滤后的照片列表
   filteredPhotos: Photo[]
-  isFiltering: boolean
-  selectedFilter: FILTER_TYPE
   previousPhotosData: Record<number, Omit<Photo, 'original_url' | 'thumbnail_url' | 'name' | 'photoId'>>
 }
 
@@ -37,12 +35,11 @@ export enum FILTER_TYPE {
 
 interface PhotosAction {
   fetchPhotos: () => Promise<void>
-  filterPhotos: (value: FILTER_TYPE) => void
   setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
   // 更新照片备注
   updatePhotoRemark: (photoId: number, remark: string) => void
   // 根据产品ID过滤照片
-  filterPhotoByProductId: (productId: number) => void
+  filterPhotoByProductId: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void
   // 清空过滤照片列表
   clearFilterPhotos: () => void
   // 设置加载状态
@@ -62,8 +59,6 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     currentPhoto: null,
     isLoading: true,
     filteredPhotos: [],
-    isFiltering: false,
-    selectedFilter: FILTER_TYPE.ALL,
     previousPhotosData: {},
     fetchPhotos: async () => {
       const state = get()
@@ -145,7 +140,6 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         set({ isLoading: false })
       }
     },
-    filterPhotos: (value: FILTER_TYPE) => (set({ selectedFilter: value })),
     setPhotoSelectedProducts: (photoId, productIds) => {
       set((state) => {
         const photo = state.photos.find(p => p.photoId === photoId)
@@ -177,7 +171,32 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         return state
       })
     ),
-    filterPhotoByProductId: (productId: number) => {},
+    filterPhotoByProductId: (filter) => {
+      const state = get()
+      const { productId, filterType } = filter
+
+      // 如果没有过滤条件，直接返回所有照片
+      if (filterType === FILTER_TYPE.ALL) {
+        return set({
+          filteredPhotos: state.photos,
+          currentPhoto: state.photos[0] || null,
+        })
+      }
+
+      // 过滤指定产品的照片
+      if (filterType === FILTER_TYPE.SELECTED && productId !== undefined) {
+        const newFilteredPhotos = state.photos.filter((photo) => {
+          return photo.selectedProducts.includes(productId)
+        })
+
+        console.log(newFilteredPhotos)
+
+        return set({
+          filteredPhotos: newFilteredPhotos,
+          currentPhoto: newFilteredPhotos[0] || null,
+        })
+      }
+    },
     clearFilterPhotos: () => (
       set(() => {
         return {
@@ -194,15 +213,15 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     restorePreviousPhotoData: (photoId: number) => {
     },
     getCurrentPhotoInfo: () => ({
-      currentIndex: get().photos.findIndex(photo => photo.photoId === get().currentPhoto?.photoId) + 1,
+      currentIndex: get().filteredPhotos.findIndex(photo => photo.photoId === get().currentPhoto?.photoId) + 1,
       name: get().currentPhoto?.name ?? '',
       totalCount: get().filteredPhotos.length,
     }),
     setCurrentPhoto: (index: number) => {
       set((state) => {
-        if (index < 0 || index >= state.photos.length)
+        if (index < 0 || index >= state.filteredPhotos.length)
           return { currentPhoto: null }
-        const photo = state.photos[index]
+        const photo = state.filteredPhotos[index]
 
         // 更新照片的产品选中状态
         useProductsStore.getState().setDropdownMenuStatus(photo.selectedProducts)

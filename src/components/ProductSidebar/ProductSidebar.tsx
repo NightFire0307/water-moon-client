@@ -1,35 +1,64 @@
 import type { FC } from 'react'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
+import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
+import { FixedOptionCard } from './FixedOptionCard'
 import { ProductCard } from './ProductCard'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(0) // 默认选中"所有照片"
   const { productSidebarVisible, setProductSidebarVisible } = usePhotoViewerContext()
-  const products = useProductsStore(state => state.products)
+  const { filterPhotoByProductId, photos } = usePhotosStore()
+  const { products } = useProductsStore()
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
+  const [activeFixedOption, setActiveFixedOption] = useState<number>(0)
 
-  // "所有照片"固定选项
-  const allPhotosOption = {
-    productId: 0,
-    name: '所有照片',
-    type: '全部类型',
-    selectedCount: 25, // 所有产品的总和
-    limitCount: 43, // 所有产品限制的总和
-    allowOverLimit: true,
-    remark: '',
+  // 固定选项数据 - 使用数字ID以匹配FixedOptionCard的接口
+  const fixedOptions = useMemo(() => [
+    {
+      optionId: 0,
+      name: '所有照片',
+      iconType: 'all' as const,
+      photoCount: photos.length,
+      description: '查看所有照片',
+      filterType: FILTER_TYPE.ALL,
+    },
+    {
+      optionId: 1,
+      name: '已选照片',
+      iconType: 'selected' as const,
+      photoCount: 12,
+      description: '已添加到产品的照片',
+      filterType: FILTER_TYPE.SELECTED,
+    },
+    {
+      optionId: 2,
+      name: '未选照片',
+      iconType: 'unselected' as const,
+      photoCount: 233,
+      description: '尚未添加到产品的照片',
+      filterType: FILTER_TYPE.UNSELECTED,
+    },
+  ], [])
+
+  const handleFixedOptionClick = (optionId: number) => {
+    const option = fixedOptions.find(opt => opt.optionId === optionId)
+    console.log(option)
+    if (option) {
+      setActiveFixedOption(optionId)
+      setSelectedProductId(null) // 取消产品选择
+      filterPhotoByProductId({ productId: undefined, filterType: option.filterType })
+    }
   }
 
   const handleProductClick = (productId: number) => {
-    // 设置选中状态
+    console.log(productId)
     setSelectedProductId(productId)
-
-    // TODO: 实现产品选择逻辑
-    // eslint-disable-next-line no-console
-    console.log('点击产品:', productId)
+    setActiveFixedOption(-1) // 取消固定选项选择
+    filterPhotoByProductId({ productId, filterType: FILTER_TYPE.SELECTED })
   }
 
   return (
@@ -54,19 +83,19 @@ const ProductSidebar: FC = () => {
               <div className="h-full overflow-hidden">
                 <SimpleBar style={{ height: 'calc(100vh - 120px)' }}>
                   <div className="p-4">
-                    {/* 所有照片选项 - 固定在第一位 */}
-                    <ProductCard
-                      key={allPhotosOption.productId}
-                      productId={allPhotosOption.productId}
-                      name={allPhotosOption.name}
-                      type={allPhotosOption.type}
-                      selectedCount={allPhotosOption.selectedCount}
-                      limitCount={allPhotosOption.limitCount}
-                      allowOverLimit={allPhotosOption.allowOverLimit}
-                      remark={allPhotosOption.remark}
-                      isSelected={selectedProductId === allPhotosOption.productId}
-                      onClick={handleProductClick}
-                    />
+                    {/* 固定选项 */}
+                    {fixedOptions.map(option => (
+                      <FixedOptionCard
+                        key={option.optionId}
+                        optionId={option.optionId}
+                        name={option.name}
+                        iconType={option.iconType}
+                        photoCount={option.photoCount}
+                        description={option.description}
+                        isSelected={activeFixedOption === option.optionId}
+                        onClick={handleFixedOptionClick}
+                      />
+                    ))}
 
                     {/* 分隔线 */}
                     <div className="mx-2 mb-4 border-t border-darkBlueGray-600/50"></div>
@@ -94,7 +123,6 @@ const ProductSidebar: FC = () => {
         }
       </AnimatePresence>
     </div>
-
   )
 }
 

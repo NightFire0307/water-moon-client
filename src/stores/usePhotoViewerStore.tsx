@@ -29,14 +29,15 @@ export const usePhotoViewerStore = create<PhotoViewerState & PhotoViewerActions>
       selected: false,
 
       next: () => set((state) => {
-        const photos = usePhotosStore.getState().photos
+        const filteredPhotos = usePhotosStore.getState().filteredPhotos
         const setCurrentPhoto = usePhotosStore.getState().setCurrentPhoto
 
-        setCurrentPhoto(Math.min(state.currentIndex + 1, photos.length - 1))
-        return { currentIndex: Math.min(state.currentIndex + 1, photos.length - 1) }
+        setCurrentPhoto(Math.min(state.currentIndex + 1, filteredPhotos.length - 1))
+        return { currentIndex: Math.min(state.currentIndex + 1, filteredPhotos.length - 1) }
       }),
       previous: () => set((state) => {
         const setCurrentPhoto = usePhotosStore.getState().setCurrentPhoto
+
         setCurrentPhoto(Math.max(state.currentIndex - 1, 0))
         return { currentIndex: Math.max(state.currentIndex - 1, 0) }
       }),
