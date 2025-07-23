@@ -39,8 +39,8 @@ export function ProductCard(props: ProductCardProps) {
 
   const { isAtLimit, isOverLimit } = useMemo(() => {
     return {
-      isOverLimit: selectedCount > limitCount,
-      isAtLimit: selectedCount === limitCount,
+      isOverLimit: selectedCount > limitCount && limitCount > 0,
+      isAtLimit: selectedCount === limitCount && limitCount > 0,
     }
   }, [selectedCount, limitCount])
 

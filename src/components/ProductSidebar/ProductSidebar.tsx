@@ -23,46 +23,6 @@ const ProductSidebar: FC = () => {
     remark: '',
   }
 
-  // 模拟产品数据
-  // const mockProducts = [
-  //   {
-  //     productId: 1,
-  //     name: '6寸照片',
-  //     type: '标准尺寸',
-  //     selectedCount: 5,
-  //     limitCount: 10,
-  //     allowOverLimit: false,
-  //     remark: '适合家庭聚会，朋友合影等场景使用',
-  //   },
-  //   {
-  //     productId: 2,
-  //     name: '5寸照片',
-  //     type: '经典尺寸',
-  //     selectedCount: 8,
-  //     limitCount: 8,
-  //     allowOverLimit: true,
-  //     remark: '经典尺寸，适合各种场合，支持超张制作',
-  //   },
-  //   {
-  //     productId: 3,
-  //     name: '7寸照片',
-  //     type: '大尺寸',
-  //     selectedCount: 12,
-  //     limitCount: 10,
-  //     allowOverLimit: true,
-  //     remark: '大尺寸照片，适合重要场合纪念',
-  //   },
-  //   {
-  //     productId: 4,
-  //     name: '4寸照片',
-  //     type: '迷你尺寸',
-  //     selectedCount: 0,
-  //     limitCount: 15,
-  //     allowOverLimit: false,
-  //     remark: '小巧精致，适合制作相册或礼品',
-  //   },
-  // ]
-
   const handleProductClick = (productId: number) => {
     // 设置选中状态
     setSelectedProductId(productId)
