@@ -1,8 +1,6 @@
 import type { IPhoto } from '@/types/photos.ts'
 import type { IProduct } from './useProductsStore.tsx'
-import { getOrderPhotos, removeAllTags } from '@/apis/order.ts'
-import { CheckOutlined } from '@ant-design/icons'
-import { type MenuProps, message } from 'antd'
+import { getOrderPhotos } from '@/apis/order.ts'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { useProductsStore } from './useProductsStore.tsx'
@@ -14,7 +12,7 @@ export interface Photo {
   name: string
   remark: string
   isRecommend: boolean
-  dropdownItems: MenuProps['items']
+  selectedProducts: number[]
 }
 
 interface UsePhotosStore {
@@ -39,9 +37,8 @@ export enum FILTER_TYPE {
 
 interface PhotosAction {
   fetchPhotos: () => Promise<void>
-  // 下拉菜单点击事件
-  dropdownMenuClick: ({ key }: { key: string }) => void
   filterPhotos: (value: FILTER_TYPE) => void
+  setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
   // 更新照片备注
   updatePhotoRemark: (photoId: number, remark: string) => void
   // 根据产品ID过滤照片
@@ -69,6 +66,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     selectedFilter: FILTER_TYPE.ALL,
     previousPhotosData: {},
     fetchPhotos: async () => {
+      const state = get()
       // 设置加载状态
       set({ isLoading: true })
 
@@ -89,11 +87,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
             name: photo.file_name,
             remark: photo.remark ?? '',
             isRecommend: photo.is_recommend,
-            dropdownItems: products.map(product => ({
-              key: product.productId.toString(),
-              label: product.name,
-              extra: `${product.selectedPhotoIds.length}/${product.photoLimit}`,
-            })),
+            selectedProducts: selectedProducts.map(p => p.productId),
           }
         }
 
@@ -105,7 +99,9 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
             photos.push(createPhotoObject(photo, products))
           }
 
-          set({ photos, isLoading: false, filteredPhotos: [...photos], currentPhoto: photos[0] ?? null })
+          set({ photos, isLoading: false, filteredPhotos: [...photos] })
+
+          state.setCurrentPhoto(0)
 
           // 启动第二阶段空闲时加载
           if (allList.length > BATCH_SIZE) {
@@ -149,52 +145,27 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         set({ isLoading: false })
       }
     },
-    dropdownMenuClick: ({ key }) => {
-      const state = get()
-      const productState = useProductsStore.getState().products.find(product => product.productId === Number.parseInt(key))
-      if (state.currentPhoto === null) {
-        message.info('请先选择一张照片')
-        return
-      }
-
-      if (state.currentPhoto.dropdownItems?.length === 0) {
-        message.info('当前照片没有可用的产品')
-        return
-      }
-
-      if (!productState) {
-        message.info('当前没有可用的产品')
-        return
-      }
-
-      // 生成新的下拉菜单项
-      const newDropdownItem = state.currentPhoto.dropdownItems?.map((item) => {
-        if (item?.key === key.toString()) {
-          return {
-            ...item,
-            icon: item.icon ? null : <CheckOutlined />,
-            extra: `${productState?.selectedPhotoIds.length}/${productState?.photoLimit}`,
-          }
-        }
-
-        return item
-      })
-
+    filterPhotos: (value: FILTER_TYPE) => (set({ selectedFilter: value })),
+    setPhotoSelectedProducts: (photoId, productIds) => {
       set((state) => {
-        return {
-          ...state,
-          photos: state.photos.map((photo) => {
-            if (photo.photoId === state.currentPhoto?.photoId) {
-              return { ...photo, dropdownItems: newDropdownItem }
-            }
-            return photo
-          }),
-          currentPhoto: { ...state.currentPhoto, dropdownItems: newDropdownItem },
+        const photo = state.photos.find(p => p.photoId === photoId)
+
+        if (!photo) {
+          console.error(`Photo with ID ${photoId} not found`)
+          return state
         }
+
+        // 更新选中的产品ID
+        photo.selectedProducts = productIds
+
+        // 如果当前照片是被选中的，更新currentPhoto
+        if (state.currentPhoto?.photoId === photoId) {
+          state.currentPhoto = { ...photo }
+        }
+
+        return { photos: [...state.photos] }
       })
     },
-    setDropdownItems: () => {},
-    filterPhotos: (value: FILTER_TYPE) => (set({ selectedFilter: value })),
     updatePhotoRemark: (photoId: number, remark: string) => (
       set((state) => {
         const photo = state.photos.find(photo => photo.photoId === photoId)
@@ -232,6 +203,10 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         if (index < 0 || index >= state.photos.length)
           return { currentPhoto: null }
         const photo = state.photos[index]
+
+        // 更新照片的产品选中状态
+        useProductsStore.getState().setDropdownMenuStatus(photo.selectedProducts)
+
         return { currentPhoto: photo }
       })
     },

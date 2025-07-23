@@ -1,20 +1,19 @@
 import type { DropdownProps } from 'antd/lib'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
-import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { DownOutlined, LeftOutlined, LogoutOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import { Button, Divider, Dropdown, Form, Input, Space } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
+import { useProductsStore } from '../../stores/useProductsStore'
 
 export function ViewerControl() {
   const [open, setOpen] = useState(false)
   const [remarkModalVisible, setRemarkModalVisible] = useState(false)
   const { viewerControlVisible } = usePhotoViewerContext()
   const { next, previous, rotateLeft, rotateRight, zoomIn, zoomOut } = usePhotoViewerStore()
-  const currentPhoto = usePhotosStore(state => state.currentPhoto)
-  const dropdownMenuClick = usePhotosStore(state => state.dropdownMenuClick)
+  const { productMenu, dropdownMenuClick } = useProductsStore()
 
   const handleOpenChange: DropdownProps['onOpenChange'] = (nextOpen, info) => {
     if (info.source === 'trigger' || nextOpen) {
@@ -37,7 +36,7 @@ export function ViewerControl() {
               {/* 顶部控制栏 */}
               <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-xl p-2 bg-darkBlueGray-800/60 z-50">
                 <Space>
-                  <Dropdown open={open} menu={{ items: currentPhoto?.dropdownItems, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
+                  <Dropdown open={open} menu={{ items: productMenu, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
                     <Button icon={<PlusOutlined />}>
                       加入产品
                       <DownOutlined />
