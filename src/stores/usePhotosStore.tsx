@@ -48,7 +48,10 @@ interface PhotosAction {
   restorePreviousPhotoData: (photoId: number) => void
   // 获取当前照片信息
   getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number }
+  // 设置当前照片
   setCurrentPhoto: (index: number) => void
+  // 获取照片统计信息
+  getPhotoState: () => { selectCount: number, unselectedCount: number, totalCount: number }
 }
 
 const BATCH_SIZE = 10
@@ -189,7 +192,29 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           return photo.selectedProducts.includes(productId)
         })
 
-        console.log(newFilteredPhotos)
+        return set({
+          filteredPhotos: newFilteredPhotos,
+          currentPhoto: newFilteredPhotos[0] || null,
+        })
+      }
+
+      // 过滤已选的照片
+      if (filterType === FILTER_TYPE.SELECTED) {
+        const newFilteredPhotos = state.photos.filter((photo) => {
+          return photo.selectedProducts.length > 0
+        })
+
+        return set({
+          filteredPhotos: newFilteredPhotos,
+          currentPhoto: newFilteredPhotos[0] || null,
+        })
+      }
+
+      // 过滤未选的照片
+      if (filterType === FILTER_TYPE.UNSELECTED) {
+        const newFilteredPhotos = state.photos.filter((photo) => {
+          return photo.selectedProducts.length === 0
+        })
 
         return set({
           filteredPhotos: newFilteredPhotos,
@@ -228,6 +253,18 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
 
         return { currentPhoto: photo }
       })
+    },
+    getPhotoState: () => {
+      const state = get()
+      const totalCount = state.photos.length
+      const selectedCount = state.photos.filter(photo => photo.selectedProducts.length > 0).length
+      const unselectedCount = state.photos.filter(photo => photo.selectedProducts.length === 0).length
+
+      return {
+        selectCount: selectedCount,
+        unselectedCount,
+        totalCount,
+      }
     },
   }), {
     name: 'photos-store',

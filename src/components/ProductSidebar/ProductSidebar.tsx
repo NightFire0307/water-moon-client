@@ -11,10 +11,12 @@ import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
   const { productSidebarVisible, setProductSidebarVisible } = usePhotoViewerContext()
-  const { filterPhotoByProductId, photos } = usePhotosStore()
+  const { filterPhotoByProductId, getPhotoState } = usePhotosStore()
   const { products } = useProductsStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [activeFixedOption, setActiveFixedOption] = useState<number>(0)
+
+  const { totalCount, selectCount, unselectedCount } = getPhotoState()
 
   // 固定选项数据 - 使用数字ID以匹配FixedOptionCard的接口
   const fixedOptions = useMemo(() => [
@@ -22,7 +24,7 @@ const ProductSidebar: FC = () => {
       optionId: 0,
       name: '所有照片',
       iconType: 'all' as const,
-      photoCount: photos.length,
+      photoCount: totalCount,
       description: '查看所有照片',
       filterType: FILTER_TYPE.ALL,
     },
@@ -30,7 +32,7 @@ const ProductSidebar: FC = () => {
       optionId: 1,
       name: '已选照片',
       iconType: 'selected' as const,
-      photoCount: 12,
+      photoCount: selectCount,
       description: '已添加到产品的照片',
       filterType: FILTER_TYPE.SELECTED,
     },
@@ -38,11 +40,11 @@ const ProductSidebar: FC = () => {
       optionId: 2,
       name: '未选照片',
       iconType: 'unselected' as const,
-      photoCount: 233,
+      photoCount: unselectedCount,
       description: '尚未添加到产品的照片',
       filterType: FILTER_TYPE.UNSELECTED,
     },
-  ], [])
+  ], [totalCount, selectCount, unselectedCount])
 
   const handleFixedOptionClick = (optionId: number) => {
     const option = fixedOptions.find(opt => opt.optionId === optionId)
