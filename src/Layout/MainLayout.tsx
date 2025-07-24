@@ -1,5 +1,6 @@
 import type { IOrder } from '@/types/order.ts'
 import { getOrderInfo } from '@/apis/order.ts'
+import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import { PhotoStatusBar } from '@/components/PhotoStatusBar/PhotoStatusBar'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -12,7 +13,7 @@ import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { ConfigProvider, Layout } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const { Content } = Layout
 
@@ -20,23 +21,51 @@ function MainLayout() {
   const [thumbnailVisible, setThumbnailVisible] = useState(false)
   const [viewerControlVisible, setViewerControlVisible] = useState(true)
   const [productSidebarVisible, setProductSidebarVisible] = useState(false)
+  const [conditionTipState, setConditionTipState] = useState({
+    visible: false,
+    msg: '',
+  })
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const generateProducts = useProductsStore(state => state.generateProducts)
-  const { fetchPhotos } = usePhotosStore()
+  const { fetchPhotos, getCurrentPhotoInfo } = usePhotosStore()
   const { next, previous } = usePhotoViewerStore()
 
   function handleKeydown(e: KeyboardEvent) {
+    const { currentIndex, totalCount } = getCurrentPhotoInfo()
+
     switch (e.key) {
       case 'ArrowLeft':
-        previous()
+        if (currentIndex === 1) {
+          showConditionTip('已经是第一张了')
+        }
+        else {
+          previous()
+        }
         break
       case 'ArrowRight':
-        next()
+        if (currentIndex === totalCount) {
+          showConditionTip('已是最后一张照片')
+        }
+        else {
+          next()
+        }
         break
       default:
         break
     }
   }
+
+  // 控制提示信息显示
+  // 例如：当切换到最后一张照片时，显示提示信息
+  const showConditionTip = useCallback((msg: string) => {
+    setConditionTipState({
+      visible: true,
+      msg,
+    })
+    setTimeout(() => {
+      setConditionTipState({ visible: false, msg: '' })
+    }, 1500)
+  }, [])
 
   // 获取订单信息和照片
   const fetchOrderInfoAndPhotos = async () => {
@@ -122,6 +151,8 @@ function MainLayout() {
 
             <PhotoStatusBar />
             <ThumbnailBar />
+
+            <ConditionTip visible={conditionTipState.visible} msg={conditionTipState.msg} centered />
 
           </Layout>
         </ConfigProvider>

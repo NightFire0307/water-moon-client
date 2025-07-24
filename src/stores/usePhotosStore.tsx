@@ -180,9 +180,8 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
 
       // 如果没有过滤条件，直接返回所有照片
       if (filterType === FILTER_TYPE.ALL) {
-        return set({
-          filteredPhotos: state.photos,
-          currentPhoto: state.photos[0] || null,
+        set({
+          filteredPhotos: [...state.photos],
         })
       }
 
@@ -192,9 +191,8 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           return photo.selectedProducts.includes(productId)
         })
 
-        return set({
+        set({
           filteredPhotos: newFilteredPhotos,
-          currentPhoto: newFilteredPhotos[0] || null,
         })
       }
 
@@ -204,9 +202,8 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           return photo.selectedProducts.length > 0
         })
 
-        return set({
+        set({
           filteredPhotos: newFilteredPhotos,
-          currentPhoto: newFilteredPhotos[0] || null,
         })
       }
 
@@ -216,11 +213,13 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           return photo.selectedProducts.length === 0
         })
 
-        return set({
+        set({
           filteredPhotos: newFilteredPhotos,
-          currentPhoto: newFilteredPhotos[0] || null,
         })
       }
+
+      // 重置当前照片
+      state.setCurrentPhoto(0)
     },
     clearFilterPhotos: () => (
       set(() => {
