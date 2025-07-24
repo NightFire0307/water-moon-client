@@ -10,8 +10,14 @@ export interface Photo {
   original_url: string
   thumbnail_url: string
   name: string
+  // 照片备注
   remark: string
+  // 是否推荐: true表示推荐，false表示不推荐
+  // 该字段用于标记照片是否被推荐，便于在UI中突出
   isRecommend: boolean
+  // 预选标记: null表示未预选，true表示已预选，false表示已排除
+  isPreSelected: boolean | null
+  // 选中的产品ID列表
   selectedProducts: number[]
 }
 
@@ -24,7 +30,6 @@ interface UsePhotosStore {
   isLoading: boolean
   // 过滤后的照片列表
   filteredPhotos: Photo[]
-  previousPhotosData: Record<number, Omit<Photo, 'original_url' | 'thumbnail_url' | 'name' | 'photoId'>>
 }
 
 export enum FILTER_TYPE {
@@ -52,6 +57,10 @@ interface PhotosAction {
   setCurrentPhoto: (index: number) => void
   // 获取照片统计信息
   getPhotoState: () => { selectCount: number, unselectedCount: number, totalCount: number }
+  // 设置预选标记
+  togglePreSelected: (selected: boolean) => void
+  // 获取预选照片统计信息
+  getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number }
 }
 
 const BATCH_SIZE = 10
@@ -86,6 +95,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
             remark: photo.remark ?? '',
             isRecommend: photo.is_recommend,
             selectedProducts: selectedProducts.map(p => p.productId),
+            isPreSelected: null, // 初始状态为null，表示未预选
           }
         }
 
@@ -257,6 +267,22 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         return { isLoading }
       })
     ),
+    togglePreSelected: (selected) => {
+      const state = get()
+      if (!state.currentPhoto)
+        return state
+
+      // 更新照片预选标记
+      set({
+        currentPhoto: { ...state.currentPhoto, isPreSelected: selected },
+        photos: state.photos.map((photo) => {
+          if (photo.photoId === state.currentPhoto?.photoId) {
+            return { ...photo, isPreSelected: selected }
+          }
+          return photo
+        }),
+      })
+    },
     getCurrentPhotoInfo: () => {
       const state = get()
       const currentIndex = state.filteredPhotos.findIndex(photo =>
@@ -291,6 +317,18 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         selectCount: selectedCount,
         unselectedCount,
         totalCount,
+      }
+    },
+    getPreSelectedStats: () => {
+      const state = get()
+      const selectedCount = state.photos.filter(photo => photo.isPreSelected !== null && photo.isPreSelected).length
+      const excludedCount = state.photos.filter(photo => photo.isPreSelected !== null && !photo.isPreSelected).length
+      const pendingCount = state.photos.filter(photo => photo.isPreSelected === null).length
+
+      return {
+        selectedCount,
+        excludedCount,
+        pendingCount,
       }
     },
   }), {
