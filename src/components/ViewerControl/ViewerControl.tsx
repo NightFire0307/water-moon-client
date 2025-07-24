@@ -1,18 +1,24 @@
 import type { DropdownProps } from 'antd/lib'
+import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { useProductsStore } from '@/stores/useProductsStore'
 import { DownOutlined, LeftOutlined, LogoutOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import { Button, Divider, Dropdown, Form, Input, Space } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState } from 'react'
-import { useProductsStore } from '../../stores/useProductsStore'
+import { type RefObject, useState } from 'react'
 
-export function ViewerControl() {
+interface ViewerControlProps {
+  // 用于控制缩放的引用
+  transformRef?: RefObject<ReactZoomPanPinchRef>
+}
+
+export function ViewerControl({ transformRef }: ViewerControlProps) {
   const [open, setOpen] = useState(false)
   const [remarkModalVisible, setRemarkModalVisible] = useState(false)
-  const { viewerControlVisible, setKeyboardDisabled, keyboardDisabled } = usePhotoViewerContext()
-  const { next, previous, rotateLeft, rotateRight, zoomIn, zoomOut } = usePhotoViewerStore()
+  const { viewerControlVisible, setKeyboardDisabled } = usePhotoViewerContext()
+  const { next, previous, rotateLeft, rotateRight } = usePhotoViewerStore()
   const { productMenu, dropdownMenuClick } = useProductsStore()
 
   const handleOpenChange: DropdownProps['onOpenChange'] = (nextOpen, info) => {
@@ -26,6 +32,9 @@ export function ViewerControl() {
     setKeyboardDisabled(true)
     setRemarkModalVisible(true)
   }
+
+  const zoomIn = () => transformRef?.current?.zoomIn()
+  const zoomOut = () => transformRef?.current?.zoomOut()
 
   return (
     <>
@@ -53,8 +62,8 @@ export function ViewerControl() {
                   {/* <Button icon={<HeartOutlined />} /> */}
                   <Button icon={<MessageOutlined />} onClick={handleRemark} />
                   <Divider type="vertical" className="border-darkBlueGray-800/30 h-6 w-1 mx-1" />
-                  <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()} />
-                  <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()} />
+                  <Button icon={<ZoomInOutlined />} onClick={zoomIn} />
+                  <Button icon={<ZoomOutOutlined />} onClick={zoomOut} />
                   <Button icon={<RotateLeftOutlined />} onClick={() => rotateLeft()} />
                   <Button icon={<RotateRightOutlined />} onClick={() => rotateRight()} />
                 </Space>

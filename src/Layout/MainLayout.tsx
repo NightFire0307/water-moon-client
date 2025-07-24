@@ -1,4 +1,5 @@
 import type { IOrder } from '@/types/order.ts'
+import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { getOrderInfo } from '@/apis/order.ts'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
@@ -13,7 +14,7 @@ import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
 import { ConfigProvider, Layout } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const { Content } = Layout
 
@@ -26,6 +27,7 @@ function MainLayout() {
     visible: false,
     msg: '',
   })
+  const transformRef = useRef<ReactZoomPanPinchRef>(null)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const generateProducts = useProductsStore(state => state.generateProducts)
   const { fetchPhotos, getCurrentPhotoInfo } = usePhotosStore()
@@ -158,8 +160,8 @@ function MainLayout() {
             <ProductSidebar />
 
             <Content>
-              <ViewerControl />
-              <MainViewer />
+              <ViewerControl transformRef={transformRef} />
+              <MainViewer transformRef={transformRef} />
             </Content>
 
             <PhotoStatusBar />

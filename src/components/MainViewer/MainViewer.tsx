@@ -2,16 +2,23 @@ import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { LoadingOutlined } from '@ant-design/icons'
+import { type ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
-export function MainViewer() {
+interface MainViewerProps {
+  // 用于控制缩放的引用
+  transformRef?: React.RefObject<ReactZoomPanPinchRef>
+}
+
+export function MainViewer({ transformRef }: MainViewerProps) {
   const { viewerControlVisible, setViewerControlVisible } = usePhotoViewerContext()
+  const { rotate } = usePhotoViewerStore()
   const currentPhoto = usePhotosStore(state => state.currentPhoto)
   const isLoading = usePhotosStore(state => state.isLoading)
-  const { rotate, scale } = usePhotoViewerStore()
 
   return (
     <div
-      className="h-screen select-none overflow-hidden"
+      className="h-screen select-none flex items-center justify-center transition-all"
+      style={{ transform: `rotate(${rotate}deg)` }}
       onClick={() => setViewerControlVisible(!viewerControlVisible)}
     >
       {
@@ -23,14 +30,20 @@ export function MainViewer() {
               </div>
             )
           : (
-              <img
-                src={currentPhoto?.thumbnail_url}
-                alt={currentPhoto?.name}
-                className="w-full h-full object-contain transition-transform duration-300 ease-in-out"
-                style={{
-                  transform: `rotate(${rotate}deg) scale(${scale})`,
-                }}
-              />
+              <TransformWrapper
+                initialScale={1}
+                minScale={1}
+                maxScale={2}
+                doubleClick={{ disabled: true }}
+                ref={transformRef}
+              >
+                <TransformComponent>
+                  <img
+                    src={currentPhoto?.thumbnail_url}
+                    alt={currentPhoto?.name}
+                  />
+                </TransformComponent>
+              </TransformWrapper>
             )
       }
     </div>
