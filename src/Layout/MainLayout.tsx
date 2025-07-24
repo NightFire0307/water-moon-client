@@ -21,6 +21,7 @@ function MainLayout() {
   const [thumbnailVisible, setThumbnailVisible] = useState(false)
   const [viewerControlVisible, setViewerControlVisible] = useState(true)
   const [productSidebarVisible, setProductSidebarVisible] = useState(false)
+  const [keyboardDisabled, setKeyboardDisabled] = useState(false)
   const [conditionTipState, setConditionTipState] = useState({
     visible: false,
     msg: '',
@@ -30,7 +31,29 @@ function MainLayout() {
   const { fetchPhotos, getCurrentPhotoInfo } = usePhotosStore()
   const { next, previous } = usePhotoViewerStore()
 
-  function handleKeydown(e: KeyboardEvent) {
+  // 控制提示信息显示
+  // 例如：当切换到最后一张照片时，显示提示信息
+  const showConditionTip = useCallback((msg: string) => {
+    setConditionTipState({
+      visible: true,
+      msg,
+    })
+    setTimeout(() => {
+      setConditionTipState({ visible: false, msg: '' })
+    }, 1500)
+  }, [])
+
+  const handleKeydown = useCallback((e: KeyboardEvent) => {
+    // 如果键盘被禁用，则不处理按键事件
+    if (keyboardDisabled) {
+      return
+    }
+
+    // 避免在输入框中触发
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      return
+    }
+
     const { currentIndex, totalCount } = getCurrentPhotoInfo()
 
     switch (e.key) {
@@ -53,19 +76,7 @@ function MainLayout() {
       default:
         break
     }
-  }
-
-  // 控制提示信息显示
-  // 例如：当切换到最后一张照片时，显示提示信息
-  const showConditionTip = useCallback((msg: string) => {
-    setConditionTipState({
-      visible: true,
-      msg,
-    })
-    setTimeout(() => {
-      setConditionTipState({ visible: false, msg: '' })
-    }, 1500)
-  }, [])
+  }, [keyboardDisabled, previous, next, getCurrentPhotoInfo, showConditionTip])
 
   // 获取订单信息和照片
   const fetchOrderInfoAndPhotos = async () => {
@@ -86,7 +97,7 @@ function MainLayout() {
     return () => {
       window.removeEventListener('keydown', handleKeydown)
     }
-  }, [])
+  }, [handleKeydown])
 
   return (
     <OrderInfoContext.Provider value={orderInfo}>
@@ -97,6 +108,8 @@ function MainLayout() {
         setViewerControlVisible,
         productSidebarVisible,
         setProductSidebarVisible,
+        keyboardDisabled,
+        setKeyboardDisabled,
       }}
       >
         <ConfigProvider

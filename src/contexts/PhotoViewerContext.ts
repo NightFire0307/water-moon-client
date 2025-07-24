@@ -12,6 +12,10 @@ interface IPhotoViewerContext {
   // 侧边产品栏的可见性
   productSidebarVisible: boolean
   setProductSidebarVisible: (visible: boolean) => void
+
+  // 快捷键是否禁用
+  keyboardDisabled: boolean
+  setKeyboardDisabled: (disabled: boolean) => void
 }
 
 export const PhotoViewerContext = createContext<IPhotoViewerContext>({
@@ -21,6 +25,8 @@ export const PhotoViewerContext = createContext<IPhotoViewerContext>({
   setViewerControlVisible: () => { },
   productSidebarVisible: false,
   setProductSidebarVisible: () => { },
+  keyboardDisabled: false,
+  setKeyboardDisabled: () => { },
 })
 
 export function usePhotoViewerContext() {

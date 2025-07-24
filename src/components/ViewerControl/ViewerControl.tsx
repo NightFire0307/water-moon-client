@@ -11,7 +11,7 @@ import { useProductsStore } from '../../stores/useProductsStore'
 export function ViewerControl() {
   const [open, setOpen] = useState(false)
   const [remarkModalVisible, setRemarkModalVisible] = useState(false)
-  const { viewerControlVisible } = usePhotoViewerContext()
+  const { viewerControlVisible, setKeyboardDisabled, keyboardDisabled } = usePhotoViewerContext()
   const { next, previous, rotateLeft, rotateRight, zoomIn, zoomOut } = usePhotoViewerStore()
   const { productMenu, dropdownMenuClick } = useProductsStore()
 
@@ -19,6 +19,12 @@ export function ViewerControl() {
     if (info.source === 'trigger' || nextOpen) {
       setOpen(nextOpen)
     }
+  }
+
+  // 处理备注按钮点击事件
+  const handleRemark = () => {
+    setKeyboardDisabled(true)
+    setRemarkModalVisible(true)
   }
 
   return (
@@ -45,7 +51,7 @@ export function ViewerControl() {
                   </Dropdown>
                   <Divider type="vertical" className="border-darkBlueGray-800/30 h-6 w-1 mx-1" />
                   {/* <Button icon={<HeartOutlined />} /> */}
-                  <Button icon={<MessageOutlined />} onClick={() => setRemarkModalVisible(true)} />
+                  <Button icon={<MessageOutlined />} onClick={handleRemark} />
                   <Divider type="vertical" className="border-darkBlueGray-800/30 h-6 w-1 mx-1" />
                   <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()} />
                   <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()} />
@@ -84,7 +90,10 @@ export function ViewerControl() {
         title="添加照片备注"
         okText="保存"
         centered
-        onCancel={() => setRemarkModalVisible(false)}
+        onCancel={() => {
+          setRemarkModalVisible(false)
+          setKeyboardDisabled(false)
+        }}
       >
         <Form>
           <Form.Item name="remark">
