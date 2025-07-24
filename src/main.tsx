@@ -5,6 +5,7 @@ import Home from '@/views/home/home.tsx'
 import Login from '@/views/login/login.tsx'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
+import PreSelectPage from './views/preselect/PreSelectPage'
 import './index.css'
 import './assets/normal.css'
 import 'simplebar-react/dist/simplebar.min.css'
@@ -27,6 +28,11 @@ createRoot(document.getElementById('root')!).render(
 
       <Route path="/order" element={<App />}>
         <Route index element={<Home />} />
+      </Route>
+
+      <Route path="/preselect" element={<PreSelectPage />} />
+
+      <Route path="/select/view/:orderId" element={<App />}>
       </Route>
 
       <Route path="/404" element={<Error404Page />} />

@@ -145,12 +145,6 @@ function MainLayout() {
                 textTextActiveColor: '#cbd5e1',
                 textTextHoverColor: '#f8fafc',
               },
-              Input: {
-                activeBg: '#1e293b',
-                activeBorderColor: '#475569',
-                activeShadow: '#020617',
-                hoverBorderColor: '#94a3b8',
-              },
             },
           }}
         >

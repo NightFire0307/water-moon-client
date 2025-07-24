@@ -125,7 +125,13 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
       >
         <Form form={form}>
           <Form.Item name="remark">
-            <Input.TextArea placeholder="请输入备注内容" rows={3} />
+            <Input.TextArea
+              placeholder="请输入备注内容"
+              rows={3}
+              classNames={{
+                textarea: 'bg-darkBlueGray-700 border-darkBlueGray-600 placeholder:text-darkBlueGray-100 hover:border-darkBlueGray-400 hover:bg-darkBlueGray-600 focus:bg-darkBlueGray-600 focus:border-darkBlueGray-400/50 focus:darkBlueGray-400/50',
+              }}
+            />
           </Form.Item>
         </Form>
       </CustomModal>
