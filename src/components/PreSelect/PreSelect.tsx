@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout, Progress, Typography } from 'antd'
+import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { PreSelectStatsTooltip } from './PreSelectStatsTooltip'
@@ -16,10 +16,8 @@ interface PreSelectProps {
 export const PreSelect: FC<PreSelectProps> = () => {
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const { photos, currentPhoto, fetchPhotos, togglePreSelected, getPreSelectedStats } = usePhotosStore()
-  const { next, previous } = usePhotoViewerStore()
-
-  const { selectedCount, excludedCount } = getPreSelectedStats()
+  const { photos, currentPhoto, fetchPhotos, togglePreSelected } = usePhotosStore()
+  const { next, previous, currentIndex } = usePhotoViewerStore()
 
   // 全屏切换处理
   const toggleFullscreen = () => {
@@ -116,9 +114,9 @@ export const PreSelect: FC<PreSelectProps> = () => {
             >
               <Text className="text-darkBlueGray-300">
                 当前：
-                <span className="text-blue-400 font-semibold mx-1">{selectedCount + excludedCount}</span>
+                <span className="text-blue-400 font-semibold mx-1">{currentIndex + 1}</span>
                 /
-                <span className="text-white font-semibold mx-1">{ photos.length}</span>
+                <span className="text-white font-semibold mx-1">{ photos.length }</span>
               </Text>
               <motion.div className="relative">
 
