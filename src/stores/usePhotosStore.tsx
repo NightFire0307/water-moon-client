@@ -10,26 +10,17 @@ export interface Photo {
   original_url: string
   thumbnail_url: string
   name: string
-  // 照片备注
-  remark: string
-  // 是否推荐: true表示推荐，false表示不推荐
-  // 该字段用于标记照片是否被推荐，便于在UI中突出
-  isRecommend: boolean
-  // 预选标记: null表示未预选，true表示已预选，false表示已排除
-  isPreSelected: boolean | null
-  // 选中的产品ID列表
-  selectedProducts: number[]
+  remark: string // 照片备注
+  isRecommend: boolean // 是否推荐: true表示推荐，false表示不推荐
+  isPreSelected: boolean | null// 预选标记: null表示未预选，true表示已预选，false表示已排除
+  selectedProducts: number[]// 选中的产品ID列表
 }
 
 interface UsePhotosStore {
-  // 原始照片列表
-  photos: Photo[]
-  // 当前照片
-  currentPhoto: Photo | null
-  // 是否正在加载照片
-  isLoading: boolean
-  // 过滤后的照片列表
-  filteredPhotos: Photo[]
+  photos: Photo[] // 原始照片列表
+  currentPhoto: Photo | null // 当前照片
+  isLoading: boolean // 是否正在加载照片
+  filteredPhotos: Photo[] // 过滤后的照片列表
 }
 
 export enum FILTER_TYPE {
@@ -41,26 +32,16 @@ export enum FILTER_TYPE {
 interface PhotosAction {
   fetchPhotos: () => Promise<void>
   setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
-  // 照片备注
-  setPhotoRemark: (remark: string) => void
-  // 过滤照片
-  filterPhoto: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void
-  // 清空过滤照片列表
-  clearFilterPhotos: () => void
-  // 设置加载状态
-  setLoading: (isLoading: boolean) => void
-  // 还原上一次的数据
-  restorePreviousPhotoData: (photoId: number) => void
-  // 获取当前照片信息
-  getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number }
-  // 设置当前照片
-  setCurrentPhoto: (index: number) => void
-  // 获取照片统计信息
-  getPhotoState: () => { selectCount: number, unselectedCount: number, totalCount: number }
-  // 设置预选标记
-  togglePreSelected: (selected: boolean) => void
-  // 获取预选照片统计信息
-  getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number }
+  setPhotoRemark: (remark: string) => void // 照片备注
+  filterPhoto: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void // 过滤照片
+  clearFilterPhotos: () => void // 清空过滤照片列表
+  setLoading: (isLoading: boolean) => void // 设置加载状态
+  restorePreviousPhotoData: (photoId: number) => void // 还原上一次的数据
+  getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number } // 获取当前照片信息
+  setCurrentPhoto: (index: number) => void // 设置当前照片
+  getPhotoState: () => { selectCount: number, unselectedCount: number, totalCount: number } // 获取照片统计信息
+  togglePreSelected: (selected: boolean) => void // 设置预选标记
+  getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
 }
 
 const BATCH_SIZE = 10
