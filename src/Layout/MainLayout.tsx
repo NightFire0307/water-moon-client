@@ -2,6 +2,7 @@ import type { IOrder } from '@/types/order.ts'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { getOrderInfo } from '@/apis/order.ts'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
+import FloatBtn from '@/components/FloatBtn/FloatBtn'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import { PhotoStatusBar } from '@/components/PhotoStatusBar/PhotoStatusBar'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -60,7 +61,7 @@ function MainLayout() {
 
     switch (e.key) {
       case 'ArrowLeft':
-        if (currentIndex === 1) {
+        if (currentIndex === 0) {
           showConditionTip('已经是第一张了')
         }
         else {
@@ -68,7 +69,7 @@ function MainLayout() {
         }
         break
       case 'ArrowRight':
-        if (currentIndex === totalCount) {
+        if (currentIndex === totalCount - 1) {
           showConditionTip('已是最后一张照片')
         }
         else {
@@ -168,7 +169,6 @@ function MainLayout() {
             <ThumbnailBar />
 
             <ConditionTip visible={conditionTipState.visible} msg={conditionTipState.msg} centered />
-
           </Layout>
         </ConfigProvider>
 

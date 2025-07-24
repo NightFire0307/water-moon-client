@@ -36,8 +36,8 @@ export enum FILTER_TYPE {
 interface PhotosAction {
   fetchPhotos: () => Promise<void>
   setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
-  // 更新照片备注
-  updatePhotoRemark: (photoId: number, remark: string) => void
+  // 照片备注
+  setPhotoRemark: (remark: string) => void
   // 过滤照片
   filterPhoto: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void
   // 清空过滤照片列表
@@ -163,17 +163,38 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         return { photos: [...state.photos] }
       })
     },
-    updatePhotoRemark: (photoId: number, remark: string) => (
-      set((state) => {
-        const photo = state.photos.find(photo => photo.photoId === photoId)
+    setPhotoRemark: (remark: string) => {
+      const state = get()
 
-        if (photo) {
-          photo.remark = remark
-        }
-
+      if (!state.currentPhoto) {
         return state
+      }
+
+      // 更新当前照片的备注
+      const updatedPhoto = { ...state.currentPhoto, remark }
+
+      // 更新原始照片列表数据
+      const newPhotos = state.photos.map((photo) => {
+        if (photo.photoId === state.currentPhoto?.photoId) {
+          return { ...photo, remark }
+        }
+        return photo
       })
-    ),
+
+      // 更新过滤后的照片列表数据
+      const newFilteredPhotos = state.filteredPhotos.map((photo) => {
+        if (photo.photoId === state.currentPhoto?.photoId) {
+          return { ...photo, remark }
+        }
+        return photo
+      })
+
+      set({
+        currentPhoto: updatedPhoto,
+        photos: newPhotos,
+        filteredPhotos: newFilteredPhotos,
+      })
+    },
     filterPhoto: (filter) => {
       const state = get()
       const { productId, filterType } = filter
@@ -218,8 +239,10 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         })
       }
 
-      // 重置当前照片
-      state.setCurrentPhoto(0)
+      // 如果过滤后的照片不在当前照片列表中，重置当前照片
+      if (!state.filteredPhotos.some(photo => photo.photoId === state.currentPhoto?.photoId)) {
+        state.setCurrentPhoto(0)
+      }
     },
     clearFilterPhotos: () => (
       set(() => {
@@ -234,13 +257,18 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         return { isLoading }
       })
     ),
-    restorePreviousPhotoData: (photoId: number) => {
+    getCurrentPhotoInfo: () => {
+      const state = get()
+      const currentIndex = state.filteredPhotos.findIndex(photo =>
+        photo.photoId === state.currentPhoto?.photoId,
+      )
+
+      return {
+        currentIndex: currentIndex === -1 ? 0 : currentIndex, // 返回正确的索引，未找到时返回0
+        name: state.currentPhoto?.name ?? '',
+        totalCount: state.filteredPhotos.length,
+      }
     },
-    getCurrentPhotoInfo: () => ({
-      currentIndex: get().filteredPhotos.findIndex(photo => photo.photoId === get().currentPhoto?.photoId) + 1,
-      name: get().currentPhoto?.name ?? '',
-      totalCount: get().filteredPhotos.length,
-    }),
     setCurrentPhoto: (index: number) => {
       set((state) => {
         if (index < 0 || index >= state.filteredPhotos.length)

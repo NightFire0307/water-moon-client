@@ -4,10 +4,11 @@ import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
-import { DownOutlined, LeftOutlined, LogoutOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
+import { CloseOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import { Button, Divider, Dropdown, Form, Input, Space } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { type RefObject, useState } from 'react'
+import { type RefObject, useEffect, useState } from 'react'
+import { usePhotosStore } from '../../stores/usePhotosStore'
 
 interface ViewerControlProps {
   // 用于控制缩放的引用
@@ -20,6 +21,8 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
   const { viewerControlVisible, setKeyboardDisabled } = usePhotoViewerContext()
   const { next, previous, rotateLeft, rotateRight } = usePhotoViewerStore()
   const { productMenu, dropdownMenuClick } = useProductsStore()
+  const { currentPhoto, setPhotoRemark } = usePhotosStore()
+  const [form] = Form.useForm()
 
   const handleOpenChange: DropdownProps['onOpenChange'] = (nextOpen, info) => {
     if (info.source === 'trigger' || nextOpen) {
@@ -33,8 +36,22 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
     setRemarkModalVisible(true)
   }
 
+  // 保存备注
+  const handleSaveRemark = () => {
+    const values = form.getFieldValue('remark')
+    setPhotoRemark(values)
+    setRemarkModalVisible(false)
+    setKeyboardDisabled(false)
+  }
+
   const zoomIn = () => transformRef?.current?.zoomIn()
   const zoomOut = () => transformRef?.current?.zoomOut()
+
+  useEffect(() => {
+    if (currentPhoto && remarkModalVisible) {
+      form.setFieldsValue({ remark: currentPhoto.remark })
+    }
+  }, [currentPhoto, form, remarkModalVisible])
 
   return (
     <>
@@ -71,7 +88,7 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
 
               {/* 退出选片 */}
               <div className="absolute top-6 right-4 z-50">
-                <Button icon={<LogoutOutlined />} />
+                <Button icon={<CloseOutlined />} />
               </div>
 
               {/* 左右翻页按钮 */}
@@ -96,15 +113,17 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
       {/* 备注弹框 */}
       <CustomModal
         open={remarkModalVisible}
-        title="添加照片备注"
+        title={`为照片「${currentPhoto?.name ?? ''}」添加备注`}
         okText="保存"
         centered
+        onOk={handleSaveRemark}
         onCancel={() => {
           setRemarkModalVisible(false)
           setKeyboardDisabled(false)
+          form.resetFields()
         }}
       >
-        <Form>
+        <Form form={form}>
           <Form.Item name="remark">
             <Input.TextArea placeholder="请输入备注内容" rows={3} />
           </Form.Item>

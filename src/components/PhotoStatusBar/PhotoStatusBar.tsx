@@ -16,7 +16,7 @@ export function PhotoStatusBar() {
       <div className="absolute bottom-2 left-1/2 p-2 -translate-x-1/2 rounded-md bg-darkBlueGray-800/70 text-white font-medium backdrop-blur-md">
         <span>{name}</span>
         <span> · </span>
-        <span>{`${currentIndex}/${totalCount}`}</span>
+        <span>{`${currentIndex + 1}/${totalCount}`}</span>
       </div>
     </motion.div>
   )
