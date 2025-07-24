@@ -38,8 +38,8 @@ interface PhotosAction {
   setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
   // 更新照片备注
   updatePhotoRemark: (photoId: number, remark: string) => void
-  // 根据产品ID过滤照片
-  filterPhotoByProductId: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void
+  // 过滤照片
+  filterPhoto: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void
   // 清空过滤照片列表
   clearFilterPhotos: () => void
   // 设置加载状态
@@ -174,7 +174,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         return state
       })
     ),
-    filterPhotoByProductId: (filter) => {
+    filterPhoto: (filter) => {
       const state = get()
       const { productId, filterType } = filter
 
@@ -187,34 +187,34 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
 
       // 过滤指定产品的照片
       if (filterType === FILTER_TYPE.SELECTED && productId !== undefined) {
-        const newFilteredPhotos = state.photos.filter((photo) => {
+        const filteredPhotos = state.photos.filter((photo) => {
           return photo.selectedProducts.includes(productId)
         })
 
         set({
-          filteredPhotos: newFilteredPhotos,
+          filteredPhotos,
         })
       }
 
       // 过滤已选的照片
-      if (filterType === FILTER_TYPE.SELECTED) {
-        const newFilteredPhotos = state.photos.filter((photo) => {
+      if (filterType === FILTER_TYPE.SELECTED && productId === undefined) {
+        const filteredPhotos = state.photos.filter((photo) => {
           return photo.selectedProducts.length > 0
         })
 
         set({
-          filteredPhotos: newFilteredPhotos,
+          filteredPhotos,
         })
       }
 
       // 过滤未选的照片
-      if (filterType === FILTER_TYPE.UNSELECTED) {
-        const newFilteredPhotos = state.photos.filter((photo) => {
+      if (filterType === FILTER_TYPE.UNSELECTED && productId === undefined) {
+        const filteredPhotos = state.photos.filter((photo) => {
           return photo.selectedProducts.length === 0
         })
 
         set({
-          filteredPhotos: newFilteredPhotos,
+          filteredPhotos,
         })
       }
 

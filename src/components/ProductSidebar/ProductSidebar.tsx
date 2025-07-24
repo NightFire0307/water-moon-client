@@ -11,7 +11,7 @@ import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
   const { productSidebarVisible, setProductSidebarVisible } = usePhotoViewerContext()
-  const { filterPhotoByProductId, getPhotoState } = usePhotosStore()
+  const { filterPhoto, getPhotoState } = usePhotosStore()
   const { products } = useProductsStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [activeFixedOption, setActiveFixedOption] = useState<number>(0)
@@ -52,7 +52,7 @@ const ProductSidebar: FC = () => {
     if (option) {
       setActiveFixedOption(optionId)
       setSelectedProductId(null) // 取消产品选择
-      filterPhotoByProductId({ productId: undefined, filterType: option.filterType })
+      filterPhoto({ productId: undefined, filterType: option.filterType })
     }
   }
 
@@ -60,7 +60,7 @@ const ProductSidebar: FC = () => {
     console.log(productId)
     setSelectedProductId(productId)
     setActiveFixedOption(-1) // 取消固定选项选择
-    filterPhotoByProductId({ productId, filterType: FILTER_TYPE.SELECTED })
+    filterPhoto({ productId, filterType: FILTER_TYPE.SELECTED })
   }
 
   return (

@@ -68,16 +68,16 @@ export function ViewerControl() {
               {/* 左右翻页按钮 */}
               <div
                 onClick={() => previous()}
-                className="absolute z-50 left-4 top-1/2 w-6 h-10 rounded-md bg-darkBlueGray-800 hover:bg-darkBlueGray-700 flex items-center justify-center cursor-pointer"
+                className="absolute z-50 left-4 top-1/2 w-6 h-10 rounded-md bg-darkBlueGray-800 hover:bg-darkBlueGray-700 active:bg-darkBlueGray-900 flex items-center justify-center cursor-pointer"
               >
-                <LeftOutlined />
+                <LeftOutlined className="text-darkBlueGray-100" />
               </div>
 
               <div
                 onClick={() => next()}
-                className="absolute z-50 right-4 top-1/2 w-6 h-10 rounded-md bg-darkBlueGray-800 hover:bg-darkBlueGray-700 flex items-center justify-center cursor-pointer"
+                className="absolute z-50 right-4 top-1/2 w-6 h-10 rounded-md bg-darkBlueGray-800 hover:bg-darkBlueGray-700 active:bg-darkBlueGray-900 flex items-center justify-center cursor-pointer"
               >
-                <RightOutlined />
+                <RightOutlined className="text-darkBlueGray-100" />
               </div>
             </motion.div>
           )
