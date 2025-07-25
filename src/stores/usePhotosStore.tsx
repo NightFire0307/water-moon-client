@@ -47,7 +47,7 @@ interface PhotosAction {
   setLoading: (isLoading: boolean) => void // 设置加载状态
   restorePreviousPhotoData: (photoId: number) => void // 还原上一次的数据
   getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number } // 获取当前照片信息
-  setCurrentPhoto: (index: number) => void // 设置当前照片
+  setCurrentPhoto: (photoId: number) => void // 设置当前照片
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
   getPhotoState: () => { selectCount: number, unselectedCount: number, totalCount: number } // 获取照片统计信息
   togglePreSelected: (selected: boolean) => void // 设置预选标记
@@ -101,7 +101,8 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
 
           set({ originalPhotos: photos, isLoading: false, preSelectedPhotos: [...photos] })
 
-          state.setCurrentPhoto(0)
+          // 设置当前照片为首个预选照片
+          state.setCurrentPhoto(photos[0].photoId)
 
           // 启动第二阶段空闲时加载
           if (allList.length > BATCH_SIZE) {
@@ -279,18 +280,15 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         totalCount: state.filteredPhotos.length,
       }
     },
-    setCurrentPhoto: (index: number) => {
+    setCurrentPhoto: (photoId: number) => {
       set((state) => {
-        let photo: Photo
+        let currentPhoto: Photo | null = null
 
         // 判断当前模式
         if (state.mode === 'preSelect') {
-          console.log('预选模式')
-          if (index < 0 || index >= state.preSelectedPhotos.length)
-            return { currentPhoto: null }
-          photo = state.preSelectedPhotos[index]
+          currentPhoto = state.preSelectedPhotos.find(p => p.photoId === photoId) ?? null
 
-          return { currentPhoto: photo }
+          return { currentPhoto }
         }
         else if (state.mode === 'productSelect') {
           console.log('产品模式')
@@ -298,7 +296,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           // useProductsStore.getState().setDropdownMenuStatus(photo.selectedProducts)
         }
 
-        return { currentPhoto: null }
+        return { currentPhoto }
       })
     },
     setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {

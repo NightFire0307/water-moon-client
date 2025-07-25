@@ -1,29 +1,41 @@
-import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
+import type { Photo } from '@/stores/usePhotosStore'
 import useMouseOver from '@/hooks/useMouseOver'
-import { type Photo, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { Thumbnail } from './Thumbnail'
 import 'simplebar-react/dist/simplebar.min.css'
 
 interface ThumbnailBarProps {
-
+  photos: Photo[] // 照片列表
+  currentIndex?: number // 当前选中的缩略图索引
+  visible?: boolean // 是否可见
+  extra?: React.ReactNode // 额外内容
+  onVisibleChange?: (visible: boolean) => void // 可见性变化回调
+  onClickThumbnail?: (item: Photo, index: number,) => void // 缩略图Bar点击回调
 }
 
-export function ThumbnailBar() {
+export function ThumbnailBar({ photos, visible, currentIndex, extra, onClickThumbnail }: ThumbnailBarProps) {
   const { isHover, handleMouseEnter, handleMouseLeave } = useMouseOver({ delay: 150 })
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const { setThumbnailVisible } = usePhotoViewerContext()
-  const { currentIndex } = usePhotoViewerStore()
-  const preSelectedPhotos = usePhotosStore(state => state.preSelectedPhotos)
-  const setCurrentPhoto = usePhotosStore(state => state.setCurrentPhoto)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const [initialVisible, setInitialVisible] = useState(false)
+
+  // 判断是否为受控组件
+  const isControlled = visible !== undefined
+
+  const thumbnailVisible = useMemo(() => {
+    return isControlled ? visible : initialVisible
+  }, [isControlled, visible, initialVisible])
+
+  // 处理缩略图点击
+  const handleThumbnailClick = useCallback((photo: Photo, index: number) => {
+    onClickThumbnail?.(photo, index)
+  }, [onClickThumbnail])
 
   useEffect(() => {
     const el = scrollRef.current
 
-    isHover ? setThumbnailVisible(true) : setThumbnailVisible(false)
+    isHover ? setInitialVisible(true) : setInitialVisible(false)
 
     if (!el)
       return
@@ -40,17 +52,17 @@ export function ThumbnailBar() {
     return () => {
       el.removeEventListener('wheel', scrollWheel)
     }
-  }, [isHover, setThumbnailVisible])
+  }, [isHover, setInitialVisible])
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 h-20"
+      className="absolute bottom-0 left-0 right-0 h-20 shadow-md"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <AnimatePresence>
         {
-          isHover && (
+          thumbnailVisible && (
             <motion.div
               key="thumbnail-bar"
               initial={{ translateY: '100%' }}
@@ -58,26 +70,37 @@ export function ThumbnailBar() {
               exit={{ translateY: '100%' }}
               className="px-4 h-full flex items-center bg-darkBlueGray-800/80 backdrop-blur-md"
             >
-              <SimpleBar scrollableNodeProps={{ ref: scrollRef }} className="overflow-y-hidden">
-                <div className="h-full flex gap-1 items-center">
-                  {
-                    preSelectedPhotos.map((photo, index) => (
-                      <Thumbnail
-                        key={photo.photoId}
-                        index={index}
-                        isSelected={currentIndex === index}
-                        thumbnailUrl={photo.thumbnail_url}
-                        thumbnailClick={index => setCurrentPhoto(index)}
-                      />
-                    ))
-                  }
-                </div>
-              </SimpleBar>
+              {
+                photos.length > 0
+                  ? (
+                      <SimpleBar scrollableNodeProps={{ ref: scrollRef }} className="overflow-y-hidden">
+                        <div className="h-full flex gap-1 items-center">
+                          {
+                            photos.map((photo, index) => (
+                              <Thumbnail
+                                key={photo.photoId}
+                                index={index}
+                                isSelected={currentIndex === index}
+                                thumbnailUrl={photo.thumbnail_url}
+                                thumbnailClick={() => handleThumbnailClick(photo, index)}
+                                extra={extra}
+                              />
+                            ))
+                          }
+                        </div>
+                      </SimpleBar>
+                    )
+                  : (
+                      <div className="flex items-center justify-center w-full h-full text-darkBlueGray-300">
+                        <span>没有可用的缩略图</span>
+                      </div>
+                    )
+              }
+
             </motion.div>
           )
         }
       </AnimatePresence>
-
     </div>
   )
 }

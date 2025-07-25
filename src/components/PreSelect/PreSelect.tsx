@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
-import { FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
@@ -17,8 +17,8 @@ interface PreSelectProps {
 export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
-  const { originalPhotos, currentPhoto, fetchPhotos, togglePreSelected } = usePhotosStore()
-  const { next, previous, currentIndex } = usePhotoViewerStore()
+  const { preSelectedPhotos, currentPhoto, fetchPhotos, togglePreSelected, setCurrentPhoto } = usePhotosStore()
+  const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
 
   // 全屏切换处理
   const toggleFullscreen = () => {
@@ -156,7 +156,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
                 当前：
                 <span className="text-blue-400 font-semibold mx-1">{currentIndex + 1}</span>
                 /
-                <span className="text-white font-semibold mx-1">{ originalPhotos.length }</span>
+                <span className="text-white font-semibold mx-1">{ preSelectedPhotos.length }</span>
               </Text>
 
               {/* 筛选统计悬浮窗 */}
@@ -184,7 +184,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
           <Text className="text-white text-sm">
             <span className="text-blue-400 font-semibold">3</span>
             <span className="text-darkBlueGray-300 mx-1">/</span>
-            <span className="text-white font-semibold">{originalPhotos.length}</span>
+            <span className="text-white font-semibold">{preSelectedPhotos.length}</span>
           </Text>
           <Button
             type="text"
@@ -197,8 +197,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
       )}
 
       {/* 主视图区域 */}
-      <Content className={`relative flex-1 ${isFullscreen ? 'pt-0 pb-0' : 'pt-20 pb-4'}`}>
-        <div className="h-full flex items-center justify-center px-4">
+      <Content className={`relative flex-1 ${isFullscreen ? 'pt-0 pb-0 px-0' : 'pt-20 pb-4 px-4'}`}>
+        <div className="h-full flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8, rotateY: 10 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
@@ -315,7 +315,26 @@ export const PreSelect: FC<PreSelectProps> = () => {
         </motion.div>
       )}
 
-      <ThumbnailBar />
+      {/* 缩略图栏 */}
+      <ThumbnailBar
+        visible
+        photos={preSelectedPhotos}
+        currentIndex={currentIndex}
+        extra={(
+          <>
+            <div className="absolute top-1 right-1 flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
+              <CloseOutlined className="text-xs text-white" />
+            </div>
+            <div className="absolute top-1 right-1 flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
+              <CheckOutlined className="text-xs text-white" />
+            </div>
+          </>
+        )}
+        onClickThumbnail={(item, index) => {
+          setCurrentIndex(index)
+          setCurrentPhoto(item.photoId)
+        }}
+      />
     </Layout>
   )
 }

@@ -1,15 +1,17 @@
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+
 import cs from 'classnames'
 
 interface ThumbnailProps {
   index: number
   thumbnailUrl: string
+  extra?: React.ReactNode // 额外内容
   isSelected?: boolean
   thumbnailClick?: (index: number) => void
   style?: React.CSSProperties
 }
 
-export function Thumbnail({ index, thumbnailUrl, isSelected, thumbnailClick, style }: ThumbnailProps) {
+export function Thumbnail({ index, thumbnailUrl, isSelected, extra, thumbnailClick, style }: ThumbnailProps) {
   const setCurrentIndex = usePhotoViewerStore(state => state.setCurrentIndex)
 
   function handleClick() {
@@ -21,7 +23,7 @@ export function Thumbnail({ index, thumbnailUrl, isSelected, thumbnailClick, sty
     <div
       className={
         cs(
-          'flex-shrink-0 w-24 h-16  hover:bg-darkBlueGray-600 active:bg-darkBlueGray-500 transition-all rounded-md border-2 box-content select-none',
+          'relative flex-shrink-0 w-24 h-16  hover:bg-darkBlueGray-600 active:bg-darkBlueGray-500 transition-all rounded-md border-2 box-content select-none',
           isSelected ? 'border-blue-400 bg-darkBlueGray-600' : 'border-transparent bg-darkBlueGray-700',
         )
       }
@@ -29,6 +31,7 @@ export function Thumbnail({ index, thumbnailUrl, isSelected, thumbnailClick, sty
       style={style}
     >
       <img src={thumbnailUrl} alt="Thumbnail" className="mx-auto max-w-full max-h-full object-contain" />
+      { extra }
     </div>
   )
 }

@@ -40,8 +40,11 @@ export const usePhotoViewerStore = create<PhotoViewerState & PhotoViewerActions>
         const previousPhotoId = currentPhoto.photoId
 
         if (mode === 'preSelect') {
-          // 更新当前照片索引
-          setCurrentPhoto(Math.min(state.currentIndex + 1, preSelectedPhotos.length - 1))
+          // 获取下一张照片ID
+          const nextPhotoId = preSelectedPhotos[Math.min(state.currentIndex + 1, preSelectedPhotos.length - 1)].photoId
+
+          // 更新当前照片
+          setCurrentPhoto(nextPhotoId)
 
           // 设置上一张照片预选状态
           console.log(preSelectStatus)
@@ -60,7 +63,9 @@ export const usePhotoViewerStore = create<PhotoViewerState & PhotoViewerActions>
         const { setCurrentPhoto, mode } = photoStore
 
         if (mode === 'preSelect') {
-          setCurrentPhoto(Math.max(state.currentIndex - 1, 0))
+          // 获取上一张照片ID
+          const previousPhotoId = photoStore.preSelectedPhotos[Math.max(state.currentIndex - 1, 0)].photoId
+          setCurrentPhoto(previousPhotoId)
           return { currentIndex: Math.max(state.currentIndex - 1, 0) }
         }
         else if (mode === 'productSelect') {
