@@ -1,10 +1,11 @@
 import type { FC } from 'react'
-import { usePhotosStore } from '@/stores/usePhotosStore'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import { PreSelectStatsTooltip } from './PreSelectStatsTooltip'
 
 const { Content } = Layout
@@ -14,9 +15,9 @@ interface PreSelectProps {
 }
 
 export const PreSelect: FC<PreSelectProps> = () => {
-  const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const { photos, currentPhoto, fetchPhotos, togglePreSelected } = usePhotosStore()
+  const [isProgressHovered, setIsProgressHovered] = useState(false)
+  const { originalPhotos, currentPhoto, fetchPhotos, togglePreSelected } = usePhotosStore()
   const { next, previous, currentIndex } = usePhotoViewerStore()
 
   // 全屏切换处理
@@ -44,23 +45,38 @@ export const PreSelect: FC<PreSelectProps> = () => {
   // 键盘快捷键
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      e.preventDefault()
       switch (e.key) {
         case 'F11':
+          e.preventDefault()
           toggleFullscreen()
           break
         case 'ArrowLeft':
+          e.preventDefault()
           previous()
           break
         case 'ArrowRight':
-          next()
+          e.preventDefault()
+
+          if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
+            next(PreSelectStatus.SELECTED)
+          }
+          else {
+            next(currentPhoto?.preSelectStatus)
+          }
+
           break
         case ' ':
+          e.preventDefault()
           togglePreSelected(true)
-          next()
-          break
-        case 'Delete':
-          togglePreSelected(false)
+
+          if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
+            next(PreSelectStatus.EXCLUDE)
+          }
+          else {
+            currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED
+              ? next(PreSelectStatus.EXCLUDE)
+              : next(PreSelectStatus.SELECTED)
+          }
           break
         default:
           break
@@ -69,11 +85,11 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [])
+  }, [currentPhoto])
 
   useEffect(() => {
     fetchPhotos()
-  }, [])
+  }, [fetchPhotos])
 
   return (
     <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}>
@@ -88,7 +104,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
         className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/30"
       >
         <div
-          className="flex items-center justify-between px-8 py-4 cursor-pointer"
+          className="flex items-center justify-between px-8 py-4"
         >
           <div className="flex items-center gap-3 ">
             <HeartOutlined className="text-blue-400 text-xl" />
@@ -96,6 +112,30 @@ export const PreSelect: FC<PreSelectProps> = () => {
               预选照片
             </h2>
           </div>
+
+          {/* 快捷键提示 */}
+          <div className="flex items-center justify-center gap-8">
+            <div className="flex items-center gap-2">
+              <kbd className="px-3 py-1 bg-darkBlueGray-700 border border-darkBlueGray-600 rounded-md text-md text-darkBlueGray-200 font-mono">F11</kbd>
+              <Text className="text-darkBlueGray-300 text-sm font-medium">全屏</Text>
+            </div>
+
+            <div className="w-px h-5 bg-darkBlueGray-600"></div>
+
+            <div className="flex items-center gap-2">
+              <kbd className="px-3 py-1 bg-darkBlueGray-700 border border-darkBlueGray-600 rounded-md text-md text-darkBlueGray-200 font-mono">←</kbd>
+              <kbd className="px-3 py-1 bg-darkBlueGray-700 border border-darkBlueGray-600 rounded-md text-md text-darkBlueGray-200 font-mono">→</kbd>
+              <Text className="text-darkBlueGray-300 text-sm font-medium">切换照片</Text>
+            </div>
+
+            <div className="w-px h-5 bg-darkBlueGray-600"></div>
+
+            <div className="flex items-center gap-2">
+              <kbd className="px-3 py-1 bg-darkBlueGray-700 border border-darkBlueGray-600 rounded-md text-md text-darkBlueGray-200 font-mono">Space</kbd>
+              <Text className="text-darkBlueGray-300 text-sm font-medium">排除 / 还原</Text>
+            </div>
+          </div>
+
           <div className="flex items-center gap-4">
             {/* 全屏按钮 */}
             <Button
@@ -108,7 +148,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
             {/* 原有的进度显示 */}
             <div
-              className="flex items-center gap-6 text-sm "
+              className="flex items-center gap-6 text-sm select-none relative"
               onMouseEnter={() => setIsProgressHovered(true)}
               onMouseLeave={() => setIsProgressHovered(false)}
             >
@@ -116,15 +156,20 @@ export const PreSelect: FC<PreSelectProps> = () => {
                 当前：
                 <span className="text-blue-400 font-semibold mx-1">{currentIndex + 1}</span>
                 /
-                <span className="text-white font-semibold mx-1">{ photos.length }</span>
+                <span className="text-white font-semibold mx-1">{ originalPhotos.length }</span>
               </Text>
-              <motion.div className="relative">
 
-                {/* 筛选统计悬浮窗 */}
-                <PreSelectStatsTooltip isProgressHovered={isProgressHovered} />
-
-              </motion.div>
+              {/* 筛选统计悬浮窗 */}
+              <PreSelectStatsTooltip isProgressHovered={isProgressHovered} />
             </div>
+
+            {/* 下一步选产品 */}
+            <Button
+              type="primary"
+            >
+              下一步：选择产品
+              <RightOutlined />
+            </Button>
           </div>
         </div>
       </motion.div>
@@ -139,7 +184,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
           <Text className="text-white text-sm">
             <span className="text-blue-400 font-semibold">3</span>
             <span className="text-darkBlueGray-300 mx-1">/</span>
-            <span className="text-white font-semibold">{photos.length}</span>
+            <span className="text-white font-semibold">{originalPhotos.length}</span>
           </Text>
           <Button
             type="text"
@@ -152,13 +197,13 @@ export const PreSelect: FC<PreSelectProps> = () => {
       )}
 
       {/* 主视图区域 */}
-      <Content className={`relative flex-1 ${isFullscreen ? 'pt-0 pb-0' : 'pt-20 pb-16'}`}>
-        <div className="h-full flex items-center justify-center p-4">
+      <Content className={`relative flex-1 ${isFullscreen ? 'pt-0 pb-0' : 'pt-20 pb-4'}`}>
+        <div className="h-full flex items-center justify-center px-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.8, rotateY: 10 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="relative w-full h-full max-w-none max-h-none"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="relative w-full h-full"
           >
             {/* 照片容器 */}
             <div className="relative bg-darkBlueGray-800 rounded-2xl shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
@@ -180,78 +225,70 @@ export const PreSelect: FC<PreSelectProps> = () => {
               <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm rounded-lg px-3 py-1">
                 <Text className="text-white text-md font-medium">{ currentPhoto?.name ?? '' }</Text>
               </div>
+
+              {/* 状态标识 */}
+              {currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="absolute top-3 right-3 bg-green-600/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg"
+                >
+                  <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
+                  <Text className="text-white text-sm font-semibold">已选择</Text>
+                </motion.div>
+              )}
+
+              {currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDE && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="absolute top-3 right-3 bg-red-600/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg"
+                >
+                  <div className="w-3 h-3 rounded-full bg-red-400 shadow-lg shadow-red-400/50"></div>
+                  <Text className="text-white text-sm font-semibold">已排除</Text>
+                </motion.div>
+              )}
+
+              {/* 大型中央状态指示器 */}
+              {currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.3 }}
+                  animate={{ opacity: 0.8, scale: 1 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                >
+                  <div className="bg-green-600/20 border-4 border-green-500/60 rounded-full p-8 backdrop-blur-sm">
+                    <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shadow-2xl shadow-green-500/40">
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDE && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.3 }}
+                  animate={{ opacity: 0.8, scale: 1 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                >
+                  <div className="bg-red-600/20 border-4 border-red-500/60 rounded-full p-8 backdrop-blur-sm">
+                    <div className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center shadow-2xl shadow-red-500/40">
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
-
-            {/* 左右导航按钮 - 更靠近照片 */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="absolute left-[-80px] top-1/2 transform -translate-y-1/2"
-            >
-              <Button
-                type="text"
-                size="large"
-                icon={<LeftOutlined />}
-                className="w-16 h-16 rounded-full bg-darkBlueGray-800/80 hover:bg-darkBlueGray-700 border border-darkBlueGray-600 text-white hover:text-blue-400 backdrop-blur-sm transition-all duration-300 hover:scale-110"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="absolute right-[-80px] top-1/2 transform -translate-y-1/2"
-            >
-              <Button
-                type="text"
-                size="large"
-                icon={<RightOutlined />}
-                className="w-16 h-16 rounded-full bg-darkBlueGray-800/80 hover:bg-darkBlueGray-700 border border-darkBlueGray-600 text-white hover:text-blue-400 backdrop-blur-sm transition-all duration-300 hover:scale-110"
-              />
-            </motion.div>
           </motion.div>
         </div>
       </Content>
-
-      {/* 底部快捷键提示栏 */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{
-          opacity: isFullscreen ? 0 : 1,
-          y: isFullscreen ? 30 : 0,
-        }}
-        transition={{ duration: 0.3 }}
-        className="absolute bottom-0 left-0 right-0 bg-darkBlueGray-900/80 backdrop-blur-md border-t border-darkBlueGray-700/30"
-      >
-        <div className="flex items-center justify-center gap-8 px-6 py-4">
-          <div className="flex items-center gap-2">
-            <kbd className="px-3 py-1 bg-darkBlueGray-700 border border-darkBlueGray-600 rounded-md text-xs text-darkBlueGray-200 font-mono">F11</kbd>
-            <Text className="text-darkBlueGray-300 text-sm font-medium">全屏</Text>
-          </div>
-
-          <div className="w-px h-5 bg-darkBlueGray-600"></div>
-
-          <div className="flex items-center gap-2">
-            <kbd className="px-3 py-1 bg-darkBlueGray-700 border border-darkBlueGray-600 rounded-md text-xs text-darkBlueGray-200 font-mono">←</kbd>
-            <kbd className="px-3 py-1 bg-darkBlueGray-700 border border-darkBlueGray-600 rounded-md text-xs text-darkBlueGray-200 font-mono">→</kbd>
-            <Text className="text-darkBlueGray-300 text-sm font-medium">切换照片</Text>
-          </div>
-
-          <div className="w-px h-5 bg-darkBlueGray-600"></div>
-
-          <div className="flex items-center gap-2">
-            <kbd className="px-3 py-1 bg-green-700/50 border border-green-600/50 rounded-md text-xs text-green-300 font-mono">Space</kbd>
-            <Text className="text-green-300 text-sm font-medium">要这张</Text>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <kbd className="px-3 py-1 bg-red-700/50 border border-red-600/50 rounded-md text-xs text-red-300 font-mono">Del</kbd>
-            <Text className="text-red-300 text-sm font-medium">不要这张</Text>
-          </div>
-
-        </div>
-      </motion.div>
 
       {/* 全屏模式下的浮动操作提示 */}
       {isFullscreen && (
@@ -277,6 +314,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
           </div>
         </motion.div>
       )}
+
+      <ThumbnailBar />
     </Layout>
   )
 }

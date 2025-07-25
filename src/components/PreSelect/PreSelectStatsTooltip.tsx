@@ -24,16 +24,15 @@ export function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsToolt
       animate={{
         opacity: isProgressHovered ? 1 : 0,
         scale: isProgressHovered ? 1 : 0.8,
-        y: isProgressHovered ? 0 : 10,
       }}
       transition={{
         duration: 0.3,
         ease: [0.4, 0, 0.2, 1],
       }}
-      className="absolute top-8 right-0 z-50 pointer-events-none"
+      className="absolute top-8 left-1/2 z-50"
       style={{ display: isProgressHovered ? 'block' : 'none' }}
     >
-      <div className="bg-darkBlueGray-800/95 backdrop-blur-lg rounded-xl border border-darkBlueGray-700/50 shadow-2xl p-4 min-w-[240px]">
+      <div className="bg-darkBlueGray-800/95 backdrop-blur-lg rounded-xl border border-darkBlueGray-700/50 shadow-2xl p-4 min-w-[240px] -translate-x-1/2 ">
         <div className="text-center pb-3 border-b border-darkBlueGray-700/30">
           <Text className="text-darkBlueGray-300 text-xs font-medium tracking-wide uppercase">
             筛选统计

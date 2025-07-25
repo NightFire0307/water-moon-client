@@ -12,15 +12,24 @@ export interface Photo {
   name: string
   remark: string // 照片备注
   isRecommend: boolean // 是否推荐: true表示推荐，false表示不推荐
-  isPreSelected: boolean | null// 预选标记: null表示未预选，true表示已预选，false表示已排除
+  preSelectStatus: PreSelectStatus // 预选状态
   selectedProducts: number[]// 选中的产品ID列表
 }
 
 interface UsePhotosStore {
-  photos: Photo[] // 原始照片列表
+  originalPhotos: Photo[] // 原始照片列表
+  preSelectedPhotos: Photo[] // 预选照片列表
+  productSelectedPhotos: Photo[] // 已选产品的照片列表
   currentPhoto: Photo | null // 当前照片
   isLoading: boolean // 是否正在加载照片
-  filteredPhotos: Photo[] // 过滤后的照片列表
+  mode: 'preSelect' | 'productSelect' // 预选模式 和 产品模式
+}
+
+// 照片预选状态枚举
+export enum PreSelectStatus {
+  PENDING = 'pending', // 待处理
+  SELECTED = 'selected', // 选中
+  EXCLUDE = 'exclude', // 排除
 }
 
 export enum FILTER_TYPE {
@@ -39,6 +48,7 @@ interface PhotosAction {
   restorePreviousPhotoData: (photoId: number) => void // 还原上一次的数据
   getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number } // 获取当前照片信息
   setCurrentPhoto: (index: number) => void // 设置当前照片
+  setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
   getPhotoState: () => { selectCount: number, unselectedCount: number, totalCount: number } // 获取照片统计信息
   togglePreSelected: (selected: boolean) => void // 设置预选标记
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
@@ -48,11 +58,12 @@ const BATCH_SIZE = 10
 
 export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
   devtools((set, get) => ({
-    photos: [],
+    originalPhotos: [],
+    preSelectedPhotos: [],
+    productSelectedPhotos: [],
     currentPhoto: null,
     isLoading: true,
-    filteredPhotos: [],
-    previousPhotosData: {},
+    mode: 'preSelect',
     fetchPhotos: async () => {
       const state = get()
       // 设置加载状态
@@ -76,7 +87,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
             remark: photo.remark ?? '',
             isRecommend: photo.is_recommend,
             selectedProducts: selectedProducts.map(p => p.productId),
-            isPreSelected: null, // 初始状态为null，表示未预选
+            preSelectStatus: PreSelectStatus.PENDING, // 默认状态为待处理
           }
         }
 
@@ -88,7 +99,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
             photos.push(createPhotoObject(photo, products))
           }
 
-          set({ photos, isLoading: false, filteredPhotos: [...photos] })
+          set({ originalPhotos: photos, isLoading: false, preSelectedPhotos: [...photos] })
 
           state.setCurrentPhoto(0)
 
@@ -113,7 +124,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
             // 更新状态
             if (batch.length > 0) {
               set(state => ({
-                photos: [...state.photos, ...batch],
+                originalPhotos: [...state.originalPhotos, ...batch],
               }))
             }
 
@@ -136,7 +147,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     },
     setPhotoSelectedProducts: (photoId, productIds) => {
       set((state) => {
-        const photo = state.photos.find(p => p.photoId === photoId)
+        const photo = state.originalPhotos.find(p => p.photoId === photoId)
 
         if (!photo) {
           console.error(`Photo with ID ${photoId} not found`)
@@ -151,7 +162,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           state.currentPhoto = { ...photo }
         }
 
-        return { photos: [...state.photos] }
+        return { originalPhotos: [...state.originalPhotos] }
       })
     },
     setPhotoRemark: (remark: string) => {
@@ -165,7 +176,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       const updatedPhoto = { ...state.currentPhoto, remark }
 
       // 更新原始照片列表数据
-      const newPhotos = state.photos.map((photo) => {
+      const newPhotos = state.originalPhotos.map((photo) => {
         if (photo.photoId === state.currentPhoto?.photoId) {
           return { ...photo, remark }
         }
@@ -182,7 +193,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
 
       set({
         currentPhoto: updatedPhoto,
-        photos: newPhotos,
+        originalPhotos: newPhotos,
         filteredPhotos: newFilteredPhotos,
       })
     },
@@ -235,30 +246,22 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         state.setCurrentPhoto(0)
       }
     },
-    clearFilterPhotos: () => (
-      set(() => {
-        return {
-          isFiltering: false,
-          filteredPhotos: [],
-        }
-      })
-    ),
     setLoading: (isLoading: boolean) => (
       set(() => {
         return { isLoading }
       })
     ),
-    togglePreSelected: (selected) => {
+    togglePreSelected: (preSelectStatus: PreSelectStatus) => {
       const state = get()
       if (!state.currentPhoto)
         return state
 
       // 更新照片预选标记
       set({
-        currentPhoto: { ...state.currentPhoto, isPreSelected: selected },
-        photos: state.photos.map((photo) => {
+        currentPhoto: { ...state.currentPhoto, preSelectStatus },
+        originalPhotos: state.originalPhotos.map((photo) => {
           if (photo.photoId === state.currentPhoto?.photoId) {
-            return { ...photo, isPreSelected: selected }
+            return { ...photo, preSelectStatus }
           }
           return photo
         }),
@@ -278,16 +281,42 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     },
     setCurrentPhoto: (index: number) => {
       set((state) => {
-        if (index < 0 || index >= state.filteredPhotos.length)
-          return { currentPhoto: null }
-        const photo = state.filteredPhotos[index]
+        let photo: Photo
 
-        // 更新照片的产品选中状态
-        useProductsStore.getState().setDropdownMenuStatus(photo.selectedProducts)
+        // 判断当前模式
+        if (state.mode === 'preSelect') {
+          console.log('预选模式')
+          if (index < 0 || index >= state.preSelectedPhotos.length)
+            return { currentPhoto: null }
+          photo = state.preSelectedPhotos[index]
 
-        return { currentPhoto: photo }
+          return { currentPhoto: photo }
+        }
+        else if (state.mode === 'productSelect') {
+          console.log('产品模式')
+          // 更新照片的产品选中状态
+          // useProductsStore.getState().setDropdownMenuStatus(photo.selectedProducts)
+        }
+
+        return { currentPhoto: null }
       })
     },
+    setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
+      const photoIndex = state.preSelectedPhotos.findIndex(photo => photo.photoId === photoId)
+      if (photoIndex === -1) {
+        console.error(`Photo with ID ${photoId} not found in preSelectedPhotos`)
+        return state
+      }
+
+      return {
+        preSelectedPhotos: state.preSelectedPhotos.map((photo, index) => {
+          if (index === photoIndex) {
+            return { ...photo, preSelectStatus }
+          }
+          return photo
+        }),
+      }
+    }),
     getPhotoState: () => {
       const state = get()
       const totalCount = state.photos.length
@@ -302,9 +331,9 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     },
     getPreSelectedStats: () => {
       const state = get()
-      const selectedCount = state.photos.filter(photo => photo.isPreSelected !== null && photo.isPreSelected).length
-      const excludedCount = state.photos.filter(photo => photo.isPreSelected !== null && !photo.isPreSelected).length
-      const pendingCount = state.photos.filter(photo => photo.isPreSelected === null).length
+      const selectedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED).length
+      const excludedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.EXCLUDE).length
+      const pendingCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.PENDING).length
 
       return {
         selectedCount,

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { usePhotosStore } from './usePhotosStore'
+import { PreSelectStatus, usePhotosStore } from './usePhotosStore'
 
 interface PhotoViewerState {
   currentIndex: number
@@ -9,7 +9,7 @@ interface PhotoViewerState {
 }
 
 interface PhotoViewerActions {
-  next: () => void
+  next: (preSelectStatus?: PreSelectStatus) => void
   previous: () => void
   zoomIn: () => void
   zoomOut: () => void
@@ -28,18 +28,46 @@ export const usePhotoViewerStore = create<PhotoViewerState & PhotoViewerActions>
       rotate: 0,
       selected: false,
 
-      next: () => set((state) => {
-        const filteredPhotos = usePhotosStore.getState().filteredPhotos
-        const setCurrentPhoto = usePhotosStore.getState().setCurrentPhoto
+      next: (preSelectStatus = PreSelectStatus.SELECTED) => set((state) => {
+        const photoStore = usePhotosStore.getState()
+        const { mode, setCurrentPhoto, preSelectedPhotos, setPreSelectedPhotoStatus, currentPhoto } = photoStore
+        // 处理当前照片为空
+        if (currentPhoto === null) {
+          console.error('当前没有照片可供查看')
+          return { currentIndex: 0 }
+        }
 
-        setCurrentPhoto(Math.min(state.currentIndex + 1, filteredPhotos.length - 1))
-        return { currentIndex: Math.min(state.currentIndex + 1, filteredPhotos.length - 1) }
+        const previousPhotoId = currentPhoto.photoId
+
+        if (mode === 'preSelect') {
+          // 更新当前照片索引
+          setCurrentPhoto(Math.min(state.currentIndex + 1, preSelectedPhotos.length - 1))
+
+          // 设置上一张照片预选状态
+          console.log(preSelectStatus)
+          setPreSelectedPhotoStatus(previousPhotoId, preSelectStatus)
+
+          return { currentIndex: Math.min(state.currentIndex + 1, preSelectedPhotos.length - 1) }
+        }
+        else if (mode === 'productSelect') {
+          console.log('产品模式下一张')
+        }
+
+        return { currentIndex: 0 }
       }),
       previous: () => set((state) => {
-        const setCurrentPhoto = usePhotosStore.getState().setCurrentPhoto
+        const photoStore = usePhotosStore.getState()
+        const { setCurrentPhoto, mode } = photoStore
 
-        setCurrentPhoto(Math.max(state.currentIndex - 1, 0))
-        return { currentIndex: Math.max(state.currentIndex - 1, 0) }
+        if (mode === 'preSelect') {
+          setCurrentPhoto(Math.max(state.currentIndex - 1, 0))
+          return { currentIndex: Math.max(state.currentIndex - 1, 0) }
+        }
+        else if (mode === 'productSelect') {
+          console.log('产品选择模式')
+        }
+
+        return { currentIndex: 0 }
       }),
       zoomIn: () => set(state => ({ scale: Math.min(state.scale * 1.2, 3) })),
       zoomOut: () => set(state => ({ scale: Math.max(state.scale / 1.2, 0.5) })),
