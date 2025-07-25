@@ -19,19 +19,10 @@ const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCanc
       footer={null}
     >
       <div className="text-darkBlueGray-200 mb-4">
-        <div className="flex justify-between">
-          <div className="flex items-center gap-2">
-            {
-              icon && (
-                <div className="flex justify-center items-center h-6 w-6 rounded-full bg-darkBlueGray-700">
-                  {icon}
-                </div>
-              )
-            }
-            <h2 className="font-bold text-xl">{title}</h2>
-          </div>
+        <div className="relative">
+          <h2 className="font-bold text-xl text-center">{title}</h2>
           {
-            closeIcon !== null && <Button icon={<CloseOutlined />} shape="circle" onClick={() => onCancel?.()} />
+            closeIcon !== null && <Button className="absolute top-0 right-0" icon={<CloseOutlined />} shape="circle" onClick={() => onCancel?.()} />
           }
         </div>
         {

@@ -2,10 +2,11 @@ import type { FC } from 'react'
 import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Layout, Typography } from 'antd'
+import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
+import PreSelectionConfirmModal from './PreSelectionConfirmModal'
 import { PreSelectStatsTooltip } from './PreSelectStatsTooltip'
 
 const { Content } = Layout
@@ -343,6 +344,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
           setCurrentPhoto(item.photoId)
         }}
       />
+
+      <PreSelectionConfirmModal />
     </Layout>
   )
 }
