@@ -10,7 +10,7 @@ interface ThumbnailBarProps {
   photos: Photo[] // 照片列表
   currentIndex?: number // 当前选中的缩略图索引
   visible?: boolean // 是否可见
-  extra?: React.ReactNode // 额外内容
+  extra?: React.ReactNode | ((item: Photo, index: number) => React.ReactNode) // 额外内容，可以是 ReactNode 或函数
   onVisibleChange?: (visible: boolean) => void // 可见性变化回调
   onClickThumbnail?: (item: Photo, index: number,) => void // 缩略图Bar点击回调
 }
@@ -31,6 +31,15 @@ export function ThumbnailBar({ photos, visible, currentIndex, extra, onClickThum
   const handleThumbnailClick = useCallback((photo: Photo, index: number) => {
     onClickThumbnail?.(photo, index)
   }, [onClickThumbnail])
+
+  // 额外内容处理
+  const extraContent = useCallback((item: Photo, index: number) => {
+    if (typeof extra === 'function') {
+      return extra(item, index)
+    }
+
+    return extra ?? null
+  }, [extra])
 
   useEffect(() => {
     const el = scrollRef.current
@@ -83,7 +92,7 @@ export function ThumbnailBar({ photos, visible, currentIndex, extra, onClickThum
                                 isSelected={currentIndex === index}
                                 thumbnailUrl={photo.thumbnail_url}
                                 thumbnailClick={() => handleThumbnailClick(photo, index)}
-                                extra={extra}
+                                extra={extraContent(photo, index)}
                               />
                             ))
                           }

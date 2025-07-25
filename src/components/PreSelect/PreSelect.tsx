@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout, Typography } from 'antd'
+import { Button, Checkbox, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
@@ -320,14 +320,22 @@ export const PreSelect: FC<PreSelectProps> = () => {
         visible
         photos={preSelectedPhotos}
         currentIndex={currentIndex}
-        extra={(
+        extra={item => (
           <>
-            <div className="absolute top-1 right-1 flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
-              <CloseOutlined className="text-xs text-white" />
-            </div>
-            <div className="absolute top-1 right-1 flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
-              <CheckOutlined className="text-xs text-white" />
-            </div>
+            {
+              item.preSelectStatus === PreSelectStatus.SELECTED && (
+                <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
+                  <CheckOutlined className="text-xs text-white" />
+                </div>
+              )
+            }
+            {
+              item.preSelectStatus === PreSelectStatus.EXCLUDE && (
+                <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
+                  <CloseOutlined className="text-xs text-white" />
+                </div>
+              )
+            }
           </>
         )}
         onClickThumbnail={(item, index) => {

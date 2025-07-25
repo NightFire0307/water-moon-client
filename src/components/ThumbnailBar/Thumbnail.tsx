@@ -23,15 +23,17 @@ export function Thumbnail({ index, thumbnailUrl, isSelected, extra, thumbnailCli
     <div
       className={
         cs(
-          'relative flex-shrink-0 w-24 h-16  hover:bg-darkBlueGray-600 active:bg-darkBlueGray-500 transition-all rounded-md border-2 box-content select-none',
+          'relative flex justify-center flex-shrink-0 w-24 h-16  hover:bg-darkBlueGray-600 active:bg-darkBlueGray-500 transition-all rounded-md border-2 box-content select-none',
           isSelected ? 'border-blue-400 bg-darkBlueGray-600' : 'border-transparent bg-darkBlueGray-700',
         )
       }
       onClick={handleClick}
       style={style}
     >
-      <img src={thumbnailUrl} alt="Thumbnail" className="mx-auto max-w-full max-h-full object-contain" />
-      { extra }
+      <img src={thumbnailUrl} alt="Thumbnail" className="max-w-full max-h-full object-contain" />
+      <div className="absolute top-0.5 right-0.5">
+        { extra }
+      </div>
     </div>
   )
 }
