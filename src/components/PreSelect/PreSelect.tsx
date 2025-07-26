@@ -1,10 +1,10 @@
 import type { FC } from 'react'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import PreSelectionConfirmModal from './PreSelectionConfirmModal'
 import { PreSelectStatsTooltip } from './PreSelectStatsTooltip'
@@ -18,6 +18,7 @@ interface PreSelectProps {
 export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
+  const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
   const { preSelectedPhotos, currentPhoto, fetchPhotos, togglePreSelected, setCurrentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
 
@@ -105,13 +106,19 @@ export const PreSelect: FC<PreSelectProps> = () => {
         className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/30"
       >
         <div
-          className="flex items-center justify-between px-8 py-4"
+          className="flex items-center justify-between px-4 py-2"
         >
-          <div className="flex items-center gap-3 ">
-            <HeartOutlined className="text-blue-400 text-xl" />
-            <h2 className="text-white text-xl font-medium">
-              预选照片
-            </h2>
+          <div className="flex items-center space-x-4">
+            {/* 步骤编号 */}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <span className="text-white text-lg font-bold">2</span>
+            </div>
+
+            {/* 步骤信息 */}
+            <div>
+              <h1 className="text-white text-lg font-bold my-0">预选照片</h1>
+              <p className="text-darkBlueGray-300 text-sm">Photo PreSelection</p>
+            </div>
           </div>
 
           {/* 快捷键提示 */}
@@ -167,6 +174,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
             {/* 下一步选产品 */}
             <Button
               type="primary"
+              onClick={() => setPreSelectConfirmModalOpen(true)}
             >
               下一步：选择产品
               <RightOutlined />
@@ -207,7 +215,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
             className="relative w-full h-full"
           >
             {/* 照片容器 */}
-            <div className="relative bg-darkBlueGray-800 rounded-2xl shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
+            <div className="relative bg-darkBlueGray-800 rounded-xl shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
               <div className="w-full h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 flex items-center justify-center">
                 {
                   currentPhoto?.thumbnail_url
@@ -318,7 +326,6 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
       {/* 缩略图栏 */}
       <ThumbnailBar
-        visible
         photos={preSelectedPhotos}
         currentIndex={currentIndex}
         extra={item => (
@@ -345,7 +352,10 @@ export const PreSelect: FC<PreSelectProps> = () => {
         }}
       />
 
-      <PreSelectionConfirmModal />
+      <PreSelectionConfirmModal
+        open={preSelectConfirmModalOpen}
+        onCancel={() => setPreSelectConfirmModalOpen(false)}
+      />
     </Layout>
   )
 }

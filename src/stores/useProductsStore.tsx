@@ -1,7 +1,7 @@
 import type { IOrderProduct } from '@/types/order.ts'
 import { updateOrderPhotos } from '@/apis/order.ts'
 import { CheckOutlined } from '@ant-design/icons'
-import { type MenuProps, message } from 'antd'
+import { message } from 'antd'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { usePhotosStore } from './usePhotosStore'

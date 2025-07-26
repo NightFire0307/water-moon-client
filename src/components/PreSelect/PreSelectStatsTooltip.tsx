@@ -77,11 +77,11 @@ export function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsToolt
             className="flex items-center justify-between gap-6"
           >
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30"></div>
+              <div className="w-3 h-3 rounded-full bg-darkBlueGray-500 shadow-lg shadow-darkBlueGray-500/30"></div>
               <Text className="text-darkBlueGray-300 text-sm font-medium">待处理</Text>
             </div>
-            <div className="px-3 py-1 bg-blue-600/20 border border-blue-600/30 rounded-lg">
-              <Text className="text-blue-400 font-bold text-sm">{pendingCount}</Text>
+            <div className="px-3 py-1 bg-darkBlueGray-600/20 border border-darkBlueGray-600/30 rounded-lg">
+              <Text className="text-darkBlueGray-400 font-bold text-sm">{pendingCount}</Text>
             </div>
           </motion.div>
         </div>

@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import type { IOrder, IOrderProduct } from '@/types/order'
 import {
   CalendarOutlined,
   CheckCircleOutlined,
@@ -6,10 +6,13 @@ import {
   ExclamationCircleOutlined,
   RightOutlined,
 } from '@ant-design/icons'
-import { Badge, Button, ConfigProvider, Layout } from 'antd'
+import { Badge, ConfigProvider, Layout, Progress } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { motion } from 'framer-motion'
+import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { getOrderInfo } from '@/apis/order'
+import { useProductsStore } from '@/stores/useProductsStore'
 
 const { Content } = Layout
 
@@ -21,100 +24,21 @@ enum SelectionStatus {
   SUBMITTED = 'submitted', // 已提交
 }
 
-// 产品类型映射
-const productTypeMap: Record<string, string> = {
-  album: '相册',
-  frame: '摆台',
-  print: '冲印',
-  canvas: '画布',
-  book: '画册',
-}
-
-// 模拟订单数据
-const mockOrderData = {
-  id: 1001,
-  customer_name: '张小明',
-  customer_phone: '13888888888',
-  order_number: 'A177015',
-  status: 1,
-  created_date: '2024-07-20',
-  deadline_date: '2024-08-05',
-  selection_status: SelectionStatus.PENDING,
-  total_photos: 156,
-  max_select_photos: 80,
-  extra_photo_price: 5.00,
-  order_products: [
-    {
-      id: 1,
-      count: 2,
-      selected_photos: [],
-      product: {
-        id: 101,
-        name: '经典相册套装',
-        photo_limit: 30,
-        product_type: 'album',
-      },
-    },
-    {
-      id: 2,
-      count: 1,
-      selected_photos: [],
-      product: {
-        id: 102,
-        name: '精装摆台',
-        photo_limit: 10,
-        product_type: 'frame',
-      },
-    },
-    {
-      id: 3,
-      count: 3,
-      selected_photos: [],
-      product: {
-        id: 103,
-        name: '6寸照片冲印',
-        photo_limit: 6,
-        product_type: 'print',
-      },
-    },
-    {
-      id: 4,
-      count: 1,
-      selected_photos: [],
-      product: {
-        id: 104,
-        name: '艺术画布',
-        photo_limit: 5,
-        product_type: 'canvas',
-      },
-    },
-    {
-      id: 5,
-      count: 1,
-      selected_photos: [],
-      product: {
-        id: 105,
-        name: '定制画册',
-        photo_limit: 20,
-        product_type: 'book',
-      },
-    },
-    {
-      id: 6,
-      count: 1,
-      selected_photos: [],
-      product: {
-        id: 106,
-        name: '纪念相框',
-        photo_limit: 15,
-        product_type: 'frame',
-      },
-    },
-  ],
-}
-
 const OrderInfoPage: FC = () => {
+  const [orderInfo, setOrderInfo] = useState<IOrder | null>(null)
   const navigate = useNavigate()
+  const { generateProducts } = useProductsStore()
+
+  // 获取订单信息
+  const fetchOrderInfo = async () => {
+    const { data } = await getOrderInfo()
+    setOrderInfo(data)
+    generateProducts(data.order_products)
+  }
+
+  useEffect(() => {
+    fetchOrderInfo()
+  }, [])
 
   // 获取选片状态显示信息
   const getSelectionStatusInfo = (status: SelectionStatus) => {
@@ -133,7 +57,7 @@ const OrderInfoPage: FC = () => {
   }
 
   // 获取产品选择状态
-  const getProductSelectionStatus = (orderProduct: typeof mockOrderData.order_products[0]) => {
+  const getProductSelectionStatus = (orderProduct: IOrderProduct) => {
     const requiredCount = orderProduct.product.photo_limit * orderProduct.count
     const selectedCount = orderProduct.selected_photos.length
 
@@ -148,7 +72,7 @@ const OrderInfoPage: FC = () => {
     }
   }
 
-  const statusInfo = getSelectionStatusInfo(mockOrderData.selection_status)
+  const statusInfo = getSelectionStatusInfo(SelectionStatus.PENDING)
 
   return (
     <ConfigProvider
@@ -190,9 +114,9 @@ const OrderInfoPage: FC = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-darkBlueGray-900/95 backdrop-blur-sm border-b border-darkBlueGray-700/50"
+          className="bg-darkBlueGray-900/95 backdrop-blur-sm border-b border-darkBlueGray-700/50 h-16"
         >
-          <div className="max-w-4xl mx-auto py-4">
+          <div className="max-w-4xl mx-auto py-2">
             <div className="flex items-center justify-between">
               {/* 左侧 - 当前步骤信息 */}
               <div className="flex items-center space-x-4">
@@ -259,7 +183,7 @@ const OrderInfoPage: FC = () => {
                 <p className="text-darkBlueGray-300 mb-3 font-medium tracking-wide">订单编号</p>
                 <div className="inline-block px-8 py-4 bg-gradient-to-r from-darkBlueGray-800 to-darkBlueGray-700 rounded-2xl border border-darkBlueGray-600 shadow-2xl">
                   <span className="text-white font-mono text-3xl md:text-4xl font-black tracking-[0.2em] drop-shadow-sm ml-[0.2em]">
-                    {mockOrderData.order_number}
+                    {orderInfo?.order_number ?? '加载中...'}
                   </span>
                 </div>
               </div>
@@ -269,13 +193,13 @@ const OrderInfoPage: FC = () => {
                 <div className="text-center">
                   <p className="text-darkBlueGray-400 text-xs mb-2 uppercase tracking-wider">客户姓名</p>
                   <span className="text-white text-2xl md:text-3xl font-bold tracking-wide">
-                    {mockOrderData.customer_name}
+                    {orderInfo?.customer_name ?? '加载中...'}
                   </span>
                 </div>
                 <div className="text-center">
                   <p className="text-darkBlueGray-400 text-xs mb-2 uppercase tracking-wider">客户手机</p>
                   <span className="text-blue-300 text-xl md:text-2xl font-mono font-semibold tracking-wider">
-                    {mockOrderData.customer_phone}
+                    {orderInfo?.customer_phone ?? '加载中...'}
                   </span>
                 </div>
               </div>
@@ -285,12 +209,12 @@ const OrderInfoPage: FC = () => {
                 <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                   <CalendarOutlined className="text-blue-400 text-2xl mb-3 block mx-auto" />
                   <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">创建日期</p>
-                  <p className="text-white text-lg font-semibold">{mockOrderData.created_date}</p>
+                  <p className="text-white text-lg font-semibold">2025-07-26</p>
                 </div>
                 <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                   <ClockCircleOutlined className="text-orange-400 text-2xl mb-3 block mx-auto" />
                   <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">截止日期</p>
-                  <p className="text-orange-300 text-lg font-semibold">{mockOrderData.deadline_date}</p>
+                  <p className="text-orange-300 text-lg font-semibold">2025-08-26</p>
                 </div>
                 <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                   {statusInfo.icon && <div className="text-2xl mb-3 flex justify-center">{statusInfo.icon}</div>}
@@ -310,7 +234,7 @@ const OrderInfoPage: FC = () => {
                 产品列表
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                {mockOrderData.order_products.map((orderProduct) => {
+                {orderInfo?.order_products.map((orderProduct) => {
                   const selectionStatus = getProductSelectionStatus(orderProduct)
                   const requiredPhotos = orderProduct.product.photo_limit * orderProduct.count
                   const selectedPhotos = orderProduct.selected_photos.length
@@ -324,7 +248,7 @@ const OrderInfoPage: FC = () => {
                       {/* 顶部：产品类型标签 + 状态徽章 */}
                       <div className="flex items-center justify-between mb-4">
                         <div className="inline-flex items-center px-3 py-1 bg-blue-00/20 text-blue-300 text-xs font-semibold rounded-full border border-blue-500/30">
-                          {productTypeMap[orderProduct.product.product_type] || orderProduct.product.product_type}
+                          {orderProduct.product.product_type}
                         </div>
                         <Badge
                           color={selectionStatus.color}
@@ -365,36 +289,20 @@ const OrderInfoPage: FC = () => {
                         {/* 进度标题 */}
                         <div className="flex items-center justify-between">
                           <span className="text-darkBlueGray-300 text-sm font-medium">选择进度</span>
-                          <span className="text-white text-sm font-bold">
+                          <span className="text-white text-base font-bold">
                             {selectedPhotos}
                             /
-                            {requiredPhotos}
+                            {requiredPhotos === 0 ? '∞' : requiredPhotos}
                           </span>
                         </div>
 
                         {/* 进度条 */}
-                        <div className="relative">
-                          <div className="w-full bg-darkBlueGray-700/50 rounded-full h-3 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-700 ${
-                                progressPercent === 100
-                                  ? 'bg-gradient-to-r from-green-500 to-green-600'
-                                  : progressPercent > 0
-                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600'
-                                    : 'bg-darkBlueGray-600'
-                              }`}
-                              style={{ width: `${Math.max(progressPercent, 0)}%` }}
-                            />
-                          </div>
-                          {progressPercent > 0 && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold drop-shadow-lg">
-                                {Math.round(progressPercent)}
-                                %
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                        <Progress
+                          percent={progressPercent}
+                          strokeColor={{ from: '#3b82f6', to: '#2563eb' }}
+                          trailColor="#64748b"
+                          showInfo={false}
+                        />
 
                         {/* 总计提示 */}
                         <div className="flex items-center justify-between text-xs pt-2 border-t border-darkBlueGray-600/30">
@@ -424,7 +332,7 @@ const OrderInfoPage: FC = () => {
               <div className="flex items-center justify-center max-w-4xl mx-auto gap-8">
                 {[
                   { title: '信息确认', desc: 'Info Confirmation', active: true },
-                  { title: '预选照片', desc: 'Photo Selection', active: false },
+                  { title: '预选照片', desc: 'Photo PreSelection', active: false },
                   { title: '产品选择', desc: 'Product Assignment', active: false },
                   { title: '确认提交', desc: 'Final Submission', active: false },
                 ].map((step, idx) => (
@@ -473,7 +381,7 @@ const OrderInfoPage: FC = () => {
                 className="flex justify-center relative h-16 px-12 text-xl font-bold rounded-2xl bg-gradient-to-r from-darkBlueGray-600 via-darkBlueGray-700 to-darkBlueGray-800 border-2 border-darkBlueGray-500/60 hover:from-darkBlueGray-500 hover:via-darkBlueGray-600 hover:to-darkBlueGray-700 hover:border-darkBlueGray-400/80 shadow-2xl hover:shadow-darkBlueGray-500/40 transition-all duration-500 transform hover:shadow-xl cursor-pointer"
                 onClick={() => {
                   // TODO: 跳转到预选页面
-                  navigate('/preSelect')
+                  navigate('/pre-select')
                 }}
               >
                 {/* 按钮发光效果 */}

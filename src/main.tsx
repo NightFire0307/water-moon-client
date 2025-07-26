@@ -1,10 +1,11 @@
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Route, Routes } from 'react-router'
 import App from '@/App.tsx'
 import AuthLayout from '@/Layout/AuthLayout.tsx'
 import Error404Page from '@/views/errorPage/404.tsx'
 import Home from '@/views/home/home.tsx'
 import Login from '@/views/login/login.tsx'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Route, Routes } from 'react-router'
+import OrderInfoPage from './views/orderInfo'
 import PreSelectPage from './views/preselect/PreSelectPage'
 import './index.css'
 import './assets/normal.css'
@@ -30,7 +31,9 @@ createRoot(document.getElementById('root')!).render(
         <Route index element={<Home />} />
       </Route>
 
-      <Route path="/preselect" element={<PreSelectPage />} />
+      <Route path="/order-info" element={<OrderInfoPage />} />
+
+      <Route path="/pre-select" element={<PreSelectPage />} />
 
       <Route path="/select/view/:orderId" element={<App />}>
       </Route>
