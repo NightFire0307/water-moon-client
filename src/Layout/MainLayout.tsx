@@ -1,5 +1,8 @@
-import type { IOrder } from '@/types/order.ts'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import type { IOrder } from '@/types/order.ts'
+import { ConfigProvider, Layout } from 'antd'
+import zhCN from 'antd/locale/zh_CN'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getOrderInfo } from '@/apis/order.ts'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import FloatBtn from '@/components/FloatBtn/FloatBtn'
@@ -13,9 +16,6 @@ import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
-import { ConfigProvider, Layout } from 'antd'
-import zhCN from 'antd/locale/zh_CN'
-import { useCallback, useEffect, useRef, useState } from 'react'
 
 const { Content } = Layout
 
@@ -160,7 +160,6 @@ function MainLayout() {
             </Content>
 
             <PhotoStatusBar />
-            <ThumbnailBar />
 
             <ConditionTip visible={conditionTipState.visible} msg={conditionTipState.msg} centered />
           </Layout>

@@ -1,9 +1,13 @@
-import MainLayout from '@/Layout/MainLayout.tsx'
+import { Outlet } from 'react-router'
 import './App.css'
+import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 
 function App() {
   return (
-    <MainLayout />
+    <>
+      <Outlet />
+      <FullScreenLoading />
+    </>
   )
 }
 

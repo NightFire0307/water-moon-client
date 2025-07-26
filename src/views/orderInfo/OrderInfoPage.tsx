@@ -12,6 +12,7 @@ import { motion } from 'framer-motion'
 import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { getOrderInfo } from '@/apis/order'
+import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { useProductsStore } from '@/stores/useProductsStore'
 
 const { Content } = Layout
@@ -62,13 +63,13 @@ const OrderInfoPage: FC = () => {
     const selectedCount = orderProduct.selected_photos.length
 
     if (selectedCount === 0) {
-      return { text: '未开始', color: 'rgb(251 146 60)' }
+      return { text: '未开始', color: 'oklch(70.5% 0.213 47.604)' }
     }
     else if (selectedCount < requiredCount) {
       return { text: `已选 ${selectedCount}/${requiredCount}`, color: 'processing' }
     }
     else {
-      return { text: '已完成', color: 'success' }
+      return { text: '已完成', color: 'oklch(72.3% 0.219 149.579)' }
     }
   }
 
@@ -86,25 +87,6 @@ const OrderInfoPage: FC = () => {
           controlItemBgHover: '#475569',
           colorBgContainer: '#1e293b',
           colorBorder: '#475569',
-        },
-        components: {
-          Card: {
-            colorBgContainer: '#1e293b',
-            colorTextHeading: '#f8fafc',
-            colorBorderSecondary: '#475569',
-          },
-          Button: {
-            borderColorDisabled: '#475569',
-            defaultBg: '#334155',
-            defaultColor: '#e2e8f0',
-            defaultBorderColor: '#475569',
-            defaultActiveBg: '#0f172a',
-            defaultActiveBorderColor: '#1e293b',
-            defaultActiveColor: '#e2e8f0',
-            defaultHoverBg: '#475569',
-            defaultHoverBorderColor: '#475569',
-            defaultHoverColor: '#ffffff',
-          },
         },
       }}
     >

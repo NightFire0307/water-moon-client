@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
 
     <Routes>
       <Route path="/" element={<AuthLayout />}>
-        <Route index element={<Login />} />
+        <Route path="login" element={<Login />} />
       </Route>
 
       <Route path="/share/init" element={<AuthLayout />}>
@@ -31,7 +31,10 @@ createRoot(document.getElementById('root')!).render(
         <Route index element={<Home />} />
       </Route>
 
-      <Route path="/order-info" element={<OrderInfoPage />} />
+      {/* 订单信息页面 */}
+      <Route path="/order-info" element={<App />}>
+        <Route index element={<OrderInfoPage />} />
+      </Route>
 
       <Route path="/pre-select" element={<PreSelectPage />} />
 

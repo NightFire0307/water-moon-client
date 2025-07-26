@@ -108,6 +108,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
         <div
           className="flex items-center justify-between px-4 py-2"
         >
+          {/* 步骤标题和信息 */}
           <div className="flex items-center space-x-4">
             {/* 步骤编号 */}
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
@@ -144,6 +145,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
             </div>
           </div>
 
+          {/* 全屏和进度显示 */}
           <div className="flex items-center gap-4">
             {/* 全屏按钮 */}
             <Button

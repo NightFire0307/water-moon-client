@@ -64,6 +64,7 @@ function Login() {
         ...values,
       })
       setAccessToken(data.accessToken)
+      console.log('Login successful:', data)
       message.success('登录成功')
       navigate('/order')
     }
