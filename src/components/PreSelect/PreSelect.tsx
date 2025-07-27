@@ -1,10 +1,12 @@
 import type { FC } from 'react'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { useNavigate } from 'react-router'
+import { StepHeader } from '../StepHeader/StepHeader'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import PreSelectionConfirmModal from './PreSelectionConfirmModal'
 import { PreSelectStatsTooltip } from './PreSelectStatsTooltip'
@@ -19,8 +21,9 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { preSelectedPhotos, currentPhoto, fetchPhotos, togglePreSelected, setCurrentPhoto } = usePhotosStore()
+  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
+  const navigate = useNavigate()
 
   // 全屏切换处理
   const toggleFullscreen = () => {
@@ -89,10 +92,6 @@ export const PreSelect: FC<PreSelectProps> = () => {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [currentPhoto])
 
-  useEffect(() => {
-    fetchPhotos()
-  }, [fetchPhotos])
-
   return (
     <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}>
       {/* 顶部标题栏 */}
@@ -108,19 +107,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
         <div
           className="flex items-center justify-between px-4 py-2"
         >
-          {/* 步骤标题和信息 */}
-          <div className="flex items-center space-x-4">
-            {/* 步骤编号 */}
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-              <span className="text-white text-lg font-bold">2</span>
-            </div>
-
-            {/* 步骤信息 */}
-            <div>
-              <h1 className="text-white text-lg font-bold my-0">预选照片</h1>
-              <p className="text-darkBlueGray-300 text-sm">Photo PreSelection</p>
-            </div>
-          </div>
+          <StepHeader stepNumber={2} stepTitle="预选照片" stepDesc="Photo PreSelection" />
 
           {/* 快捷键提示 */}
           <div className="flex items-center justify-center gap-8">
@@ -218,7 +205,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
           >
             {/* 照片容器 */}
             <div className="relative bg-darkBlueGray-800 rounded-xl shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
-              <div className="w-full h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 flex items-center justify-center px-16">
                 {
                   currentPhoto?.thumbnail_url
                     ? (
@@ -356,6 +343,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
       <PreSelectionConfirmModal
         open={preSelectConfirmModalOpen}
+        onConfirm={() => navigate('/product-select')}
         onCancel={() => setPreSelectConfirmModalOpen(false)}
       />
     </Layout>

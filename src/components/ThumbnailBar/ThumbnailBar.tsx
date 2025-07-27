@@ -77,7 +77,7 @@ export function ThumbnailBar({ photos, visible, currentIndex, extra, onClickThum
               initial={{ translateY: '100%' }}
               animate={{ translateY: '0%' }}
               exit={{ translateY: '100%' }}
-              className="px-4 h-full flex items-center bg-darkBlueGray-800/80 backdrop-blur-md"
+              className="px-4 h-full flex items-center bg-darkBlueGray-900/80 backdrop-blur-md border-t border-darkBlueGray-700/30"
             >
               {
                 photos.length > 0

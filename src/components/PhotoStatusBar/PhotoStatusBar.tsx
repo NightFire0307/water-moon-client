@@ -13,7 +13,7 @@ export function PhotoStatusBar() {
       initial={{ translateY: '0' }}
       animate={{ translateY: thumbnailVisible ? -80 : 0 }}
     >
-      <div className="absolute bottom-2 left-1/2 p-2 -translate-x-1/2 rounded-md bg-darkBlueGray-800/70 text-white font-medium backdrop-blur-md">
+      <div className="absolute bottom-8 left-1/2 p-2 -translate-x-1/2 rounded-md bg-darkBlueGray-900/80 text-white font-medium backdrop-blur-md shadow-lg">
         <span>{name}</span>
         <span> · </span>
         <span>{`${currentIndex + 1}/${totalCount}`}</span>

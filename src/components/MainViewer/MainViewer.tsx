@@ -17,7 +17,7 @@ export function MainViewer({ transformRef }: MainViewerProps) {
 
   return (
     <div
-      className="h-screen select-none flex items-center justify-center transition-all"
+      className="h-full bg-darkBlueGray-800 select-none flex items-center justify-center transition-all rounded-xl"
       style={{ transform: `rotate(${rotate}deg)` }}
       onClick={() => setViewerControlVisible(!viewerControlVisible)}
     >

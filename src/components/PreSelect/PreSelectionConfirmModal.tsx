@@ -40,7 +40,7 @@ const modalMap = {
   },
 }
 
-function PreSelectionConfirmModal({ open, onCancel }: PreSelectionConfirmModalProps) {
+function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionConfirmModalProps) {
   const { getPreSelectedStats } = usePhotosStore()
   const { selectedCount, excludedCount, pendingCount } = getPreSelectedStats()
 
@@ -80,7 +80,7 @@ function PreSelectionConfirmModal({ open, onCancel }: PreSelectionConfirmModalPr
       footer={(
         <Space>
           <Button onClick={() => onCancel?.()}>返回修改</Button>
-          <Button type={currentConfig.actionType}>
+          <Button type={currentConfig.actionType} onClick={() => onConfirm?.()}>
             {currentConfig.actionText}
           </Button>
         </Space>

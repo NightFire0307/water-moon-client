@@ -4,7 +4,7 @@ import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
-import { CloseOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
+import { DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import { Button, Divider, Dropdown, Form, Input, Space } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type RefObject, useEffect, useState } from 'react'
@@ -66,7 +66,7 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
               transition={{ duration: 0.3 }}
             >
               {/* 顶部控制栏 */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-xl p-2 bg-darkBlueGray-800/60 z-50">
+              <div className="absolute top-8 left-1/2 -translate-x-1/2 rounded-xl p-2 bg-darkBlueGray-900/80 shadow-lg z-50">
                 <Space>
                   <Dropdown open={open} menu={{ items: productMenu, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
                     <Button icon={<PlusOutlined />}>
@@ -75,10 +75,10 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
                     </Button>
 
                   </Dropdown>
-                  <Divider type="vertical" className="border-darkBlueGray-800/30 h-6 w-1 mx-1" />
+                  <Divider type="vertical" className="border-darkBlueGray-600 h-6 w-1 mx-1" />
                   {/* <Button icon={<HeartOutlined />} /> */}
                   <Button icon={<MessageOutlined />} onClick={handleRemark} />
-                  <Divider type="vertical" className="border-darkBlueGray-800/30 h-6 w-1 mx-1" />
+                  <Divider type="vertical" className="border-darkBlueGray-600 h-6 w-1 mx-1" />
                   <Button icon={<ZoomInOutlined />} onClick={zoomIn} />
                   <Button icon={<ZoomOutOutlined />} onClick={zoomOut} />
                   <Button icon={<RotateLeftOutlined />} onClick={() => rotateLeft()} />
@@ -86,22 +86,17 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
                 </Space>
               </div>
 
-              {/* 退出选片 */}
-              <div className="absolute top-6 right-4 z-50">
-                <Button icon={<CloseOutlined />} />
-              </div>
-
               {/* 左右翻页按钮 */}
               <div
                 onClick={() => previous()}
-                className="absolute z-50 left-4 top-1/2 w-6 h-10 rounded-md bg-darkBlueGray-800 hover:bg-darkBlueGray-700 active:bg-darkBlueGray-900 flex items-center justify-center cursor-pointer"
+                className="absolute z-50 left-8 top-1/2 w-6 h-10 rounded-md bg-darkBlueGray-900/80 hover:bg-darkBlueGray-700 active:bg-darkBlueGray-900 flex items-center justify-center cursor-pointer"
               >
                 <LeftOutlined className="text-darkBlueGray-100" />
               </div>
 
               <div
                 onClick={() => next()}
-                className="absolute z-50 right-4 top-1/2 w-6 h-10 rounded-md bg-darkBlueGray-800 hover:bg-darkBlueGray-700 active:bg-darkBlueGray-900 flex items-center justify-center cursor-pointer"
+                className="absolute z-50 right-8 top-1/2 w-6 h-10 rounded-md bg-darkBlueGray-900/80 hover:bg-darkBlueGray-700 active:bg-darkBlueGray-900 flex items-center justify-center cursor-pointer"
               >
                 <RightOutlined className="text-darkBlueGray-100" />
               </div>

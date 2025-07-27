@@ -64,67 +64,57 @@ const ProductSidebar: FC = () => {
   }
 
   return (
-    <div
-      className="absolute top-0 left-0 bottom-0 w-4 z-20"
-      onMouseEnter={() => setProductSidebarVisible(true)}
-      onMouseLeave={() => setProductSidebarVisible(false)}
-    >
-      <AnimatePresence>
-        {
-          productSidebarVisible
-          && (
-            <motion.div
-              key="product-sidebar"
-              initial={{ translateX: '-100%' }}
-              animate={{ translateX: '0' }}
-              exit={{ translateX: '-100%' }}
-              className="absolute top-0 left-0 bottom-0 w-80 p-2 bg-darkBlueGray-800/70 backdrop-blur-md -translate-x-full"
-            >
-              <div className="text-white text-2xl font-bold mx-4 my-4">产品列表</div>
+    <div className="relative top-0 z-20">
+      <motion.div
+        key="product-sidebar"
+        initial={{ translateX: '-100%' }}
+        animate={{ translateX: '0' }}
+        exit={{ translateX: '-100%' }}
+        className="w-80 p-2 bg-darkBlueGray-900/70 border-r border-darkBlueGray-700/30 backdrop-blur-md -translate-x-full"
+      >
+        <div className="text-white text-2xl font-bold mx-4 my-4">产品列表</div>
 
-              <div className="h-full overflow-hidden">
-                <SimpleBar style={{ height: 'calc(100vh - 120px)' }}>
-                  <div className="p-4">
-                    {/* 固定选项 */}
-                    {fixedOptions.map(option => (
-                      <FixedOptionCard
-                        key={option.optionId}
-                        optionId={option.optionId}
-                        name={option.name}
-                        iconType={option.iconType}
-                        photoCount={option.photoCount}
-                        description={option.description}
-                        isSelected={activeFixedOption === option.optionId}
-                        onClick={handleFixedOptionClick}
-                      />
-                    ))}
+        <div className="h-full overflow-hidden">
+          <SimpleBar style={{ height: 'calc(100vh - 120px)' }}>
+            <div className="p-4">
+              {/* 固定选项 */}
+              {fixedOptions.map(option => (
+                <FixedOptionCard
+                  key={option.optionId}
+                  optionId={option.optionId}
+                  name={option.name}
+                  iconType={option.iconType}
+                  photoCount={option.photoCount}
+                  description={option.description}
+                  isSelected={activeFixedOption === option.optionId}
+                  onClick={handleFixedOptionClick}
+                />
+              ))}
 
-                    {/* 分隔线 */}
-                    <div className="mx-2 mb-4 border-t border-darkBlueGray-600/50"></div>
+              {/* 分隔线 */}
+              <div className="mx-2 mb-4 border-t border-darkBlueGray-600/50"></div>
 
-                    {/* 其他产品选项 */}
-                    {products.map(product => (
-                      <ProductCard
-                        key={product.productId}
-                        productId={product.productId}
-                        name={product.name}
-                        type={product.productType}
-                        selectedCount={product.selectedPhotoIds.length}
-                        limitCount={product.photoLimit}
-                        allowOverLimit={product.allowOverLimit}
-                        remark={product.remark}
-                        isSelected={selectedProductId === product.productId}
-                        onClick={handleProductClick}
-                      />
-                    ))}
-                  </div>
-                </SimpleBar>
-              </div>
-            </motion.div>
-          )
-        }
-      </AnimatePresence>
+              {/* 其他产品选项 */}
+              {products.map(product => (
+                <ProductCard
+                  key={product.productId}
+                  productId={product.productId}
+                  name={product.name}
+                  type={product.productType}
+                  selectedCount={product.selectedPhotoIds.length}
+                  limitCount={product.photoLimit}
+                  allowOverLimit={product.allowOverLimit}
+                  remark={product.remark}
+                  isSelected={selectedProductId === product.productId}
+                  onClick={handleProductClick}
+                />
+              ))}
+            </div>
+          </SimpleBar>
+        </div>
+      </motion.div>
     </div>
+
   )
 }
 

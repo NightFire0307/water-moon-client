@@ -1,12 +1,13 @@
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Route, Routes } from 'react-router'
 import App from '@/App.tsx'
 import AuthLayout from '@/Layout/AuthLayout.tsx'
 import Error404Page from '@/views/errorPage/404.tsx'
 import Home from '@/views/home/home.tsx'
 import Login from '@/views/login/login.tsx'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Route, Routes } from 'react-router'
 import OrderInfoPage from './views/orderInfo'
 import PreSelectPage from './views/preselect/PreSelectPage'
+import ProductSelectPage from './views/productselect/ProductSelectPage'
 import './index.css'
 import './assets/normal.css'
 import 'simplebar-react/dist/simplebar.min.css'
@@ -36,9 +37,14 @@ createRoot(document.getElementById('root')!).render(
         <Route index element={<OrderInfoPage />} />
       </Route>
 
-      <Route path="/pre-select" element={<PreSelectPage />} />
+      {/* 预选照片页面 */}
+      <Route path="/pre-select" element={<App />}>
+        <Route index element={<PreSelectPage />} />
+      </Route>
 
-      <Route path="/select/view/:orderId" element={<App />}>
+      {/* 照片分配页面 */}
+      <Route path="/product-select" element={<App />}>
+        <Route index element={<ProductSelectPage />} />
       </Route>
 
       <Route path="/404" element={<Error404Page />} />

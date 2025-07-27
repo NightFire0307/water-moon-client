@@ -185,7 +185,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       })
 
       // 更新过滤后的照片列表数据
-      const newFilteredPhotos = state.filteredPhotos.map((photo) => {
+      const newFilteredPhotos = state.productSelectedPhotos.map((photo) => {
         if (photo.photoId === state.currentPhoto?.photoId) {
           return { ...photo, remark }
         }
@@ -195,7 +195,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       set({
         currentPhoto: updatedPhoto,
         originalPhotos: newPhotos,
-        filteredPhotos: newFilteredPhotos,
+        productSelectedPhotos: newFilteredPhotos,
       })
     },
     filterPhoto: (filter) => {
@@ -205,45 +205,45 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       // 如果没有过滤条件，直接返回所有照片
       if (filterType === FILTER_TYPE.ALL) {
         set({
-          filteredPhotos: [...state.photos],
+          productSelectedPhotos: [...state.preSelectedPhotos],
         })
       }
 
       // 过滤指定产品的照片
       if (filterType === FILTER_TYPE.SELECTED && productId !== undefined) {
-        const filteredPhotos = state.photos.filter((photo) => {
+        const productSelectedPhotos = state.photos.filter((photo) => {
           return photo.selectedProducts.includes(productId)
         })
 
         set({
-          filteredPhotos,
+          productSelectedPhotos,
         })
       }
 
       // 过滤已选的照片
       if (filterType === FILTER_TYPE.SELECTED && productId === undefined) {
-        const filteredPhotos = state.photos.filter((photo) => {
+        const productSelectedPhotos = state.photos.filter((photo) => {
           return photo.selectedProducts.length > 0
         })
 
         set({
-          filteredPhotos,
+          productSelectedPhotos,
         })
       }
 
       // 过滤未选的照片
       if (filterType === FILTER_TYPE.UNSELECTED && productId === undefined) {
-        const filteredPhotos = state.photos.filter((photo) => {
+        const productSelectedPhotos = state.photos.filter((photo) => {
           return photo.selectedProducts.length === 0
         })
 
         set({
-          filteredPhotos,
+          productSelectedPhotos,
         })
       }
 
       // 如果过滤后的照片不在当前照片列表中，重置当前照片
-      if (!state.filteredPhotos.some(photo => photo.photoId === state.currentPhoto?.photoId)) {
+      if (!state.productSelectedPhotos.some(photo => photo.photoId === state.currentPhoto?.photoId)) {
         state.setCurrentPhoto(0)
       }
     },
@@ -270,14 +270,14 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     },
     getCurrentPhotoInfo: () => {
       const state = get()
-      const currentIndex = state.filteredPhotos.findIndex(photo =>
+      const currentIndex = state.productSelectedPhotos.findIndex(photo =>
         photo.photoId === state.currentPhoto?.photoId,
       )
 
       return {
         currentIndex: currentIndex === -1 ? 0 : currentIndex, // 返回正确的索引，未找到时返回0
         name: state.currentPhoto?.name ?? '',
-        totalCount: state.filteredPhotos.length,
+        totalCount: state.productSelectedPhotos.length,
       }
     },
     setCurrentPhoto: (photoId: number) => {
@@ -317,9 +317,9 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     }),
     getPhotoState: () => {
       const state = get()
-      const totalCount = state.photos.length
-      const selectedCount = state.photos.filter(photo => photo.selectedProducts.length > 0).length
-      const unselectedCount = state.photos.filter(photo => photo.selectedProducts.length === 0).length
+      const totalCount = 0
+      const selectedCount = 0
+      const unselectedCount = 0
 
       return {
         selectCount: selectedCount,
@@ -327,6 +327,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         totalCount,
       }
     },
+    // 获取预选照片的统计信息
     getPreSelectedStats: () => {
       const state = get()
       const selectedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED).length

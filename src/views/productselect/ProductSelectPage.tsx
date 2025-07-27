@@ -1,14 +1,11 @@
-import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import type { IOrder } from '@/types/order.ts'
-import { ConfigProvider, Layout } from 'antd'
-import zhCN from 'antd/locale/zh_CN'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { getOrderInfo } from '@/apis/order.ts'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
-import FloatBtn from '@/components/FloatBtn/FloatBtn'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import { PhotoStatusBar } from '@/components/PhotoStatusBar/PhotoStatusBar'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
+import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
 import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
@@ -16,10 +13,17 @@ import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore.tsx'
+import { RightOutlined } from '@ant-design/icons'
+import { Button, ConfigProvider, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import zhCN from 'antd/locale/zh_CN'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const { Content } = Layout
 
-function MainLayout() {
+function ProductSelectPage() {
   const [thumbnailVisible, setThumbnailVisible] = useState(false)
   const [viewerControlVisible, setViewerControlVisible] = useState(true)
   const [productSidebarVisible, setProductSidebarVisible] = useState(false)
@@ -31,7 +35,7 @@ function MainLayout() {
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
   const [orderInfo, setOrderInfo] = useState<IOrder>({} as IOrder)
   const generateProducts = useProductsStore(state => state.generateProducts)
-  const { fetchPhotos, getCurrentPhotoInfo } = usePhotosStore()
+  const { fetchPhotos, getCurrentPhotoInfo, productSelectedPhotos } = usePhotosStore()
   const { next, previous } = usePhotoViewerStore()
 
   // 控制提示信息显示
@@ -148,18 +152,44 @@ function MainLayout() {
             },
           }}
         >
-          <Layout
-            className="h-screen relative bg-darkBlueGray-950 overflow-hidden"
-          >
+          <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden `}>
+            <Header>
+              <motion.div
+                initial={{ opacity: 0, y: -30 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={{ duration: 0.3 }}
+                className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/30"
+              >
+                <div
+                  className="flex items-center justify-between px-4 py-2"
+                >
+                  <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
+                  <Button type="primary">
+                    下一步：提交选片结果
+                    <RightOutlined />
+                  </Button>
+                </div>
 
-            <ProductSidebar />
+              </motion.div>
+            </Header>
 
-            <Content>
-              <ViewerControl transformRef={transformRef} />
-              <MainViewer transformRef={transformRef} />
-            </Content>
+            <Layout className="bg-darkBlueGray-900">
+              <Sider width={320} className="bg-darkBlueGray-900">
+                {/* 产品侧边栏 */}
+                <ProductSidebar />
+              </Sider>
 
-            <PhotoStatusBar />
+              {/* 主视图区域 */}
+              <Content className="relative top-0 bottom-0 w-full h-[calc(100% - 64px)] p-4 ">
+                <ViewerControl transformRef={transformRef} />
+                <MainViewer transformRef={transformRef} />
+                <PhotoStatusBar />
+                <ThumbnailBar photos={productSelectedPhotos} />
+              </Content>
+            </Layout>
 
             <ConditionTip visible={conditionTipState.visible} msg={conditionTipState.msg} centered />
           </Layout>
@@ -170,4 +200,4 @@ function MainLayout() {
   )
 }
 
-export default MainLayout
+export default ProductSelectPage
