@@ -1,8 +1,9 @@
-import type { IPhoto } from '@/types/photos.ts'
 import type { IProduct } from './useProductsStore.tsx'
-import { getOrderPhotos } from '@/apis/order.ts'
+import type { IPhoto } from '@/types/photos.ts'
+import { cloneDeep, filter } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import { getOrderPhotos } from '@/apis/order.ts'
 import { useProductsStore } from './useProductsStore.tsx'
 
 export interface Photo {
@@ -23,6 +24,7 @@ interface UsePhotosStore {
   currentPhoto: Photo | null // 当前照片
   isLoading: boolean // 是否正在加载照片
   mode: 'preSelect' | 'productSelect' // 预选模式 和 产品模式
+  filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
 }
 
 // 照片预选状态枚举
@@ -42,16 +44,19 @@ interface PhotosAction {
   fetchPhotos: () => Promise<void>
   setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
   setPhotoRemark: (remark: string) => void // 照片备注
-  filterPhoto: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void // 过滤照片
+  setFilter: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void // 设置过滤条件
+  getFilterProductPhotos: () => Photo[] // 获取过滤后的产品照片列表
   clearFilterPhotos: () => void // 清空过滤照片列表
   setLoading: (isLoading: boolean) => void // 设置加载状态
   restorePreviousPhotoData: (photoId: number) => void // 还原上一次的数据
   getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number } // 获取当前照片信息
-  setCurrentPhoto: (photoId: number) => void // 设置当前照片
+  setCurrentPhoto: (photoId: number | null) => void // 设置当前照片
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
-  getPhotoState: () => { selectCount: number, unselectedCount: number, totalCount: number } // 获取照片统计信息
   togglePreSelected: (selected: boolean) => void // 设置预选标记
+  copyPreSelectedPhotos: () => void // 复制预选照片到产品选片
+  getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
+  setMode: (mode: 'preSelect' | 'productSelect') => void // 设置当前模式
 }
 
 const BATCH_SIZE = 10
@@ -64,6 +69,10 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
     currentPhoto: null,
     isLoading: true,
     mode: 'preSelect',
+    filter: {
+      productId: undefined,
+      filterType: FILTER_TYPE.ALL,
+    },
     fetchPhotos: async () => {
       const state = get()
       // 设置加载状态
@@ -99,10 +108,13 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
             photos.push(createPhotoObject(photo, products))
           }
 
-          set({ originalPhotos: photos, isLoading: false, preSelectedPhotos: [...photos] })
+          set({ originalPhotos: photos, isLoading: false, preSelectedPhotos: cloneDeep(photos) })
+
+          // 调试数据
+          // set({ productSelectedPhotos: [...photos] })
 
           // 设置当前照片为首个预选照片
-          state.setCurrentPhoto(photos[0].photoId)
+          // state.setCurrentPhoto(photos[0].photoId)
 
           // 启动第二阶段空闲时加载
           if (allList.length > BATCH_SIZE) {
@@ -198,54 +210,37 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         productSelectedPhotos: newFilteredPhotos,
       })
     },
-    filterPhoto: (filter) => {
+    getFilterProductPhotos: () => {
       const state = get()
-      const { productId, filterType } = filter
-
-      // 如果没有过滤条件，直接返回所有照片
-      if (filterType === FILTER_TYPE.ALL) {
-        set({
-          productSelectedPhotos: [...state.preSelectedPhotos],
-        })
-      }
+      const { productId, filterType } = state.filter
 
       // 过滤指定产品的照片
       if (filterType === FILTER_TYPE.SELECTED && productId !== undefined) {
-        const productSelectedPhotos = state.photos.filter((photo) => {
+        return state.productSelectedPhotos.filter((photo) => {
           return photo.selectedProducts.includes(productId)
-        })
-
-        set({
-          productSelectedPhotos,
         })
       }
 
       // 过滤已选的照片
       if (filterType === FILTER_TYPE.SELECTED && productId === undefined) {
-        const productSelectedPhotos = state.photos.filter((photo) => {
+        return state.productSelectedPhotos.filter((photo) => {
           return photo.selectedProducts.length > 0
-        })
-
-        set({
-          productSelectedPhotos,
         })
       }
 
       // 过滤未选的照片
       if (filterType === FILTER_TYPE.UNSELECTED && productId === undefined) {
-        const productSelectedPhotos = state.photos.filter((photo) => {
+        return state.productSelectedPhotos.filter((photo) => {
           return photo.selectedProducts.length === 0
-        })
-
-        set({
-          productSelectedPhotos,
         })
       }
 
       // 如果过滤后的照片不在当前照片列表中，重置当前照片
       if (!state.productSelectedPhotos.some(photo => photo.photoId === state.currentPhoto?.photoId)) {
-        state.setCurrentPhoto(0)
+        state.setCurrentPhoto(null)
       }
+
+      return state.productSelectedPhotos
     },
     setLoading: (isLoading: boolean) => (
       set(() => {
@@ -280,7 +275,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         totalCount: state.productSelectedPhotos.length,
       }
     },
-    setCurrentPhoto: (photoId: number) => {
+    setCurrentPhoto: (photoId) => {
       set((state) => {
         let currentPhoto: Photo | null = null
 
@@ -291,12 +286,10 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           return { currentPhoto }
         }
         else if (state.mode === 'productSelect') {
-          console.log('产品模式')
+          currentPhoto = state.productSelectedPhotos.find(p => p.photoId === photoId) ?? null
           // 更新照片的产品选中状态
           // useProductsStore.getState().setDropdownMenuStatus(photo.selectedProducts)
         }
-
-        return { currentPhoto }
       })
     },
     setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
@@ -315,14 +308,15 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         }),
       }
     }),
-    getPhotoState: () => {
+    // 获取产品选片的统计信息
+    getProductSelectedStats: () => {
       const state = get()
-      const totalCount = 0
-      const selectedCount = 0
-      const unselectedCount = 0
+      const totalCount = state.productSelectedPhotos.length
+      const selectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length > 0).length
+      const unselectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length === 0).length
 
       return {
-        selectCount: selectedCount,
+        selectedCount,
         unselectedCount,
         totalCount,
       }
@@ -340,6 +334,15 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         pendingCount,
       }
     },
+    // 复制预选中的照片到产品选片
+    copyPreSelectedPhotos: () => {
+      const state = get()
+      const productSelectedPhotos = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
+
+      set({ productSelectedPhotos })
+    },
+    setMode: mode => set({ mode }),
+    setFilter: filter => set({ filter }),
   }), {
     name: 'photos-store',
   }),

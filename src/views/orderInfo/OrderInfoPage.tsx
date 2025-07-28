@@ -12,7 +12,6 @@ import { motion } from 'framer-motion'
 import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { getOrderInfo } from '@/apis/order'
-import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { useProductsStore } from '@/stores/useProductsStore'
 
 const { Content } = Layout

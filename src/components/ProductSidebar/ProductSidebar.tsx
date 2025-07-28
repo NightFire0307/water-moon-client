@@ -1,22 +1,22 @@
 import type { FC } from 'react'
-import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
-import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
-import { useProductsStore } from '@/stores/useProductsStore'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
+import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
+import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
+import { useProductsStore } from '@/stores/useProductsStore'
 import { FixedOptionCard } from './FixedOptionCard'
 import { ProductCard } from './ProductCard'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
   const { productSidebarVisible, setProductSidebarVisible } = usePhotoViewerContext()
-  const { filterPhoto, getPhotoState } = usePhotosStore()
+  const { setFilter, getProductSelectedStats } = usePhotosStore()
   const { products } = useProductsStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [activeFixedOption, setActiveFixedOption] = useState<number>(0)
 
-  const { totalCount, selectCount, unselectedCount } = getPhotoState()
+  const { totalCount, selectedCount, unselectedCount } = getProductSelectedStats()
 
   // 固定选项数据 - 使用数字ID以匹配FixedOptionCard的接口
   const fixedOptions = useMemo(() => [
@@ -32,7 +32,7 @@ const ProductSidebar: FC = () => {
       optionId: 1,
       name: '已选照片',
       iconType: 'selected' as const,
-      photoCount: selectCount,
+      photoCount: selectedCount,
       description: '已添加到产品的照片',
       filterType: FILTER_TYPE.SELECTED,
     },
@@ -44,7 +44,7 @@ const ProductSidebar: FC = () => {
       description: '尚未添加到产品的照片',
       filterType: FILTER_TYPE.UNSELECTED,
     },
-  ], [totalCount, selectCount, unselectedCount])
+  ], [totalCount, selectedCount, unselectedCount])
 
   const handleFixedOptionClick = (optionId: number) => {
     const option = fixedOptions.find(opt => opt.optionId === optionId)
@@ -52,7 +52,7 @@ const ProductSidebar: FC = () => {
     if (option) {
       setActiveFixedOption(optionId)
       setSelectedProductId(null) // 取消产品选择
-      filterPhoto({ productId: undefined, filterType: option.filterType })
+      setFilter({ productId: undefined, filterType: option.filterType })
     }
   }
 
@@ -60,7 +60,7 @@ const ProductSidebar: FC = () => {
     console.log(productId)
     setSelectedProductId(productId)
     setActiveFixedOption(-1) // 取消固定选项选择
-    filterPhoto({ productId, filterType: FILTER_TYPE.SELECTED })
+    setFilter({ productId, filterType: FILTER_TYPE.SELECTED })
   }
 
   return (

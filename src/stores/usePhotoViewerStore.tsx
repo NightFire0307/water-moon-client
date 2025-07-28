@@ -30,7 +30,7 @@ export const usePhotoViewerStore = create<PhotoViewerState & PhotoViewerActions>
 
       next: (preSelectStatus = PreSelectStatus.SELECTED) => set((state) => {
         const photoStore = usePhotosStore.getState()
-        const { mode, setCurrentPhoto, preSelectedPhotos, setPreSelectedPhotoStatus, currentPhoto } = photoStore
+        const { mode, setCurrentPhoto, preSelectedPhotos, setPreSelectedPhotoStatus, currentPhoto, productSelectedPhotos } = photoStore
         // 处理当前照片为空
         if (currentPhoto === null) {
           console.error('当前没有照片可供查看')
@@ -54,6 +54,11 @@ export const usePhotoViewerStore = create<PhotoViewerState & PhotoViewerActions>
         }
         else if (mode === 'productSelect') {
           console.log('产品模式下一张')
+          // 获取下一张照片ID
+          const nextPhotoId = productSelectedPhotos[Math.min(state.currentIndex + 1, productSelectedPhotos.length - 1)].photoId
+
+          // 更新当前照片
+          // setCurrentPhoto(nextPhotoId)
         }
 
         return { currentIndex: 0 }

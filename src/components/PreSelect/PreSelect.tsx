@@ -1,11 +1,11 @@
 import type { FC } from 'react'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
-import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { StepHeader } from '../StepHeader/StepHeader'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import PreSelectionConfirmModal from './PreSelectionConfirmModal'
@@ -21,7 +21,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto } = usePhotosStore()
+  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, copyPreSelectedPhotos, setMode } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const navigate = useNavigate()
 
@@ -35,6 +35,21 @@ export const PreSelect: FC<PreSelectProps> = () => {
       document.exitFullscreen()
       setIsFullscreen(false)
     }
+  }
+
+  // 处理预选确认
+  const handlePreSelectConfirm = () => {
+    // 拷贝预选照片到产品选片
+    copyPreSelectedPhotos()
+
+    // 设置当前模式为产品选择
+    setMode('productSelect')
+
+    // // 设置当前索引为 null
+    // setCurrentPhoto(null)
+
+    // 跳转到产品选择页面
+    navigate('/product-select')
   }
 
   // 监听全屏状态变化
@@ -343,7 +358,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
       <PreSelectionConfirmModal
         open={preSelectConfirmModalOpen}
-        onConfirm={() => navigate('/product-select')}
+        onConfirm={() => handlePreSelectConfirm()}
         onCancel={() => setPreSelectConfirmModalOpen(false)}
       />
     </Layout>
