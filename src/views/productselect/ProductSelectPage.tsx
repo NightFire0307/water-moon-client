@@ -13,7 +13,7 @@ import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
 import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
-import { usePhotosStore } from '@/stores/usePhotosStore.tsx'
+import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 
 const { Content } = Layout
@@ -28,8 +28,35 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
-  const { getCurrentPhotoInfo } = usePhotosStore()
+  const { getCurrentPhotoInfo, productSelectedPhotos, filter } = usePhotosStore()
   const { next, previous } = usePhotoViewerStore()
+
+  const filteredPhotos = useMemo(() => {
+    const { productId, filterType } = filter
+
+    // 过滤指定产品的照片
+    if (filterType === FILTER_TYPE.SELECTED && productId !== undefined) {
+      return productSelectedPhotos.filter((photo) => {
+        return photo.selectedProducts.includes(productId)
+      })
+    }
+
+    // 过滤已选的照片
+    if (filterType === FILTER_TYPE.SELECTED && productId === undefined) {
+      return productSelectedPhotos.filter((photo) => {
+        return photo.selectedProducts.length > 0
+      })
+    }
+
+    // 过滤未选的照片
+    if (filterType === FILTER_TYPE.UNSELECTED && productId === undefined) {
+      return productSelectedPhotos.filter((photo) => {
+        return photo.selectedProducts.length === 0
+      })
+    }
+
+    return productSelectedPhotos
+  }, [filter, productSelectedPhotos])
 
   // 控制提示信息显示
   // 例如：当切换到最后一张照片时，显示提示信息
@@ -166,7 +193,7 @@ function ProductSelectPage() {
             <Content className="relative p-4">
               <ViewerControl transformRef={transformRef} />
               <MainViewer transformRef={transformRef} />
-              <ThumbnailBar photos={[]} />
+              <ThumbnailBar photos={filteredPhotos} />
             </Content>
           </Layout>
 

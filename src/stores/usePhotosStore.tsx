@@ -45,7 +45,6 @@ interface PhotosAction {
   setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
   setPhotoRemark: (remark: string) => void // 照片备注
   setFilter: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void // 设置过滤条件
-  getFilterProductPhotos: () => Photo[] // 获取过滤后的产品照片列表
   clearFilterPhotos: () => void // 清空过滤照片列表
   setLoading: (isLoading: boolean) => void // 设置加载状态
   restorePreviousPhotoData: (photoId: number) => void // 还原上一次的数据
@@ -210,38 +209,6 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         productSelectedPhotos: newFilteredPhotos,
       })
     },
-    getFilterProductPhotos: () => {
-      const state = get()
-      const { productId, filterType } = state.filter
-
-      // 过滤指定产品的照片
-      if (filterType === FILTER_TYPE.SELECTED && productId !== undefined) {
-        return state.productSelectedPhotos.filter((photo) => {
-          return photo.selectedProducts.includes(productId)
-        })
-      }
-
-      // 过滤已选的照片
-      if (filterType === FILTER_TYPE.SELECTED && productId === undefined) {
-        return state.productSelectedPhotos.filter((photo) => {
-          return photo.selectedProducts.length > 0
-        })
-      }
-
-      // 过滤未选的照片
-      if (filterType === FILTER_TYPE.UNSELECTED && productId === undefined) {
-        return state.productSelectedPhotos.filter((photo) => {
-          return photo.selectedProducts.length === 0
-        })
-      }
-
-      // 如果过滤后的照片不在当前照片列表中，重置当前照片
-      if (!state.productSelectedPhotos.some(photo => photo.photoId === state.currentPhoto?.photoId)) {
-        state.setCurrentPhoto(null)
-      }
-
-      return state.productSelectedPhotos
-    },
     setLoading: (isLoading: boolean) => (
       set(() => {
         return { isLoading }
@@ -290,6 +257,8 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           // 更新照片的产品选中状态
           // useProductsStore.getState().setDropdownMenuStatus(photo.selectedProducts)
         }
+
+        return state
       })
     },
     setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
