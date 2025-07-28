@@ -1,8 +1,8 @@
 import type { Photo } from '@/stores/usePhotosStore'
-import useMouseOver from '@/hooks/useMouseOver'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SimpleBar from 'simplebar-react'
+import useMouseOver from '@/hooks/useMouseOver'
 import { Thumbnail } from './Thumbnail'
 import 'simplebar-react/dist/simplebar.min.css'
 

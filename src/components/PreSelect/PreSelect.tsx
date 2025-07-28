@@ -63,49 +63,64 @@ export const PreSelect: FC<PreSelectProps> = () => {
   }, [])
 
   // 键盘快捷键
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      switch (e.key) {
-        case 'F11':
-          e.preventDefault()
-          toggleFullscreen()
-          break
-        case 'ArrowLeft':
-          e.preventDefault()
+  const handleKeyPress = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case 'F11':
+        e.preventDefault()
+        toggleFullscreen()
+        break
+      case 'ArrowLeft':
+        e.preventDefault()
+
+        // 如果当前是第一张照片，则不切换
+        if (currentIndex !== 0) {
+          const previousPhotoId = preSelectedPhotos[currentIndex - 1]?.photoId
+          setCurrentPhoto(previousPhotoId)
           previous()
-          break
-        case 'ArrowRight':
-          e.preventDefault()
+        }
+        break
+      case 'ArrowRight':
+        e.preventDefault()
 
+        // 如果当前是最后一张照片，则不切换
+        if (currentIndex !== preSelectedPhotos.length - 1) {
+          // 如果当前照片为 pending 则自动标记 selected
           if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
-            next(PreSelectStatus.SELECTED)
-          }
-          else {
-            next(currentPhoto?.preSelectStatus)
+            togglePreSelected(PreSelectStatus.SELECTED)
           }
 
-          break
-        case ' ':
-          e.preventDefault()
-          togglePreSelected(true)
+          const nextPhotoId = preSelectedPhotos[currentIndex + 1]?.photoId
+          setCurrentPhoto(nextPhotoId)
 
-          if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
-            next(PreSelectStatus.EXCLUDE)
-          }
-          else {
-            currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED
-              ? next(PreSelectStatus.EXCLUDE)
-              : next(PreSelectStatus.SELECTED)
-          }
-          break
-        default:
-          break
-      }
+          next()
+        }
+
+        break
+      case ' ':
+        e.preventDefault()
+        togglePreSelected(PreSelectStatus.EXCLUDE)
+        if (currentIndex !== preSelectedPhotos.length - 1) {
+          const nextPhotoId = preSelectedPhotos[currentIndex + 1]?.photoId
+          setCurrentPhoto(nextPhotoId)
+          next()
+        }
+
+        break
+      default:
+        break
     }
+  }
 
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [currentPhoto])
+  }, [currentPhoto, currentIndex])
+
+  useEffect(() => {
+    if (currentPhoto === null) {
+      setCurrentPhoto(preSelectedPhotos[0]?.photoId || null)
+    }
+  }, [currentPhoto, preSelectedPhotos])
 
   return (
     <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}>

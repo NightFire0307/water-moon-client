@@ -51,7 +51,7 @@ interface PhotosAction {
   getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number } // 获取当前照片信息
   setCurrentPhoto: (photoId: number | null) => void // 设置当前照片
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
-  togglePreSelected: (selected: boolean) => void // 设置预选标记
+  togglePreSelected: (preSelectStatus: PreSelectStatus) => void // 设置预选标记
   copyPreSelectedPhotos: () => void // 复制预选照片到产品选片
   getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
@@ -221,8 +221,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
 
       // 更新照片预选标记
       set({
-        currentPhoto: { ...state.currentPhoto, preSelectStatus },
-        originalPhotos: state.originalPhotos.map((photo) => {
+        preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
           if (photo.photoId === state.currentPhoto?.photoId) {
             return { ...photo, preSelectStatus }
           }
