@@ -122,12 +122,10 @@ function ProductSelectPage() {
   }, [handleKeydown])
 
   useEffect(() => {
-    console.log('ProductSelectPage mounted')
-    console.log(currentPhoto?.selectedProducts)
     if (currentPhoto === null) {
       setCurrentPhoto(productSelectedPhotos[0])
     }
-  }, [productSelectedPhotos, currentPhoto])
+  }, [productSelectedPhotos, currentPhoto, setDropdownMenuStatus])
 
   return (
     <PhotoViewerContext.Provider value={{
