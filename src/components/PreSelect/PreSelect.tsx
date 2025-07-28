@@ -1,11 +1,11 @@
 import type { FC } from 'react'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { StepHeader } from '../StepHeader/StepHeader'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import PreSelectionConfirmModal from './PreSelectionConfirmModal'
@@ -39,14 +39,22 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
   // 处理预选确认
   const handlePreSelectConfirm = () => {
+    // 处理预选边界情况，当下一步时，如果当前照片是 pending 状态，则自动标记为 selected
+    if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
+      togglePreSelected(PreSelectStatus.SELECTED)
+    }
+
     // 拷贝预选照片到产品选片
     copyPreSelectedPhotos()
 
+    // 设置当前索引为 null
+    setCurrentPhoto(null)
+
+    // 重置当前索引
+    setCurrentIndex(0)
+
     // 设置当前模式为产品选择
     setMode('productSelect')
-
-    // // 设置当前索引为 null
-    // setCurrentPhoto(null)
 
     // 跳转到产品选择页面
     navigate('/product-select')
@@ -74,23 +82,23 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
         // 如果当前是第一张照片，则不切换
         if (currentIndex !== 0) {
-          const previousPhotoId = preSelectedPhotos[currentIndex - 1]?.photoId
-          setCurrentPhoto(previousPhotoId)
+          const previousPhoto = preSelectedPhotos[currentIndex - 1]
+          setCurrentPhoto(previousPhoto)
           previous()
         }
         break
       case 'ArrowRight':
         e.preventDefault()
 
-        // 如果当前是最后一张照片，则不切换
-        if (currentIndex !== preSelectedPhotos.length - 1) {
+        // 如果index不是最后一张则切换到下一张
+        if (currentIndex < preSelectedPhotos.length - 1) {
           // 如果当前照片为 pending 则自动标记 selected
           if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
             togglePreSelected(PreSelectStatus.SELECTED)
           }
 
-          const nextPhotoId = preSelectedPhotos[currentIndex + 1]?.photoId
-          setCurrentPhoto(nextPhotoId)
+          const nextPhoto = preSelectedPhotos[currentIndex + 1]
+          setCurrentPhoto(nextPhoto)
 
           next()
         }
@@ -99,9 +107,9 @@ export const PreSelect: FC<PreSelectProps> = () => {
       case ' ':
         e.preventDefault()
         togglePreSelected(PreSelectStatus.EXCLUDE)
-        if (currentIndex !== preSelectedPhotos.length - 1) {
-          const nextPhotoId = preSelectedPhotos[currentIndex + 1]?.photoId
-          setCurrentPhoto(nextPhotoId)
+        if (currentIndex < preSelectedPhotos.length - 1) {
+          const nextPhoto = preSelectedPhotos[currentIndex + 1]
+          setCurrentPhoto(nextPhoto)
           next()
         }
 
@@ -117,8 +125,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
   }, [currentPhoto, currentIndex])
 
   useEffect(() => {
-    if (currentPhoto === null) {
-      setCurrentPhoto(preSelectedPhotos[0]?.photoId || null)
+    if (currentPhoto === null && preSelectedPhotos.length > 0) {
+      setCurrentPhoto(preSelectedPhotos[0])
     }
   }, [currentPhoto, preSelectedPhotos])
 
@@ -367,7 +375,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
         )}
         onClickThumbnail={(item, index) => {
           setCurrentIndex(index)
-          setCurrentPhoto(item.photoId)
+          setCurrentPhoto(item)
         }}
       />
 

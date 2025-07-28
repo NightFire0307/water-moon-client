@@ -1,9 +1,9 @@
-import type { IProduct } from './useProductsStore.tsx'
 import type { IPhoto } from '@/types/photos.ts'
-import { cloneDeep, filter } from 'lodash-es'
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import type { IProduct } from './useProductsStore.tsx'
 import { getOrderPhotos } from '@/apis/order.ts'
+import { cloneDeep } from 'lodash-es'
+import { create } from 'zustand'
+import { devtools, persist } from 'zustand/middleware'
 import { useProductsStore } from './useProductsStore.tsx'
 
 export interface Photo {
@@ -23,8 +23,9 @@ interface UsePhotosStore {
   productSelectedPhotos: Photo[] // 已选产品的照片列表
   currentPhoto: Photo | null // 当前照片
   isLoading: boolean // 是否正在加载照片
-  mode: 'preSelect' | 'productSelect' // 预选模式 和 产品模式
+  mode: 'preSelect' | 'productSelect' | 'submitted' // 预选模式 和 产品选片模式 和 已提交
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
+  dirty: boolean // 是否有未保存的更改
 }
 
 // 照片预选状态枚举
@@ -49,269 +50,259 @@ interface PhotosAction {
   setLoading: (isLoading: boolean) => void // 设置加载状态
   restorePreviousPhotoData: (photoId: number) => void // 还原上一次的数据
   getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number } // 获取当前照片信息
-  setCurrentPhoto: (photoId: number | null) => void // 设置当前照片
+  setCurrentPhoto: (currentPhoto: Photo | null) => void // 设置当前照片
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
   togglePreSelected: (preSelectStatus: PreSelectStatus) => void // 设置预选标记
   copyPreSelectedPhotos: () => void // 复制预选照片到产品选片
   getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
   setMode: (mode: 'preSelect' | 'productSelect') => void // 设置当前模式
+  setDirty: (dirty: boolean) => void // 设置是否有未保存的更改
 }
 
 const BATCH_SIZE = 10
 
 export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
-  devtools((set, get) => ({
-    originalPhotos: [],
-    preSelectedPhotos: [],
-    productSelectedPhotos: [],
-    currentPhoto: null,
-    isLoading: true,
-    mode: 'preSelect',
-    filter: {
-      productId: undefined,
-      filterType: FILTER_TYPE.ALL,
-    },
-    fetchPhotos: async () => {
-      const state = get()
-      // 设置加载状态
-      set({ isLoading: true })
+  persist(
 
-      try {
-        const products = useProductsStore.getState().products
-        const { data } = await getOrderPhotos()
-        const allList = data.list
-        const photos: Photo[] = []
+    devtools((set, get) => ({
+      originalPhotos: [],
+      preSelectedPhotos: [],
+      productSelectedPhotos: [],
+      currentPhoto: null,
+      isLoading: true,
+      mode: 'preSelect',
+      filter: {
+        productId: undefined,
+        filterType: FILTER_TYPE.ALL,
+      },
+      fetchPhotos: async () => {
+        const state = get()
+        // 设置加载状态
+        set({ isLoading: true })
 
-        // 创建照片对象的公共方法
-        const createPhotoObject = (photo: IPhoto, products: IProduct[]): Photo => {
-          const selectedProducts = products.filter(p => p.selectedPhotoIds.includes(photo.id))
+        try {
+          const products = useProductsStore.getState().products
+          const { data } = await getOrderPhotos()
+          const allList = data.list
+          const photos: Photo[] = []
 
-          return {
-            photoId: photo.id,
-            thumbnail_url: photo.thumbnail_url,
-            original_url: photo.original_url,
-            name: photo.file_name,
-            remark: photo.remark ?? '',
-            isRecommend: photo.is_recommend,
-            selectedProducts: selectedProducts.map(p => p.productId),
-            preSelectStatus: PreSelectStatus.PENDING, // 默认状态为待处理
-          }
-        }
+          // 创建照片对象的公共方法
+          const createPhotoObject = (photo: IPhoto, products: IProduct[]): Photo => {
+            const selectedProducts = products.filter(p => p.selectedPhotoIds.includes(photo.id))
 
-        // 第一阶段：使用rAF加载首屏可见照片（高优先级）
-        const loadInitialBatch = () => {
-          const initialBatch = allList.slice(0, BATCH_SIZE)
-
-          for (const photo of initialBatch) {
-            photos.push(createPhotoObject(photo, products))
-          }
-
-          set({ originalPhotos: photos, isLoading: false, preSelectedPhotos: cloneDeep(photos) })
-
-          // 调试数据
-          // set({ productSelectedPhotos: [...photos] })
-
-          // 设置当前照片为首个预选照片
-          // state.setCurrentPhoto(photos[0].photoId)
-
-          // 启动第二阶段空闲时加载
-          if (allList.length > BATCH_SIZE) {
-            requestIdleCallback(() => loadRemainingPhotos(BATCH_SIZE), { timeout: 1000 })
-          }
-        }
-
-        // 第二阶段：使用rIC加载剩余照片（低优先级）
-        function loadRemainingPhotos(startIndex: number) {
-          const idleCallback = (deadline: IdleDeadline) => {
-            const batch: Photo[] = []
-            let i = startIndex
-
-            // 在空闲时间内处理尽可能多的照片
-            while (i < allList.length && (deadline.timeRemaining() > 0 || deadline.didTimeout)) {
-              batch.push(createPhotoObject(allList[i], products))
-              i++
-            }
-
-            // 更新状态
-            if (batch.length > 0) {
-              set(state => ({
-                originalPhotos: [...state.originalPhotos, ...batch],
-              }))
-            }
-
-            // 如果还有剩余照片，继续调度
-            if (i < allList.length) {
-              requestIdleCallback(() => loadRemainingPhotos(i), { timeout: 1000 })
+            return {
+              photoId: photo.id,
+              thumbnail_url: photo.thumbnail_url,
+              original_url: photo.original_url,
+              name: photo.file_name,
+              remark: photo.remark ?? '',
+              isRecommend: photo.is_recommend,
+              selectedProducts: selectedProducts.map(p => p.productId),
+              preSelectStatus: PreSelectStatus.PENDING, // 默认状态为待处理
             }
           }
 
-          requestIdleCallback(idleCallback, { timeout: 1000 })
+          // 第一阶段：使用rAF加载首屏可见照片（高优先级）
+          const loadInitialBatch = () => {
+            const initialBatch = allList.slice(0, BATCH_SIZE)
+
+            for (const photo of initialBatch) {
+              photos.push(createPhotoObject(photo, products))
+            }
+
+            set({ originalPhotos: photos, isLoading: false, preSelectedPhotos: cloneDeep(photos) })
+
+            // 启动第二阶段空闲时加载
+            if (allList.length > BATCH_SIZE) {
+              requestIdleCallback(() => loadRemainingPhotos(BATCH_SIZE), { timeout: 1000 })
+            }
+          }
+
+          // 第二阶段：使用rIC加载剩余照片（低优先级）
+          function loadRemainingPhotos(startIndex: number) {
+            const idleCallback = (deadline: IdleDeadline) => {
+              const batch: Photo[] = []
+              let i = startIndex
+
+              // 在空闲时间内处理尽可能多的照片
+              while (i < allList.length && (deadline.timeRemaining() > 0 || deadline.didTimeout)) {
+                batch.push(createPhotoObject(allList[i], products))
+                i++
+              }
+
+              // 更新状态
+              if (batch.length > 0) {
+                set(state => ({
+                  originalPhotos: [...state.originalPhotos, ...batch],
+                }))
+              }
+
+              // 如果还有剩余照片，继续调度
+              if (i < allList.length) {
+                requestIdleCallback(() => loadRemainingPhotos(i), { timeout: 1000 })
+              }
+            }
+
+            requestIdleCallback(idleCallback, { timeout: 1000 })
+          }
+
+          // 启动初始加载
+          requestAnimationFrame(loadInitialBatch)
         }
+        catch (error) {
+          console.error('Failed to fetch photos:', error)
+          set({ isLoading: false })
+        }
+      },
+      setPhotoSelectedProducts: (photoId, productIds) => {
+        set((state) => {
+          const photo = state.productSelectedPhotos.find(p => p.photoId === photoId)
 
-        // 启动初始加载
-        requestAnimationFrame(loadInitialBatch)
-      }
-      catch (error) {
-        console.error('Failed to fetch photos:', error)
-        set({ isLoading: false })
-      }
-    },
-    setPhotoSelectedProducts: (photoId, productIds) => {
-      set((state) => {
-        const photo = state.originalPhotos.find(p => p.photoId === photoId)
+          if (!photo) {
+            console.error(`Photo with ID ${photoId} not found`)
+            return state
+          }
 
-        if (!photo) {
-          console.error(`Photo with ID ${photoId} not found`)
+          // 更新选中的产品ID
+          photo.selectedProducts = productIds
+
+          // 如果当前照片是被选中的，更新currentPhoto
+          if (state.currentPhoto?.photoId === photoId) {
+            state.currentPhoto = { ...photo }
+          }
+
+          return { productSelectedPhotos: [...state.productSelectedPhotos] }
+        })
+      },
+      setPhotoRemark: (remark: string) => {
+        const state = get()
+
+        if (!state.currentPhoto) {
           return state
         }
 
-        // 更新选中的产品ID
-        photo.selectedProducts = productIds
+        // 更新当前照片的备注
+        const updatedPhoto = { ...state.currentPhoto, remark }
 
-        // 如果当前照片是被选中的，更新currentPhoto
-        if (state.currentPhoto?.photoId === photoId) {
-          state.currentPhoto = { ...photo }
-        }
-
-        return { originalPhotos: [...state.originalPhotos] }
-      })
-    },
-    setPhotoRemark: (remark: string) => {
-      const state = get()
-
-      if (!state.currentPhoto) {
-        return state
-      }
-
-      // 更新当前照片的备注
-      const updatedPhoto = { ...state.currentPhoto, remark }
-
-      // 更新原始照片列表数据
-      const newPhotos = state.originalPhotos.map((photo) => {
-        if (photo.photoId === state.currentPhoto?.photoId) {
-          return { ...photo, remark }
-        }
-        return photo
-      })
-
-      // 更新过滤后的照片列表数据
-      const newFilteredPhotos = state.productSelectedPhotos.map((photo) => {
-        if (photo.photoId === state.currentPhoto?.photoId) {
-          return { ...photo, remark }
-        }
-        return photo
-      })
-
-      set({
-        currentPhoto: updatedPhoto,
-        originalPhotos: newPhotos,
-        productSelectedPhotos: newFilteredPhotos,
-      })
-    },
-    setLoading: (isLoading: boolean) => (
-      set(() => {
-        return { isLoading }
-      })
-    ),
-    togglePreSelected: (preSelectStatus: PreSelectStatus) => {
-      const state = get()
-      if (!state.currentPhoto)
-        return state
-
-      // 更新照片预选标记
-      set({
-        preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
+        // 更新原始照片列表数据
+        const newPhotos = state.originalPhotos.map((photo) => {
           if (photo.photoId === state.currentPhoto?.photoId) {
-            return { ...photo, preSelectStatus }
+            return { ...photo, remark }
           }
           return photo
-        }),
-      })
-    },
-    getCurrentPhotoInfo: () => {
-      const state = get()
-      const currentIndex = state.productSelectedPhotos.findIndex(photo =>
-        photo.photoId === state.currentPhoto?.photoId,
-      )
+        })
 
-      return {
-        currentIndex: currentIndex === -1 ? 0 : currentIndex, // 返回正确的索引，未找到时返回0
-        name: state.currentPhoto?.name ?? '',
-        totalCount: state.productSelectedPhotos.length,
-      }
-    },
-    setCurrentPhoto: (photoId) => {
-      set((state) => {
-        let currentPhoto: Photo | null = null
-
-        // 判断当前模式
-        if (state.mode === 'preSelect') {
-          currentPhoto = state.preSelectedPhotos.find(p => p.photoId === photoId) ?? null
-
-          return { currentPhoto }
-        }
-        else if (state.mode === 'productSelect') {
-          currentPhoto = state.productSelectedPhotos.find(p => p.photoId === photoId) ?? null
-          // 更新照片的产品选中状态
-          // useProductsStore.getState().setDropdownMenuStatus(photo.selectedProducts)
-        }
-
-        return state
-      })
-    },
-    setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
-      const photoIndex = state.preSelectedPhotos.findIndex(photo => photo.photoId === photoId)
-      if (photoIndex === -1) {
-        console.error(`Photo with ID ${photoId} not found in preSelectedPhotos`)
-        return state
-      }
-
-      return {
-        preSelectedPhotos: state.preSelectedPhotos.map((photo, index) => {
-          if (index === photoIndex) {
-            return { ...photo, preSelectStatus }
+        // 更新过滤后的照片列表数据
+        const newFilteredPhotos = state.productSelectedPhotos.map((photo) => {
+          if (photo.photoId === state.currentPhoto?.photoId) {
+            return { ...photo, remark }
           }
           return photo
-        }),
-      }
+        })
+
+        set({
+          currentPhoto: updatedPhoto,
+          originalPhotos: newPhotos,
+          productSelectedPhotos: newFilteredPhotos,
+        })
+      },
+      setLoading: (isLoading: boolean) => (
+        set(() => {
+          return { isLoading }
+        })
+      ),
+      togglePreSelected: (preSelectStatus: PreSelectStatus) => {
+        const state = get()
+        if (!state.currentPhoto)
+          return state
+
+        // 更新照片预选标记
+        set({
+          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
+            if (photo.photoId === state.currentPhoto?.photoId) {
+              return { ...photo, preSelectStatus }
+            }
+            return photo
+          }),
+        })
+      },
+      getCurrentPhotoInfo: () => {
+        const state = get()
+        const currentIndex = state.productSelectedPhotos.findIndex(photo =>
+          photo.photoId === state.currentPhoto?.photoId,
+        )
+
+        return {
+          currentIndex: currentIndex === -1 ? 0 : currentIndex, // 返回正确的索引，未找到时返回0
+          name: state.currentPhoto?.name ?? '',
+          totalCount: state.productSelectedPhotos.length,
+        }
+      },
+      setCurrentPhoto: currentPhoto => set({ currentPhoto }),
+      setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
+        const photoIndex = state.preSelectedPhotos.findIndex(photo => photo.photoId === photoId)
+        if (photoIndex === -1) {
+          console.error(`Photo with ID ${photoId} not found in preSelectedPhotos`)
+          return state
+        }
+
+        return {
+          preSelectedPhotos: state.preSelectedPhotos.map((photo, index) => {
+            if (index === photoIndex) {
+              return { ...photo, preSelectStatus }
+            }
+            return photo
+          }),
+        }
+      }),
+      // 获取产品选片的统计信息
+      getProductSelectedStats: () => {
+        const state = get()
+        const totalCount = state.productSelectedPhotos.length
+        const selectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length > 0).length
+        const unselectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length === 0).length
+
+        return {
+          selectedCount,
+          unselectedCount,
+          totalCount,
+        }
+      },
+      // 获取预选照片的统计信息
+      getPreSelectedStats: () => {
+        const state = get()
+        const selectedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED).length
+        const excludedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.EXCLUDE).length
+        const pendingCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.PENDING).length
+
+        return {
+          selectedCount,
+          excludedCount,
+          pendingCount,
+        }
+      },
+      // 复制预选中的照片到产品选片
+      copyPreSelectedPhotos: () => {
+        const state = get()
+        const productSelectedPhotos = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
+
+        set({ productSelectedPhotos })
+      },
+      setMode: mode => set({ mode }),
+      setFilter: filter => set({ filter }),
+    }), {
+      name: 'photos-store',
     }),
-    // 获取产品选片的统计信息
-    getProductSelectedStats: () => {
-      const state = get()
-      const totalCount = state.productSelectedPhotos.length
-      const selectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length > 0).length
-      const unselectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length === 0).length
-
-      return {
-        selectedCount,
-        unselectedCount,
-        totalCount,
-      }
+    {
+      name: 'photos-storage',
+      partialize: (state) => {
+        return {
+          originalPhotos: state.originalPhotos,
+          preSelectedPhotos: state.preSelectedPhotos,
+          productSelectedPhotos: state.productSelectedPhotos,
+        }
+      },
     },
-    // 获取预选照片的统计信息
-    getPreSelectedStats: () => {
-      const state = get()
-      const selectedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED).length
-      const excludedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.EXCLUDE).length
-      const pendingCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.PENDING).length
-
-      return {
-        selectedCount,
-        excludedCount,
-        pendingCount,
-      }
-    },
-    // 复制预选中的照片到产品选片
-    copyPreSelectedPhotos: () => {
-      const state = get()
-      const productSelectedPhotos = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
-
-      set({ productSelectedPhotos })
-    },
-    setMode: mode => set({ mode }),
-    setFilter: filter => set({ filter }),
-  }), {
-    name: 'photos-store',
-  }),
+  ),
 )

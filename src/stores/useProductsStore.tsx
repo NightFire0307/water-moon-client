@@ -32,12 +32,11 @@ interface ProductState {
 }
 
 interface ProductActions {
-  generateProducts: (orderProducts: IOrderProduct[]) => void
-  generateDropdownItems: (products: IProduct[]) => void
+  generateProducts: (orderProducts: IOrderProduct[]) => void // 生成产品列表
+  generateDropdownItems: (products: IProduct[]) => void // 生成下拉菜单项
   setSelectedPhotoIds: (productId: number, photoId: number) => void
-  dropdownMenuClick: ({ key }: { key: string }) => void
-  // 设置下拉菜单状态(当切换照片时需要调用一次)
-  setDropdownMenuStatus: (selectedProducts: number[]) => void
+  dropdownMenuClick: ({ key }: { key: string }) => void // 下拉菜单点击事件
+  setDropdownMenuStatus: (selectedProducts: number[]) => void // 设置下拉菜单状态(当切换照片时需要调用一次)
 }
 
 export const useProductsStore = create<ProductState & ProductActions>()(

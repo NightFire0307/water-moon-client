@@ -1,7 +1,7 @@
 import type { FC } from 'react'
+import PreSelect from '@/components/PreSelect/PreSelect'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import PreSelect from '@/components/PreSelect/PreSelect'
 
 const PreSelectPage: FC = () => {
   return (

@@ -1,11 +1,4 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { RightOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Layout } from 'antd'
-import { Header } from 'antd/es/layout/layout'
-import Sider from 'antd/es/layout/Sider'
-import zhCN from 'antd/locale/zh_CN'
-import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -15,6 +8,14 @@ import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { useProductsStore } from '@/stores/useProductsStore'
+import { RightOutlined } from '@ant-design/icons'
+import { Button, ConfigProvider, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import zhCN from 'antd/locale/zh_CN'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const { Content } = Layout
 
@@ -28,8 +29,9 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
-  const { getCurrentPhotoInfo, productSelectedPhotos, filter } = usePhotosStore()
-  const { next, previous } = usePhotoViewerStore()
+  const { getCurrentPhotoInfo, productSelectedPhotos, filter, currentPhoto, setCurrentPhoto } = usePhotosStore()
+  const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
+  const { setDropdownMenuStatus, setSelectedPhotoIds } = useProductsStore()
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
@@ -71,11 +73,6 @@ function ProductSelectPage() {
   }, [])
 
   const handleKeydown = useCallback((e: KeyboardEvent) => {
-    // 如果键盘被禁用，则不处理按键事件
-    if (keyboardDisabled) {
-      return
-    }
-
     // 避免在输入框中触发
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       return
@@ -85,25 +82,35 @@ function ProductSelectPage() {
 
     switch (e.key) {
       case 'ArrowLeft':
-        if (currentIndex === 0) {
-          showConditionTip('已经是第一张了')
+        e.preventDefault()
+        if (currentIndex !== 0) {
+          const previousPhoto = filteredPhotos[currentIndex - 1]
+          setCurrentPhoto(previousPhoto)
+          setDropdownMenuStatus(previousPhoto.selectedProducts)
+          previous()
         }
         else {
-          previous()
+          showConditionTip('已经是第一张照片了')
         }
         break
       case 'ArrowRight':
-        if (currentIndex === totalCount - 1) {
-          showConditionTip('已是最后一张照片')
-        }
-        else {
+        e.preventDefault()
+        if (currentIndex < filteredPhotos.length - 1) {
+          const nextPhoto = filteredPhotos[currentIndex + 1]
+
+          setCurrentPhoto(nextPhoto)
+          setDropdownMenuStatus(nextPhoto.selectedProducts)
           next()
         }
+        else {
+          showConditionTip('已经是最后一张照片了')
+        }
+
         break
       default:
         break
     }
-  }, [keyboardDisabled, previous, next, getCurrentPhotoInfo, showConditionTip])
+  }, [previous, next, getCurrentPhotoInfo, showConditionTip])
 
   // 全局按键事件
   useEffect(() => {
@@ -113,6 +120,14 @@ function ProductSelectPage() {
       window.removeEventListener('keydown', handleKeydown)
     }
   }, [handleKeydown])
+
+  useEffect(() => {
+    console.log('ProductSelectPage mounted')
+    console.log(currentPhoto?.selectedProducts)
+    if (currentPhoto === null) {
+      setCurrentPhoto(productSelectedPhotos[0])
+    }
+  }, [productSelectedPhotos, currentPhoto])
 
   return (
     <PhotoViewerContext.Provider value={{
@@ -193,11 +208,21 @@ function ProductSelectPage() {
             <Content className="relative p-4">
               <ViewerControl transformRef={transformRef} />
               <MainViewer transformRef={transformRef} />
-              <ThumbnailBar photos={filteredPhotos} />
+              <ThumbnailBar
+                photos={filteredPhotos}
+                currentIndex={currentIndex}
+                onClickThumbnail={(item, index) => {
+                  setCurrentIndex(index)
+                  setCurrentPhoto(item)
+                }}
+              />
+              <ConditionTip
+                visible={conditionTipState.visible}
+                msg={conditionTipState.msg}
+                centered
+              />
             </Content>
           </Layout>
-
-          <ConditionTip visible={conditionTipState.visible} msg={conditionTipState.msg} centered />
         </Layout>
       </ConfigProvider>
 
