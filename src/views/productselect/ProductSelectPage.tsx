@@ -1,6 +1,6 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { RightOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Layout } from 'antd'
+import { ExclamationCircleOutlined, RightOutlined } from '@ant-design/icons'
+import { Button, ConfigProvider, Layout, Modal, Typography } from 'antd'
 import { Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import zhCN from 'antd/locale/zh_CN'
@@ -18,12 +18,14 @@ import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 
 const { Content } = Layout
+const { Text } = Typography
 
 function ProductSelectPage() {
   const [thumbnailVisible, setThumbnailVisible] = useState(false)
   const [viewerControlVisible, setViewerControlVisible] = useState(true)
   const [productSidebarVisible, setProductSidebarVisible] = useState(false)
   const [keyboardDisabled, setKeyboardDisabled] = useState(false)
+  const [submitModalVisible, setSubmitModalVisible] = useState(false)
   const [conditionTipState, setConditionTipState] = useState({
     visible: false,
     msg: '',
@@ -32,6 +34,16 @@ function ProductSelectPage() {
   const { productSelectedPhotos, filter, currentPhoto, setCurrentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
+
+  // 模拟数据 - 实际使用时应该从store获取
+  const mockStats = {
+    totalProducts: 5,
+    assignedPhotos: 28,
+    unassignedPhotos: 12, // 修改为0可以测试无警告状态
+  }
+
+  // 是否有未分配的照片
+  const hasUnassignedPhotos = mockStats.unassignedPhotos > 0
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
@@ -188,8 +200,15 @@ function ProductSelectPage() {
               <div
                 className="flex items-center justify-between px-4 py-2"
               >
-                <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
-                <Button type="primary">
+                <div className="flex items-end gap-4">
+                  <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
+                  <div className="flex flex-col text-xs text-darkBlueGray-400 mb-0.5">
+                    <span>最近保存时间</span>
+                    <span>2025-07-29 16:27:16</span>
+                  </div>
+                </div>
+
+                <Button type="primary" onClick={() => setSubmitModalVisible(true)}>
                   下一步：提交选片结果
                   <RightOutlined />
                 </Button>
@@ -224,6 +243,126 @@ function ProductSelectPage() {
             </Content>
           </Layout>
         </Layout>
+
+        {/* 提交选片结果Modal */}
+        <Modal
+          open={submitModalVisible}
+          title="确认提交选片结果"
+          onOk={() => {
+            // TODO: 实际提交逻辑
+            setSubmitModalVisible(false)
+          }}
+          onCancel={() => setSubmitModalVisible(false)}
+          centered
+          width={480}
+          footer={[
+            <Button
+              key="cancel"
+              onClick={() => setSubmitModalVisible(false)}
+              className="mr-2"
+            >
+              取消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              disabled={hasUnassignedPhotos}
+              onClick={() => {
+                // TODO: 实际提交逻辑
+                setSubmitModalVisible(false)
+              }}
+            >
+              {hasUnassignedPhotos ? '请先完成照片分配' : '确认提交'}
+            </Button>,
+          ]}
+        >
+          <div className="py-4">
+            {/* 提示信息 */}
+            {hasUnassignedPhotos
+              ? (
+                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <ExclamationCircleOutlined className="text-red-400 text-lg mt-0.5" />
+                      <div>
+                        <div className="text-red-200 font-medium mb-1">警告：还有未分配的照片</div>
+                        <div className="text-red-300 text-sm leading-relaxed">
+                          检测到还有
+                          {' '}
+                          {mockStats.unassignedPhotos}
+                          {' '}
+                          张照片未分配给任何产品。
+                          请完成所有照片的分配后再提交，或确认这些照片不需要分配。
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              : (
+                  <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <ExclamationCircleOutlined className="text-green-400 text-lg mt-0.5" />
+                      <div>
+                        <div className="text-green-200 font-medium mb-1">选片完成</div>
+                        <div className="text-green-300 text-sm leading-relaxed">
+                          所有照片已完成分配，可以提交选片结果。
+                          系统将自动保存您的选择并生成最终的选片报告。
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+            {/* 选片统计信息 */}
+            <div className="space-y-4">
+              <div className="text-slate-200 font-medium mb-3">选片统计</div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-slate-700/30 rounded-lg p-3">
+                  <div className="text-slate-400 text-sm">产品总数</div>
+                  <div className="text-blue-400 text-xl font-bold">{mockStats.totalProducts}</div>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-lg p-3">
+                  <div className="text-slate-400 text-sm">已分配照片</div>
+                  <div className="text-green-400 text-xl font-bold">{mockStats.assignedPhotos}</div>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-lg p-3">
+                  <div className="text-slate-400 text-sm">未分配照片</div>
+                  <div className={`text-xl font-bold ${hasUnassignedPhotos ? 'text-red-400' : 'text-gray-400'}`}>
+                    {mockStats.unassignedPhotos}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-700/30 rounded-lg p-3">
+                <div className="text-slate-400 text-sm mb-2">产品选片详情</div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between text-slate-300">
+                    <span>• 产品A - 婚纱照</span>
+                    <span className="text-blue-400">12张</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>• 产品B - 艺术照</span>
+                    <span className="text-blue-400">8张</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>• 产品C - 生活照</span>
+                    <span className="text-blue-400">8张</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>• 产品D - 写真</span>
+                    <span className="text-gray-400">0张</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>• 产品E - 全家福</span>
+                    <span className="text-gray-400">0张</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
       </ConfigProvider>
 
     </PhotoViewerContext.Provider>
