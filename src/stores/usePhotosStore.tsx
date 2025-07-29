@@ -1,9 +1,9 @@
-import type { IProduct } from './useProductsStore.tsx'
 import type { IPhoto } from '@/types/photos.ts'
+import type { IProduct } from './useProductsStore.tsx'
+import { getOrderPhotos } from '@/apis/order.ts'
 import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import { getOrderPhotos } from '@/apis/order.ts'
 import { useProductsStore } from './useProductsStore.tsx'
 
 export interface Photo {

@@ -15,14 +15,15 @@ const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCanc
   return (
     <Modal
       {...reset}
+      title={null}
       closeIcon={null}
-      footer={footer}
+      footer={null}
     >
       <div className="text-darkBlueGray-200 mb-4">
         <div className="relative">
           <div className="font-bold text-xl text-center">{title}</div>
           {
-            closeIcon !== null && <Button className="absolute top-0 right-0" icon={<CloseOutlined />} shape="circle" onClick={() => onCancel?.()} />
+            closeIcon !== null && <Button className="absolute top-0 right-0" icon={<CloseOutlined />} onClick={() => onCancel?.()} />
           }
         </div>
         {
@@ -32,14 +33,11 @@ const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCanc
 
       {children}
 
-      {
-        footer === null && (
-          <div className="flex justify-end gap-2 mt-4">
-            <Button onClick={onCancel}>取消</Button>
-            <Button onClick={() => onOk && onOk()} disabled={disabledOk ?? false}>{ okText || '确定'}</Button>
-          </div>
-        )
-      }
+      <div className="flex justify-end gap-2 mt-4">
+        <Button onClick={onCancel}>取消</Button>
+        <Button onClick={() => onOk && onOk()} disabled={disabledOk ?? false}>{ okText || '确定'}</Button>
+      </div>
+
     </Modal>
   )
 }
