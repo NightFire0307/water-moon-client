@@ -126,6 +126,7 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
           setKeyboardDisabled(false)
           form.resetFields()
         }}
+        footer={null}
       >
         <Form form={form}>
           <Form.Item name="remark">

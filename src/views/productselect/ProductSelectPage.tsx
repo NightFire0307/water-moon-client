@@ -29,7 +29,7 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
-  const { getCurrentPhotoInfo, productSelectedPhotos, filter, currentPhoto, setCurrentPhoto } = usePhotosStore()
+  const { productSelectedPhotos, filter, currentPhoto, setCurrentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
 
@@ -83,8 +83,6 @@ function ProductSelectPage() {
       return
     }
 
-    const { currentIndex, totalCount } = getCurrentPhotoInfo()
-
     switch (e.key) {
       case 'ArrowLeft':
         e.preventDefault()
@@ -102,7 +100,6 @@ function ProductSelectPage() {
         e.preventDefault()
         if (currentIndex < filteredPhotos.length - 1) {
           const nextPhoto = filteredPhotos[currentIndex + 1]
-
           setCurrentPhoto(nextPhoto)
           setDropdownMenuStatus(nextPhoto.selectedProducts)
           next()
@@ -115,7 +112,7 @@ function ProductSelectPage() {
       default:
         break
     }
-  }, [previous, next, getCurrentPhotoInfo, showConditionTip])
+  }, [currentIndex, filteredPhotos, next, previous, setCurrentPhoto, setDropdownMenuStatus, showConditionTip])
 
   // 全局按键事件
   useEffect(() => {

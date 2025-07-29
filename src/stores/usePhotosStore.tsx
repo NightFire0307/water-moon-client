@@ -1,9 +1,9 @@
-import type { IPhoto } from '@/types/photos.ts'
 import type { IProduct } from './useProductsStore.tsx'
-import { getOrderPhotos } from '@/apis/order.ts'
+import type { IPhoto } from '@/types/photos.ts'
 import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import { getOrderPhotos } from '@/apis/order.ts'
 import { useProductsStore } from './useProductsStore.tsx'
 
 export interface Photo {
@@ -49,7 +49,6 @@ interface PhotosAction {
   clearFilterPhotos: () => void // 清空过滤照片列表
   setLoading: (isLoading: boolean) => void // 设置加载状态
   restorePreviousPhotoData: (photoId: number) => void // 还原上一次的数据
-  getCurrentPhotoInfo: () => { currentIndex: number, name: string, totalCount: number } // 获取当前照片信息
   setCurrentPhoto: (currentPhoto: Photo | null) => void // 设置当前照片
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
   togglePreSelected: (preSelectStatus: PreSelectStatus) => void // 设置预选标记
@@ -185,15 +184,7 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
         // 更新当前照片的备注
         const updatedPhoto = { ...state.currentPhoto, remark }
 
-        // 更新原始照片列表数据
-        const newPhotos = state.originalPhotos.map((photo) => {
-          if (photo.photoId === state.currentPhoto?.photoId) {
-            return { ...photo, remark }
-          }
-          return photo
-        })
-
-        // 更新过滤后的照片列表数据
+        // 更新产品列表数据
         const newFilteredPhotos = state.productSelectedPhotos.map((photo) => {
           if (photo.photoId === state.currentPhoto?.photoId) {
             return { ...photo, remark }
@@ -203,7 +194,6 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
 
         set({
           currentPhoto: updatedPhoto,
-          originalPhotos: newPhotos,
           productSelectedPhotos: newFilteredPhotos,
         })
       },
@@ -226,18 +216,6 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
             return photo
           }),
         })
-      },
-      getCurrentPhotoInfo: () => {
-        const state = get()
-        const currentIndex = state.productSelectedPhotos.findIndex(photo =>
-          photo.photoId === state.currentPhoto?.photoId,
-        )
-
-        return {
-          currentIndex: currentIndex === -1 ? 0 : currentIndex, // 返回正确的索引，未找到时返回0
-          name: state.currentPhoto?.name ?? '',
-          totalCount: state.productSelectedPhotos.length,
-        }
       },
       setCurrentPhoto: currentPhoto => set({ currentPhoto }),
       setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
