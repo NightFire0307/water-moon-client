@@ -1,4 +1,11 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import { RightOutlined } from '@ant-design/icons'
+import { Button, ConfigProvider, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import zhCN from 'antd/locale/zh_CN'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -9,13 +16,6 @@ import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore.tsx'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
-import { RightOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Layout } from 'antd'
-import { Header } from 'antd/es/layout/layout'
-import Sider from 'antd/es/layout/Sider'
-import zhCN from 'antd/locale/zh_CN'
-import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const { Content } = Layout
 
@@ -31,7 +31,7 @@ function ProductSelectPage() {
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
   const { getCurrentPhotoInfo, productSelectedPhotos, filter, currentPhoto, setCurrentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
-  const { setDropdownMenuStatus, setSelectedPhotoIds } = useProductsStore()
+  const { setDropdownMenuStatus } = useProductsStore()
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
@@ -59,6 +59,11 @@ function ProductSelectPage() {
 
     return productSelectedPhotos
   }, [filter, productSelectedPhotos])
+
+  // 监听过滤后的照片变化，自动设置当前第一张照片
+  useEffect(() => {
+    setCurrentPhoto(filteredPhotos[0] || null)
+  }, [filteredPhotos, setCurrentPhoto])
 
   // 控制提示信息显示
   // 例如：当切换到最后一张照片时，显示提示信息

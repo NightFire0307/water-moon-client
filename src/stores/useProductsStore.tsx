@@ -1,10 +1,19 @@
 import type { IOrderProduct } from '@/types/order.ts'
-import { updateOrderPhotos } from '@/apis/order.ts'
-import { CheckOutlined } from '@ant-design/icons'
 import { message } from 'antd'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import { updateOrderPhotos } from '@/apis/order.ts'
 import { usePhotosStore } from './usePhotosStore'
+
+/**
+ * 服务端数据和本地数据同步逻辑：
+ * 1. 当从服务端拉取数据时，比对 updatedAt 字段，如果服务端数据的 updatedAt 大于本地数据，则更新本地数据，如果小于，则优先保留本地数据。
+ * 2. 当 dirty 状态为 true 时，表示有未提交的更改，此时需要在用户提交时调用 updateOrderPhotos 接口将本地数据同步到服务端。
+ * 3. 在提交后，将 dirty 状态重置为 false，并更新本地
+ *
+ * 解决问题：
+ * 1. 用户可能断网或刷新页面
+ */
 
 export interface IType {
   id: number
@@ -19,6 +28,7 @@ export interface IProduct {
   selectedPhotoIds: number[]
   allowOverLimit: boolean
   remark: string
+  updatedAt?: number // 本地最后一次更新时间
 }
 
 interface ProductState {
@@ -26,9 +36,10 @@ interface ProductState {
   productMenu: {
     key: string
     label: string
-    icon?: React.ReactNode
+    isSelected?: boolean // 是否选中
     extra?: string
   }[]
+  dirty: boolean // 是否有未提交的更改
 }
 
 interface ProductActions {
@@ -37,30 +48,43 @@ interface ProductActions {
   setSelectedPhotoIds: (productId: number, photoId: number) => void // 产品设置选中照片ID
   dropdownMenuClick: ({ key }: { key: string }) => void // 下拉菜单点击事件
   setDropdownMenuStatus: (selectedProducts: number[]) => void // 设置下拉菜单状态(当切换照片时需要调用一次)
+  setDirty: (dirty: boolean) => void // 设置是否有未提交的更改
 }
 
 export const useProductsStore = create<ProductState & ProductActions>()(
   persist(
-
     devtools(
       (set, get) => ({
         products: [],
+        productMenu: [],
+        dirty: false,
         generateProducts: orderProducts => set((state) => {
-          const products = orderProducts.map(product => ({
-            productId: product.product.id,
-            name: product.product.name,
-            productType: product.product.product_type,
-            photoLimit: product.product.photo_limit,
-            selectedPhotoIds: product.selected_photos,
-            allowOverLimit: product.product.photo_limit === 0,
-            remark: product.remark || '',
-          }))
+          const currentPhoto = usePhotosStore.getState().currentPhoto
 
-          // 生成下拉菜单项
-          state.generateDropdownItems(products)
+          // 如果有持久化的产品数据，则直接返回
+          if (state.products.length > 0) {
+            state.setDropdownMenuStatus(currentPhoto?.selectedProducts ?? [])
 
-          return {
-            products: [...products],
+            return state
+          }
+          else {
+            // 处理订单产品数据，生成产品列表
+            const products = orderProducts.map(product => ({
+              productId: product.product.id,
+              name: product.product.name,
+              productType: product.product.product_type,
+              photoLimit: product.product.photo_limit,
+              selectedPhotoIds: product.selected_photos,
+              allowOverLimit: product.product.photo_limit === 0,
+              remark: product.remark || '',
+            }))
+
+            // 生成下拉菜单项
+            state.generateDropdownItems(products)
+
+            return {
+              products: [...products],
+            }
           }
         }),
         generateDropdownItems: (products) => {
@@ -80,8 +104,6 @@ export const useProductsStore = create<ProductState & ProductActions>()(
             message.info('请先选择一张照片')
             return state
           }
-
-          console.log(currentPhoto)
 
           /**
            * 状态更新逻辑：
@@ -107,19 +129,10 @@ export const useProductsStore = create<ProductState & ProductActions>()(
           const newMenuItem = state.productMenu?.map((item) => {
             const product = state.products.find(p => p.productId === Number(item.key))
 
-            if (selectedProducts.includes(Number(item.key))) {
-              return {
-                ...item,
-                icon: <CheckOutlined />,
-                extra: `${product?.selectedPhotoIds.length} / ${product?.photoLimit === 0 ? '∞' : product?.photoLimit}`,
-              }
-            }
-            else {
-              return {
-                ...item,
-                icon: undefined,
-                extra: `${product?.selectedPhotoIds.length} / ${product?.photoLimit === 0 ? '∞' : product?.photoLimit}`,
-              }
+            return {
+              ...item,
+              isSelected: selectedProducts.includes(Number(item.key)),
+              extra: `${product?.selectedPhotoIds.length} / ${product?.photoLimit === 0 ? '∞' : product?.photoLimit}`,
             }
           })
 
@@ -145,6 +158,7 @@ export const useProductsStore = create<ProductState & ProductActions>()(
             : [...product.selectedPhotoIds, photoId]
           set({ products: [...state.products] })
         },
+        setDirty: dirty => set({ dirty }),
       }),
       {
         name: 'products-store',

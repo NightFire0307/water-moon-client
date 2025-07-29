@@ -1,13 +1,13 @@
 import type { DropdownProps } from 'antd/lib'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
+import { Button, Divider, Dropdown, Form, Input, type MenuProps, Space } from 'antd'
+import { AnimatePresence, motion } from 'framer-motion'
+import { type RefObject, useEffect, useMemo, useState } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
-import { DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
-import { Button, Divider, Dropdown, Form, Input, Space } from 'antd'
-import { AnimatePresence, motion } from 'framer-motion'
-import { type RefObject, useEffect, useState } from 'react'
 import { usePhotosStore } from '../../stores/usePhotosStore'
 
 interface ViewerControlProps {
@@ -29,6 +29,15 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
       setOpen(nextOpen)
     }
   }
+
+  const menuItems: MenuProps['items'] = useMemo(() => {
+    return productMenu.map(item => ({
+      key: item.key,
+      label: item.label,
+      icon: item.isSelected ? <CheckOutlined /> : undefined, // 如果是选中状态，显示勾选图标
+      extra: item.extra,
+    }))
+  }, [productMenu])
 
   // 处理备注按钮点击事件
   const handleRemark = () => {
@@ -68,7 +77,7 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
               {/* 顶部控制栏 */}
               <div className="absolute top-8 left-1/2 -translate-x-1/2 rounded-xl p-2 bg-darkBlueGray-900/80 shadow-lg z-50">
                 <Space>
-                  <Dropdown open={open} menu={{ items: productMenu, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
+                  <Dropdown open={open} menu={{ items: menuItems, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
                     <Button icon={<PlusOutlined />}>
                       加入产品
                       <DownOutlined />

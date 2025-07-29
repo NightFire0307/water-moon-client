@@ -1,9 +1,9 @@
-import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
-import { usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { LoadingOutlined } from '@ant-design/icons'
 import { Typography } from 'antd'
 import { type ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
+import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
+import { usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 
 const { Text } = Typography
 
@@ -38,8 +38,7 @@ export function MainViewer({ transformRef }: MainViewerProps) {
 
   return (
     <div
-      className="h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 select-none flex items-center justify-center transition-all rounded-xl"
-      style={{ transform: `rotate(${rotate}deg)` }}
+      className="h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 select-none flex items-center justify-center rounded-xl"
       onClick={() => setViewerControlVisible(!viewerControlVisible)}
     >
       {
@@ -48,7 +47,7 @@ export function MainViewer({ transformRef }: MainViewerProps) {
           : productSelectedPhotos.length === 0
             ? <Empty />
             : (
-                <div>
+                <div className=" relative w-full h-full">
                   <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-sm rounded-lg px-3 py-1">
                     <Text className="text-white text-md font-medium">{ currentPhoto?.name ?? '' }</Text>
                   </div>
@@ -66,7 +65,8 @@ export function MainViewer({ transformRef }: MainViewerProps) {
                       <img
                         src={currentPhoto?.thumbnail_url}
                         alt={currentPhoto?.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain transition-all"
+                        style={{ transform: `rotate(${rotate}deg)` }}
                       />
                     </TransformComponent>
                   </TransformWrapper>

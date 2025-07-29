@@ -2,7 +2,6 @@ import type { FC } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
-import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { FixedOptionCard } from './FixedOptionCard'
@@ -10,8 +9,7 @@ import { ProductCard } from './ProductCard'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
-  const { productSidebarVisible, setProductSidebarVisible } = usePhotoViewerContext()
-  const { setFilter, getProductSelectedStats } = usePhotosStore()
+  const { setFilter, getProductSelectedStats, setCurrentPhoto } = usePhotosStore()
   const { products } = useProductsStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [activeFixedOption, setActiveFixedOption] = useState<number>(0)
