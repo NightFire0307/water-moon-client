@@ -1,11 +1,12 @@
 import type { FC } from 'react'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
 import { StepHeader } from '../StepHeader/StepHeader'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import PreSelectionConfirmModal from './PreSelectionConfirmModal'
@@ -23,6 +24,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
   const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, copyPreSelectedPhotos, setMode } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
+  const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
 
   // 全屏切换处理
@@ -39,6 +41,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
   // 处理预选确认
   const handlePreSelectConfirm = () => {
+    showLoading()
     // 处理预选边界情况，当下一步时，如果当前照片是 pending 状态，则自动标记为 selected
     if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
       togglePreSelected(PreSelectStatus.SELECTED)
@@ -56,8 +59,12 @@ export const PreSelect: FC<PreSelectProps> = () => {
     // 设置当前模式为产品选择
     setMode('productSelect')
 
-    // 跳转到产品选择页面
-    navigate('/product-select')
+    // 模拟异步操作
+    setTimeout(() => {
+      hideLoading()
+      // 跳转到产品选择页面
+      navigate('/product-select')
+    }, 2000)
   }
 
   // 监听全屏状态变化
