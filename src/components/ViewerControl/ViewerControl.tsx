@@ -5,7 +5,7 @@ import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
-import { Button, Divider, Dropdown, Form, Input, type MenuProps, Space } from 'antd'
+import { Button, ConfigProvider, Divider, Dropdown, Form, Input, type MenuProps, Space } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type RefObject, useEffect, useMemo, useState } from 'react'
 import { usePhotosStore } from '../../stores/usePhotosStore'
@@ -77,13 +77,22 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
               {/* 顶部控制栏 */}
               <div className="absolute top-8 left-1/2 -translate-x-1/2 rounded-xl p-2 bg-darkBlueGray-900/80 shadow-lg z-50">
                 <Space>
-                  <Dropdown open={open} menu={{ items: menuItems, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
-                    <Button icon={<PlusOutlined />} type="primary" className="">
-                      加入产品
-                      <DownOutlined />
-                    </Button>
-
-                  </Dropdown>
+                  <ConfigProvider theme={{ components: {
+                    Button: {
+                      defaultBg: 'oklch(69.6% 0.17 162.48)',
+                      defaultColor: '#ffffff',
+                      defaultHoverBg: 'oklch(76.5% 0.177 163.223)',
+                      defaultActiveBg: 'oklch(59.6% 0.145 163.225)',
+                    },
+                  } }}
+                  >
+                    <Dropdown open={open} menu={{ items: menuItems, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
+                      <Button icon={<PlusOutlined />}>
+                        加入产品
+                        <DownOutlined />
+                      </Button>
+                    </Dropdown>
+                  </ConfigProvider>
                   <Divider type="vertical" className="border-darkBlueGray-600 h-6 w-1 mx-1" />
                   {/* <Button icon={<HeartOutlined />} /> */}
                   <Button icon={<MessageOutlined />} onClick={handleRemark} />
