@@ -209,6 +209,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
             <Button
               type="primary"
               onClick={() => setPreSelectConfirmModalOpen(true)}
+              className=" bg-blue-600 text-white font-semibold border-none shadow-md hover:bg-blue-700  hover:shadow-lg transition-all duration-200"
+              style={{ boxShadow: '0 2px 8px 0 rgba(37,99,235,0.15)' }}
             >
               下一步：选择产品
               <RightOutlined />

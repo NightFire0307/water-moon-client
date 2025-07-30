@@ -9,9 +9,11 @@ interface CustomModalProps extends PropsWithChildren, ModalProps {
   onOk?: () => void
   onCancel?: () => void
   disabledOk?: boolean
+  okButtonClassName?: string
+  okButtonStyle?: React.CSSProperties
 }
 
-const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCancel, onOk, footer, closeIcon, okText, disabledOk, ...reset }) => {
+const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCancel, onOk, footer, closeIcon, okText, disabledOk, okButtonClassName, okButtonStyle, ...reset }) => {
   return (
     <Modal
       {...reset}
@@ -35,7 +37,15 @@ const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCanc
 
       <div className="flex justify-end gap-2 mt-4">
         <Button onClick={onCancel}>取消</Button>
-        <Button onClick={() => onOk && onOk()} disabled={disabledOk ?? false}>{ okText || '确定'}</Button>
+        <Button
+          type="primary"
+          onClick={() => onOk && onOk()}
+          disabled={disabledOk ?? false}
+          className="bg-blue-600 text-white font-semibold border-none hover:bg-blue-700 disabled:bg-gray-400 transition-all duration-200"
+          style={okButtonStyle}
+        >
+          { okText || '确定'}
+        </Button>
       </div>
 
     </Modal>

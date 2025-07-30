@@ -1,10 +1,7 @@
+import { CheckCircleOutlined, ExclamationCircleOutlined, InfoCircleOutlined, WarningOutlined } from '@ant-design/icons'
+import { useMemo } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotosStore } from '@/stores/usePhotosStore'
-import { CheckCircleOutlined, ExclamationCircleOutlined, WarningOutlined } from '@ant-design/icons'
-import { Button, Progress, Space, Typography } from 'antd'
-import { useMemo } from 'react'
-
-const { Text } = Typography
 
 interface PreSelectionConfirmModalProps {
   open: boolean
@@ -15,26 +12,26 @@ interface PreSelectionConfirmModalProps {
 // Modal 不同状态的配置
 const modalMap = {
   underSelected: {
-    icon: <WarningOutlined className="text-orange-500" />,
+    icon: <WarningOutlined className="text-red-400" />,
     title: '预选照片不足',
-    titleColor: 'text-orange-600',
-    description: '当前选择的照片数量较少，可能影响后续产品选择。',
+    titleColor: 'text-red-400',
+    description: '您选择的照片距离套餐指定张数还差 5 张，如果继续可能影响后续产品选择。',
     actionText: '仍然确认',
     actionType: 'default' as const,
   },
   exactSelected: {
-    icon: <CheckCircleOutlined className="text-green-500" />,
+    icon: <CheckCircleOutlined className="text-green-400" />,
     title: '预选完成',
-    titleColor: 'text-green-600',
+    titleColor: 'text-green-400',
     description: '您已完成照片预选，可以进入下一步进行产品选择。',
-    actionText: '进入产品选择',
+    actionText: '继续选择产品',
     actionType: 'primary' as const,
   },
   overSelected: {
-    icon: <ExclamationCircleOutlined className="text-amber-500" />,
+    icon: <ExclamationCircleOutlined className="text-amber-400" />,
     title: '照片超选提醒',
-    titleColor: 'text-amber-600',
-    description: '您选择的照片数量较多，超出部分将产生额外费用。',
+    titleColor: 'text-amber-400',
+    description: '您选择的照片超过了套餐规定数量，超出部分将产生额外费用。',
     actionText: '确认选择',
     actionType: 'default' as const,
   },
@@ -71,97 +68,150 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
     <CustomModal
       open={open}
       title={(
-        <div className="text-xl font-semibold">
-          {currentConfig.icon}
-          <span className="ml-2">{currentConfig.title}</span>
+        <div className="flex justify-center">
+          <div className={`flex items-center gap-2 ${currentConfig.titleColor}`}>
+            {currentConfig.icon}
+            <span className="text-lg font-semibold">{currentConfig.title}</span>
+          </div>
         </div>
       )}
       centered
-      footer={(
-        <Space>
-          <Button onClick={() => onCancel?.()}>返回修改</Button>
-          <Button type={currentConfig.actionType} onClick={() => onConfirm?.()}>
-            {currentConfig.actionText}
-          </Button>
-        </Space>
-      )}
+      width={520}
+      okText={currentConfig.actionText}
       onCancel={onCancel}
+      onOk={onConfirm}
     >
-      <div className="space-y-5">
-        {/* 主要状态展示 - 作为整体标题 */}
-        <div className="text-center pb-4">
-          <Text className="text-darkBlueGray-400">
-            {currentConfig.description}
-          </Text>
-        </div>
-
-        {/* 进度统计 */}
-        <div className="bg-gradient-to-br from-darkBlueGray-50 to-darkBlueGray-100 rounded-xl p-5 border border-darkBlueGray-200">
-          <div className="flex items-center justify-between mb-4">
-            <Text className="text-darkBlueGray-700 font-semibold">预选进度</Text>
-            <Text className="text-xl font-bold text-darkBlueGray-900">
-              {processedPercent}
-              %
-            </Text>
-          </div>
-          <Progress
-            percent={processedPercent}
-            strokeColor={selectionStatus === 'underSelected' ? '#f59e0b' : selectionStatus === 'exactSelected' ? '#10b981' : '#f59e0b'}
-            showInfo={false}
-            strokeWidth={10}
-            trailColor="#cbd5e1"
+      <div className="space-y-6">
+        {/* 状态提示卡片 */}
+        <div className={`relative overflow-hidden rounded-xl p-5 ${
+          selectionStatus === 'overSelected'
+            ? 'bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-orange-500/10 border border-amber-500/20'
+            : selectionStatus === 'underSelected'
+              ? 'bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-red-500/10 border border-orange-500/20'
+              : 'bg-gradient-to-br from-green-500/10 via-green-500/5 to-emerald-500/10 border border-green-500/20'
+        }`}
+        >
+          {/* 背景装饰 */}
+          <div className={`absolute top-0 right-0 w-32 h-32 opacity-10 ${
+            selectionStatus === 'overSelected'
+              ? 'bg-amber-400'
+              : selectionStatus === 'underSelected' ? 'bg-orange-400' : 'bg-green-400'
+          } rounded-full -translate-y-16 translate-x-16`}
           />
 
-          <div className="flex justify-between mt-4 text-sm">
-            <div className="flex items-center gap-2 bg-darkBlueGray-25 rounded-full px-3 py-1 shadow-md border border-darkBlueGray-100">
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-              <span className="text-darkBlueGray-700 font-medium">
-                已选
-                {' '}
-                {selectedCount}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 bg-darkBlueGray-25 rounded-full px-3 py-1 shadow-md border border-darkBlueGray-100">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-              <span className="text-darkBlueGray-700 font-medium">
-                已排除
-                {' '}
-                {excludedCount}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 bg-darkBlueGray-25 rounded-full px-3 py-1 shadow-md border border-darkBlueGray-100">
-              <div className="w-2.5 h-2.5 rounded-full bg-darkBlueGray-400"></div>
-              <span className="text-darkBlueGray-700 font-medium">
-                待处理
-                {' '}
-                {pendingCount}
-              </span>
+          <div className="relative">
+            <div className="flex items-start gap-4">
+              <div className={`text-base  ${
+                selectionStatus === 'overSelected'
+                  ? 'text-amber-400'
+                  : selectionStatus === 'underSelected' ? 'text-orange-400' : 'text-green-400'
+              }`}
+              >
+                {selectionStatus === 'overSelected' ? <WarningOutlined /> : selectionStatus === 'underSelected' ? <InfoCircleOutlined /> : <CheckCircleOutlined />}
+              </div>
+              <div className="flex-1">
+                <h4 className={`font-semibold mb-2 text-base ${
+                  selectionStatus === 'overSelected'
+                    ? 'text-amber-300'
+                    : selectionStatus === 'underSelected' ? 'text-orange-300' : 'text-green-300'
+                }`}
+                >
+                  {selectionStatus === 'overSelected'
+                    ? '费用说明'
+                    : selectionStatus === 'underSelected' ? '选择建议' : '完成提示'}
+                </h4>
+                <p className={`text-sm leading-relaxed ${
+                  selectionStatus === 'overSelected'
+                    ? 'text-amber-200'
+                    : selectionStatus === 'underSelected' ? 'text-orange-200' : 'text-green-200'
+                }`}
+                >
+                  {selectionStatus === 'underSelected' && modalMap.underSelected.description}
+                  {selectionStatus === 'exactSelected' && modalMap.exactSelected.description}
+                  {selectionStatus === 'overSelected' && modalMap.overSelected.description}
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 温馨提示 */}
-        <div className={`${selectionStatus === 'overSelected'
-          ? 'bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200'
-          : 'bg-gradient-to-r from-darkBlueGray-50 to-darkBlueGray-100 border border-darkBlueGray-200'
-        } rounded-lg p-4`}
-        >
-          <div className="flex items-start">
-            <div className={`${selectionStatus === 'overSelected' ? 'text-amber-500' : 'text-darkBlueGray-500'} mr-3 text-lg`}>
-              {selectionStatus === 'overSelected' ? '⚠️' : '💡'}
+        {/* 统计卡片 */}
+        <div className="grid grid-cols-3 gap-6">
+          <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-xl p-6 text-center hover:from-green-500/15 hover:to-green-600/15 transition-all duration-300">
+            <div className="flex flex-col items-center space-y-3">
+              <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
+                <div className="text-3xl font-bold text-green-400">{selectedCount}</div>
+              </div>
+              <div className="text-green-300 text-sm font-medium tracking-wide">已选择</div>
             </div>
-            <div>
-              <Text className={`${selectionStatus === 'overSelected' ? 'text-amber-800' : 'text-darkBlueGray-800'} text-sm font-semibold block mb-2`}>
-                {selectionStatus === 'overSelected' ? '费用提醒' : '温馨提示'}
-              </Text>
-              <Text className={`${selectionStatus === 'overSelected' ? 'text-amber-700' : 'text-darkBlueGray-700'} text-sm leading-relaxed`}>
-                {selectionStatus === 'underSelected' && '建议继续预选更多照片，这样在产品选择阶段会有更多选择空间。'}
-                {selectionStatus === 'exactSelected' && '继续下一步可以开始为不同产品选择对应的照片了。'}
-                {selectionStatus === 'overSelected' && '超出基础套餐的部分单片将按 300 元/张 计费。'}
-              </Text>
+          </div>
+          <div className="bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/20 rounded-xl p-6 text-center hover:from-red-500/15 hover:to-red-600/15 transition-all duration-300">
+            <div className="flex flex-col items-center space-y-3">
+              <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
+                <div className="text-3xl font-bold text-red-400">{excludedCount}</div>
+              </div>
+              <div className="text-red-300 text-sm font-medium tracking-wide">已排除</div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-slate-500/10 to-slate-600/10 border border-slate-500/20 rounded-xl p-6 text-center hover:from-slate-500/15 hover:to-slate-600/15 transition-all duration-300">
+            <div className="flex flex-col items-center space-y-3">
+              <div className="w-12 h-12 bg-slate-500/20 rounded-full flex items-center justify-center">
+                <div className="text-3xl font-bold text-slate-400">{pendingCount}</div>
+              </div>
+              <div className="text-slate-300 text-sm font-medium tracking-wide">待处理</div>
             </div>
           </div>
         </div>
+
+        {/* 进度展示 */}
+        <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-slate-200 font-semibold">处理进度</span>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-slate-100">
+                {processedPercent}
+                %
+              </span>
+              <div
+                className={
+                  selectionStatus === 'underSelected'
+                    ? 'w-3 h-3 rounded-full bg-gradient-to-r from-orange-400 to-orange-500'
+                    : selectionStatus === 'exactSelected'
+                      ? 'w-3 h-3 rounded-full bg-gradient-to-r from-green-400 to-green-500'
+                      : 'w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-500'
+                }
+              />
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+              <div
+                className={
+                  selectionStatus === 'underSelected'
+                    ? 'h-full transition-all duration-500 bg-gradient-to-r from-orange-400 to-orange-500'
+                    : selectionStatus === 'exactSelected'
+                      ? 'h-full transition-all duration-500 bg-gradient-to-r from-green-400 to-green-500'
+                      : 'h-full transition-all duration-500 bg-gradient-to-r from-amber-400 to-amber-500'
+                }
+                style={{ width: `${processedPercent}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 text-sm text-slate-400">
+            已处理
+            {' '}
+            {processedCount}
+            {' '}
+            张，共
+            {' '}
+            {totalCount}
+            {' '}
+            张照片
+          </div>
+        </div>
+
       </div>
     </CustomModal>
   )
