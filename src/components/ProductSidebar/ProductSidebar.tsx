@@ -1,117 +1,294 @@
 import type { FC } from 'react'
+import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
+import { useProductsStore } from '@/stores/useProductsStore'
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
-import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
-import { useProductsStore } from '@/stores/useProductsStore'
-import { FixedOptionCard } from './FixedOptionCard'
-import { ProductCard } from './ProductCard'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
   const { setFilter, getProductSelectedStats } = usePhotosStore()
   const { products } = useProductsStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
-  const [activeFixedOption, setActiveFixedOption] = useState<number>(0)
+  const [activeFilterType, setActiveFilterType] = useState<FILTER_TYPE>(FILTER_TYPE.ALL)
+
+  // 统一的选中状态，用于判断当前选中的是固定选项还是产品
+  const [selectedType, setSelectedType] = useState<'filter' | 'product'>('filter')
 
   const { totalCount, selectedCount, unselectedCount } = getProductSelectedStats()
 
-  // 固定选项数据 - 使用数字ID以匹配FixedOptionCard的接口
+  // 固定选项数据
   const fixedOptions = useMemo(() => [
     {
-      optionId: 0,
+      id: 'all',
       name: '所有照片',
-      iconType: 'all' as const,
-      photoCount: totalCount,
       description: '查看所有照片',
+      photoCount: totalCount,
       filterType: FILTER_TYPE.ALL,
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+      ),
     },
     {
-      optionId: 1,
+      id: 'selected',
       name: '已选照片',
-      iconType: 'selected' as const,
-      photoCount: selectedCount,
       description: '已添加到产品的照片',
+      photoCount: selectedCount,
       filterType: FILTER_TYPE.SELECTED,
+      icon: <CheckOutlined />,
     },
     {
-      optionId: 2,
+      id: 'unselected',
       name: '未选照片',
-      iconType: 'unselected' as const,
-      photoCount: unselectedCount,
       description: '尚未添加到产品的照片',
+      photoCount: unselectedCount,
       filterType: FILTER_TYPE.UNSELECTED,
+      icon: <CloseOutlined />,
     },
   ], [totalCount, selectedCount, unselectedCount])
 
-  const handleFixedOptionClick = (optionId: number) => {
-    const option = fixedOptions.find(opt => opt.optionId === optionId)
-    if (option) {
-      setActiveFixedOption(optionId)
-      setSelectedProductId(null) // 取消产品选择
-      setFilter({ productId: undefined, filterType: option.filterType })
-    }
+  const handleFixedOptionClick = (filterType: FILTER_TYPE) => {
+    setActiveFilterType(filterType)
+    setSelectedProductId(null)
+    setSelectedType('filter')
+    setFilter({ productId: undefined, filterType })
   }
 
   const handleProductClick = (productId: number) => {
-    console.log(productId)
     setSelectedProductId(productId)
-    setActiveFixedOption(-1) // 取消固定选项选择
+    setActiveFilterType(FILTER_TYPE.SELECTED)
+    setSelectedType('product')
     setFilter({ productId, filterType: FILTER_TYPE.SELECTED })
   }
 
   return (
-    <div className="relative top-0 z-20">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="p-6 h-full border-r border-darkBlueGray-700/30 flex flex-col"
+    >
+      {/* 标题区域 */}
       <motion.div
-        key="product-sidebar"
-        initial={{ translateX: '-100%' }}
-        animate={{ translateX: '0' }}
-        exit={{ translateX: '-100%' }}
-        className="w-80 p-2 bg-darkBlueGray-900/70 border-r border-darkBlueGray-700/30 backdrop-blur-md -translate-x-full"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="mb-8"
       >
-        <div className="text-white text-2xl font-bold mx-4 my-4">产品列表</div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-1 h-5 bg-gradient-to-b from-blue-400 to-cyan-400 rounded-full"></div>
+          <h3 className="text-lg font-bold text-white">产品选择</h3>
+        </div>
+        <p className="text-darkBlueGray-400 text-sm">为照片选择合适的产品</p>
+      </motion.div>
 
-        <div className="h-full overflow-hidden">
-          <SimpleBar style={{ height: 'calc(100vh - 120px)' }}>
-            <div className="p-4">
-              {/* 固定选项 */}
-              {fixedOptions.map(option => (
-                <FixedOptionCard
-                  key={option.optionId}
-                  optionId={option.optionId}
-                  name={option.name}
-                  iconType={option.iconType}
-                  photoCount={option.photoCount}
-                  description={option.description}
-                  isSelected={activeFixedOption === option.optionId}
-                  onClick={handleFixedOptionClick}
-                />
-              ))}
+      {/* 滚动内容区域 */}
+      <div className="flex-1 overflow-hidden">
+        <SimpleBar style={{ height: '100%' }}>
+          <div className="space-y-3 pr-2">
+            {/* 筛选按钮组 */}
+            {fixedOptions.map((option, index) => (
+              <motion.div
+                key={option.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.02, x: 4 }}
+                transition={{ delay: index * 0.1, duration: 0.2 }}
+              >
+                <Button
+                  type={activeFilterType === option.filterType && selectedType === 'filter' ? 'primary' : 'default'}
+                  size="large"
+                  className={`w-full !h-auto !p-0 !text-left !border-0 rounded-xl transition-all duration-300 overflow-hidden ${
+                    activeFilterType === option.filterType && selectedType === 'filter'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25'
+                      : 'bg-darkBlueGray-800/60 hover:bg-darkBlueGray-700/80 text-darkBlueGray-200 hover:border-darkBlueGray-600/50'
+                  }`}
+                  onClick={() => handleFixedOptionClick(option.filterType)}
+                >
+                  <div className="w-full p-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          activeFilterType === option.filterType && selectedType === 'filter'
+                            ? 'bg-white/20'
+                            : 'bg-darkBlueGray-600/50'
+                        }`}
+                      >
+                        {option.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm truncate">{option.name}</div>
+                        <div
+                          className={`text-xs mt-1 truncate ${
+                            activeFilterType === option.filterType && selectedType === 'filter'
+                              ? 'text-blue-100'
+                              : 'text-darkBlueGray-400'
+                          }`}
+                        >
+                          {option.description}
+                        </div>
+                      </div>
+                      <div
+                        className={`px-2 py-1 rounded-lg text-xs font-bold min-w-[2rem] text-center ml-2 ${
+                          activeFilterType === option.filterType && selectedType === 'filter'
+                            ? 'bg-white/20 text-white'
+                            : 'bg-darkBlueGray-600/50 text-darkBlueGray-300'
+                        }`}
+                      >
+                        {option.photoCount}
+                      </div>
+                    </div>
+                  </div>
+                </Button>
+              </motion.div>
+            ))}
 
-              {/* 分隔线 */}
-              <div className="mx-2 mb-4 border-t border-darkBlueGray-600/50"></div>
-
-              {/* 其他产品选项 */}
-              {products.map(product => (
-                <ProductCard
-                  key={product.productId}
-                  productId={product.productId}
-                  name={product.name}
-                  type={product.productType}
-                  selectedCount={product.selectedPhotoIds.length}
-                  limitCount={product.photoLimit}
-                  allowOverLimit={product.allowOverLimit}
-                  remark={product.remark}
-                  isSelected={selectedProductId === product.productId}
-                  onClick={handleProductClick}
-                />
-              ))}
+            {/* 分隔线 */}
+            <div className="flex items-center gap-3 my-6">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-darkBlueGray-600 to-transparent"></div>
+              <span className="text-xs text-darkBlueGray-500 px-2">产品分组</span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-darkBlueGray-600 to-transparent"></div>
             </div>
-          </SimpleBar>
+
+            {/* 产品按钮列表 */}
+            <AnimatePresence mode="popLayout">
+              {products.map((product, index) => (
+                <motion.div
+                  key={product.productId}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  whileHover={{ scale: 1.02, x: 4 }}
+                  transition={{ delay: (fixedOptions.length + index) * 0.1, duration: 0.2 }}
+                >
+                  <Button
+                    type={selectedProductId === product.productId && selectedType === 'product' ? 'primary' : 'default'}
+                    size="large"
+                    className={`w-full !h-auto !p-0 !text-left !border-0 rounded-xl transition-all duration-300 overflow-hidden ${
+                      selectedProductId === product.productId && selectedType === 'product'
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25'
+                        : 'bg-darkBlueGray-800/60 hover:bg-darkBlueGray-700/80 text-darkBlueGray-200 hover:border-darkBlueGray-600/50'
+                    }`}
+                    onClick={() => handleProductClick(product.productId)}
+                  >
+                    <div className="w-full p-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            selectedProductId === product.productId && selectedType === 'product'
+                              ? 'bg-white/20'
+                              : 'bg-darkBlueGray-600/50'
+                          }`}
+                        >
+                          <div
+                            className={`w-6 h-6 rounded-md ${
+                              selectedProductId === product.productId && selectedType === 'product'
+                                ? 'bg-white/30'
+                                : 'bg-darkBlueGray-500'
+                            } flex items-center justify-center`}
+                          >
+                            <span className="text-xs font-bold">{index + 1}</span>
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm truncate">{product.name}</div>
+                          <div
+                            className={`text-xs mt-1 truncate ${
+                              selectedProductId === product.productId && selectedType === 'product'
+                                ? 'text-blue-100'
+                                : 'text-darkBlueGray-400'
+                            }`}
+                          >
+                            <span>{product.productType}</span>
+                            <span className="mx-1">•</span>
+                            <span>{product.selectedPhotoIds.length}</span>
+                            <span>/</span>
+                            <span>{product.photoLimit === 0 ? '∞' : product.photoLimit}</span>
+                          </div>
+                        </div>
+
+                        {/* 状态指示器 */}
+                        <div className="flex items-center gap-3 ml-2">
+                          {/* 简洁圆点样式 */}
+                          <div className="flex items-center gap-2">
+                            {/* 状态圆点 */}
+                            {product.selectedPhotoIds.length > 0 && (
+                              <div
+                                className={`w-2 h-2 rounded-full ${
+                                  product.selectedPhotoIds.length >= product.photoLimit && product.photoLimit > 0
+                                    ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50'
+                                    : 'bg-blue-400 animate-pulse shadow-sm shadow-blue-400/50'
+                                }`}
+                              />
+                            )}
+
+                            {/* 照片数量 */}
+                            <div
+                              className={`px-2 py-0.5 rounded-full text-xs font-medium min-w-[1.5rem] text-center ${
+                                selectedProductId === product.productId && selectedType === 'product'
+                                  ? 'bg-white/15 text-white'
+                                  : 'bg-darkBlueGray-600/40 text-darkBlueGray-300'
+                              }`}
+                            >
+                              {product.selectedPhotoIds.length}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 箭头指示器 */}
+                        <div
+                          className={`transition-transform duration-200 ml-2 ${
+                            selectedProductId === product.productId && selectedType === 'product' ? 'rotate-90' : ''
+                          }`}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </Button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </SimpleBar>
+      </div>
+
+      {/* 底部统计信息 */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+        className="mt-4 p-4 rounded-xl bg-gradient-to-br from-darkBlueGray-800/40 to-darkBlueGray-900/40 border border-darkBlueGray-700/30 flex-shrink-0"
+      >
+        <div className="text-xs text-darkBlueGray-400 mb-2">统计信息</div>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-darkBlueGray-300">总照片数</span>
+            <span className="text-sm font-semibold text-white">{totalCount}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-darkBlueGray-300">已分配</span>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+              <span className="text-sm font-semibold text-emerald-400">{selectedCount}</span>
+            </div>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-darkBlueGray-300">未分配</span>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+              <span className="text-sm font-semibold text-orange-400">{unselectedCount}</span>
+            </div>
+          </div>
         </div>
       </motion.div>
-    </div>
-
+    </motion.div>
   )
 }
 

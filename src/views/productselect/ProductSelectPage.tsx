@@ -1,11 +1,4 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { RightOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Layout } from 'antd'
-import { Header } from 'antd/es/layout/layout'
-import Sider from 'antd/es/layout/Sider'
-import zhCN from 'antd/locale/zh_CN'
-import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -16,6 +9,13 @@ import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { RightOutlined } from '@ant-design/icons'
+import { Button, ConfigProvider, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import zhCN from 'antd/locale/zh_CN'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
 
 const { Content } = Layout
@@ -208,7 +208,7 @@ function ProductSelectPage() {
           </Header>
 
           <Layout className="bg-darkBlueGray-900">
-            <Sider width={320} className="bg-darkBlueGray-900">
+            <Sider width={320} className="bg-darkBlueGray-900 ">
               {/* 产品侧边栏 */}
               <ProductSidebar />
             </Sider>
