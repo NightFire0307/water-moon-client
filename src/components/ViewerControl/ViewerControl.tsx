@@ -1,13 +1,13 @@
 import type { DropdownProps } from 'antd/lib'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
-import { Button, Divider, Dropdown, Form, Input, type MenuProps, Space } from 'antd'
-import { AnimatePresence, motion } from 'framer-motion'
-import { type RefObject, useEffect, useMemo, useState } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
+import { Button, Divider, Dropdown, Form, Input, type MenuProps, Space } from 'antd'
+import { AnimatePresence, motion } from 'framer-motion'
+import { type RefObject, useEffect, useMemo, useState } from 'react'
 import { usePhotosStore } from '../../stores/usePhotosStore'
 
 interface ViewerControlProps {
@@ -78,7 +78,7 @@ export function ViewerControl({ transformRef }: ViewerControlProps) {
               <div className="absolute top-8 left-1/2 -translate-x-1/2 rounded-xl p-2 bg-darkBlueGray-900/80 shadow-lg z-50">
                 <Space>
                   <Dropdown open={open} menu={{ items: menuItems, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
-                    <Button icon={<PlusOutlined />}>
+                    <Button icon={<PlusOutlined />} type="primary" className="">
                       加入产品
                       <DownOutlined />
                     </Button>

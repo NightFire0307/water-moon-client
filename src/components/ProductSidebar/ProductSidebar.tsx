@@ -89,14 +89,13 @@ const ProductSidebar: FC = () => {
       {/* 滚动内容区域 */}
       <div className="flex-1 overflow-hidden">
         <SimpleBar style={{ height: '100%' }}>
-          <div className="space-y-3 pr-2">
+          <div className="space-y-3">
             {/* 筛选按钮组 */}
             {fixedOptions.map((option, index) => (
               <motion.div
                 key={option.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                whileHover={{ scale: 1.02, x: 4 }}
                 transition={{ delay: index * 0.1, duration: 0.2 }}
               >
                 <Button
@@ -162,7 +161,6 @@ const ProductSidebar: FC = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  whileHover={{ scale: 1.02, x: 4 }}
                   transition={{ delay: (fixedOptions.length + index) * 0.1, duration: 0.2 }}
                 >
                   <Button
