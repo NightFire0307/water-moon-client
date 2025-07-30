@@ -1,6 +1,6 @@
 import { InfoCircleOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Tooltip, Typography } from 'antd'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { type ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotosStore } from '@/stores/usePhotosStore'
@@ -34,14 +34,17 @@ function Empty() {
 export function MainViewer({ transformRef }: MainViewerProps) {
   const { viewerControlVisible, setViewerControlVisible } = usePhotoViewerContext()
   const { rotate } = usePhotoViewerStore()
-  const currentPhoto = usePhotosStore(state => state.currentPhoto)
+  const { currentPhoto } = usePhotosStore()
   const isLoading = usePhotosStore(state => state.isLoading)
   const productSelectedPhotos = usePhotosStore(state => state.productSelectedPhotos)
   const { products } = useProductsStore()
 
   // 当前照片选中的产品名称
   const currentProducts = useMemo(() => {
-    return currentPhoto?.selectedProducts.map((productId) => {
+    if (currentPhoto === null)
+      return []
+
+    return currentPhoto.selectedProducts.map((productId) => {
       const product = products.find(p => p.productId === productId)
       return {
         productId: product?.productId,
@@ -58,7 +61,7 @@ export function MainViewer({ transformRef }: MainViewerProps) {
       {
         isLoading
           ? <Loading />
-          : productSelectedPhotos.length === 0
+          : productSelectedPhotos.length === 0 || currentPhoto === null
             ? <Empty />
             : (
                 <div className="relative w-full h-full">

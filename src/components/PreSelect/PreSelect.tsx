@@ -42,10 +42,6 @@ export const PreSelect: FC<PreSelectProps> = () => {
   // 处理预选确认
   const handlePreSelectConfirm = () => {
     showLoading()
-    // 处理预选边界情况，当下一步时，如果当前照片是 pending 状态，则自动标记为 selected
-    if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
-      togglePreSelected(PreSelectStatus.SELECTED)
-    }
 
     // 拷贝预选照片到产品选片
     copyPreSelectedPhotos()
@@ -113,7 +109,16 @@ export const PreSelect: FC<PreSelectProps> = () => {
         break
       case ' ':
         e.preventDefault()
-        togglePreSelected(PreSelectStatus.EXCLUDE)
+        if (currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED) {
+          togglePreSelected(PreSelectStatus.EXCLUDE)
+        }
+        else if (currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDE) {
+          togglePreSelected(PreSelectStatus.SELECTED)
+        }
+        else if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
+          togglePreSelected(PreSelectStatus.EXCLUDE)
+        }
+
         if (currentIndex < preSelectedPhotos.length - 1) {
           const nextPhoto = preSelectedPhotos[currentIndex + 1]
           setCurrentPhoto(nextPhoto)
@@ -268,7 +273,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
               {/* 照片信息覆盖层 */}
               <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm rounded-lg px-3 py-1">
-                <Text className="text-white text-md font-medium">{ currentPhoto?.name ?? '' }</Text>
+                <Text className="text-white text-base font-medium">{ currentPhoto?.name ?? '' }</Text>
               </div>
 
               {/* 状态标识 */}

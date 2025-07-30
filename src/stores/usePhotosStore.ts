@@ -1,9 +1,9 @@
-import type { IPhoto } from '@/types/photos.ts'
 import type { IProduct } from './useProductsStore.tsx'
-import { getOrderPhotos } from '@/apis/order.ts'
+import type { IPhoto } from '@/types/photos.ts'
 import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import { getOrderPhotos } from '@/apis/order.ts'
 import { useProductsStore } from './useProductsStore.tsx'
 
 export interface Photo {
@@ -17,7 +17,7 @@ export interface Photo {
   selectedProducts: number[]// 选中的产品ID列表
 }
 
-interface UsePhotosStore {
+interface UsePhotosState {
   originalPhotos: Photo[] // 原始照片列表
   preSelectedPhotos: Photo[] // 预选照片列表
   productSelectedPhotos: Photo[] // 已选产品的照片列表
@@ -41,42 +41,42 @@ export enum FILTER_TYPE {
   UNSELECTED = 'unselected',
 }
 
-interface PhotosAction {
+interface UsePhotosAction {
   fetchPhotos: () => Promise<void>
+  setCurrentPhoto: (currentPhoto: Photo | null) => void // 设置当前照片
   setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
   setPhotoRemark: (remark: string) => void // 照片备注
   setFilter: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void // 设置过滤条件
-  clearFilterPhotos: () => void // 清空过滤照片列表
   setLoading: (isLoading: boolean) => void // 设置加载状态
-  restorePreviousPhotoData: (photoId: number) => void // 还原上一次的数据
-  setCurrentPhoto: (currentPhoto: Photo | null) => void // 设置当前照片
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
+  setMode: (mode: 'preSelect' | 'productSelect') => void // 设置当前模式
+  setDirty: (dirty: boolean) => void // 设置是否有未保存的更改
+  setAllPendingToExclude: () => void // 将所有待处理的照片状态设置为排除
+  setAllPendingToSelected: () => void // 将所有待处理的照片状态设置为选中
+  setAllToPending: () => void // 将所有照片状态设置为待处理
   togglePreSelected: (preSelectStatus: PreSelectStatus) => void // 设置预选标记
   copyPreSelectedPhotos: () => void // 复制预选照片到产品选片
   getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
-  setMode: (mode: 'preSelect' | 'productSelect') => void // 设置当前模式
-  setDirty: (dirty: boolean) => void // 设置是否有未保存的更改
 }
 
 const BATCH_SIZE = 10
 
-export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
-  persist(
-
-    devtools((set, get) => ({
+export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
+  devtools(
+    persist((set, get) => ({
       originalPhotos: [],
       preSelectedPhotos: [],
       productSelectedPhotos: [],
       currentPhoto: null,
       isLoading: true,
       mode: 'preSelect',
+      dirty: false,
       filter: {
         productId: undefined,
         filterType: FILTER_TYPE.ALL,
       },
       fetchPhotos: async () => {
-        const state = get()
         // 设置加载状态
         set({ isLoading: true })
 
@@ -217,7 +217,9 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           }),
         })
       },
-      setCurrentPhoto: currentPhoto => set({ currentPhoto }),
+      setCurrentPhoto: (currentPhoto) => {
+        set({ currentPhoto })
+      },
       setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
         const photoIndex = state.preSelectedPhotos.findIndex(photo => photo.photoId === photoId)
         if (photoIndex === -1) {
@@ -269,10 +271,35 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
       },
       setMode: mode => set({ mode }),
       setFilter: filter => set({ filter }),
+      setDirty: () => { },
+      setAllPendingToExclude: () => set((state) => {
+        return {
+          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
+            if (photo.preSelectStatus === PreSelectStatus.PENDING) {
+              return { ...photo, preSelectStatus: PreSelectStatus.EXCLUDE }
+            }
+            return photo
+          }),
+        }
+      }),
+      setAllPendingToSelected: () => set((state) => {
+        return {
+          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
+            if (photo.preSelectStatus === PreSelectStatus.PENDING) {
+              return { ...photo, preSelectStatus: PreSelectStatus.SELECTED }
+            }
+            return photo
+          }),
+        }
+      }),
+      setAllToPending: () => set((state) => {
+        return {
+          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
+            return { ...photo, preSelectStatus: PreSelectStatus.PENDING }
+          }),
+        }
+      }),
     }), {
-      name: 'photos-store',
-    }),
-    {
       name: 'photos-storage',
       partialize: (state) => {
         return {
@@ -281,6 +308,9 @@ export const usePhotosStore = create<UsePhotosStore & PhotosAction>()(
           productSelectedPhotos: state.productSelectedPhotos,
         }
       },
+    }),
+    {
+      name: 'photos-store',
     },
   ),
 )

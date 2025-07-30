@@ -1,14 +1,4 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
-import { MainViewer } from '@/components/MainViewer/MainViewer'
-import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
-import { StepHeader } from '@/components/StepHeader/StepHeader'
-import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
-import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
-import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
-import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore.tsx'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
-import { useProductsStore } from '@/stores/useProductsStore'
 import { RightOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Layout } from 'antd'
 import { Header } from 'antd/es/layout/layout'
@@ -16,6 +6,16 @@ import Sider from 'antd/es/layout/Sider'
 import zhCN from 'antd/locale/zh_CN'
 import { motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
+import { MainViewer } from '@/components/MainViewer/MainViewer'
+import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
+import { StepHeader } from '@/components/StepHeader/StepHeader'
+import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
+import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
+import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
+import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { useProductsStore } from '@/stores/useProductsStore'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
 
 const { Content } = Layout
@@ -64,7 +64,13 @@ function ProductSelectPage() {
 
   // 监听过滤后的照片变化，自动设置当前第一张照片
   useEffect(() => {
-    setCurrentPhoto(filteredPhotos[0] || null)
+    if (filteredPhotos.length > 0) {
+      const firstPhoto = filteredPhotos[0]
+      setCurrentPhoto(firstPhoto)
+    }
+    else {
+      setCurrentPhoto(null)
+    }
   }, [filteredPhotos, setCurrentPhoto])
 
   // 控制提示信息显示
@@ -124,12 +130,6 @@ function ProductSelectPage() {
       window.removeEventListener('keydown', handleKeydown)
     }
   }, [handleKeydown])
-
-  useEffect(() => {
-    if (currentPhoto === null) {
-      setCurrentPhoto(productSelectedPhotos[0])
-    }
-  }, [productSelectedPhotos, currentPhoto, setDropdownMenuStatus])
 
   return (
     <PhotoViewerContext.Provider value={{

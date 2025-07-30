@@ -9,7 +9,7 @@ import { ProductCard } from './ProductCard'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
-  const { setFilter, getProductSelectedStats, setCurrentPhoto } = usePhotosStore()
+  const { setFilter, getProductSelectedStats } = usePhotosStore()
   const { products } = useProductsStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [activeFixedOption, setActiveFixedOption] = useState<number>(0)
@@ -46,7 +46,6 @@ const ProductSidebar: FC = () => {
 
   const handleFixedOptionClick = (optionId: number) => {
     const option = fixedOptions.find(opt => opt.optionId === optionId)
-    console.log(option)
     if (option) {
       setActiveFixedOption(optionId)
       setSelectedProductId(null) // 取消产品选择
