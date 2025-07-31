@@ -12,6 +12,7 @@ import { motion } from 'framer-motion'
 import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { getOrderInfo } from '@/apis/order'
+import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { useProductsStore } from '@/stores/useProductsStore'
 
 const { Content } = Layout
@@ -95,7 +96,7 @@ const OrderInfoPage: FC = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-darkBlueGray-900/95 backdrop-blur-sm border-b border-darkBlueGray-700/50 h-16"
+          className="fixed left-0 right-0 z-50 bg-darkBlueGray-900/95 backdrop-blur-sm border-b border-darkBlueGray-700/50 h-16"
         >
           <div className="max-w-4xl mx-auto py-2">
             <div className="flex items-center justify-between">
@@ -108,7 +109,7 @@ const OrderInfoPage: FC = () => {
 
                 {/* 步骤信息 */}
                 <div>
-                  <h1 className="text-white text-lg font-bold my-0">信息确认</h1>
+                  <h1 className="text-white text-lg font-bold my-0">确认您的订单信息</h1>
                   <p className="text-darkBlueGray-300 text-sm">Info Confirmation</p>
                 </div>
               </div>
@@ -116,16 +117,7 @@ const OrderInfoPage: FC = () => {
               {/* 右侧 - 进度和品牌 */}
               <div className="flex items-center space-x-6">
                 {/* 进度显示 */}
-                <div className="hidden md:flex items-center space-x-2">
-                  <span className="text-darkBlueGray-400 text-sm">进度</span>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <div className="w-2 h-2 rounded-full bg-darkBlueGray-600"></div>
-                    <div className="w-2 h-2 rounded-full bg-darkBlueGray-600"></div>
-                    <div className="w-2 h-2 rounded-full bg-darkBlueGray-600"></div>
-                  </div>
-                  <span className="text-darkBlueGray-300 text-sm font-medium">1/4</span>
-                </div>
+                <ProgressDots currentStep={1} totalSteps={4} />
 
                 {/* 分隔线 */}
                 <div className="hidden md:block h-6 w-px bg-darkBlueGray-600"></div>
@@ -150,7 +142,7 @@ const OrderInfoPage: FC = () => {
           </div>
         </motion.header>
 
-        <Content className="flex-1 px-4 md:px-6 py-8 flex flex-col items-center pb-36">
+        <Content className="flex-1 px-4 md:px-6 py-16 mt-4 flex flex-col items-center pb-80">
           <div className="w-full max-w-4xl space-y-12">
             {/* 核心订单信息卡片 */}
             <motion.div
@@ -260,7 +252,7 @@ const OrderInfoPage: FC = () => {
                         {/* 照片需求 */}
                         <div className="text-center bg-darkBlueGray-700/30 rounded-xl p-3 border border-darkBlueGray-600/30">
                           <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">每件照片</p>
-                          <p className="text-blue-300 text-2xl font-bold">{orderProduct.product.photo_limit}</p>
+                          <p className="text-blue-300 text-2xl font-bold">{orderProduct.product.photo_limit === 0 ? '∞' : orderProduct.product.photo_limit}</p>
                           <p className="text-darkBlueGray-300 text-xs">张</p>
                         </div>
                       </div>
@@ -300,81 +292,111 @@ const OrderInfoPage: FC = () => {
                 })}
               </div>
             </motion.div>
-
-            {/* 选片流程 - 简约版 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <h3 className="text-center text-darkBlueGray-300 font-medium tracking-wider uppercase mb-8">
-                选片流程
-              </h3>
-              <div className="flex items-center justify-center max-w-4xl mx-auto gap-8">
-                {[
-                  { title: '信息确认', desc: 'Info Confirmation', active: true },
-                  { title: '预选照片', desc: 'Photo PreSelection', active: false },
-                  { title: '产品选择', desc: 'Product Assignment', active: false },
-                  { title: '确认提交', desc: 'Final Submission', active: false },
-                ].map((step, idx) => (
-                  <div key={step.title} className="flex items-center">
-                    {/* 步骤内容 */}
-                    <div className="flex flex-col items-center">
-                      {/* 步骤圆圈 */}
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold border-2 transition-all duration-300 ${
-                        step.active
-                          ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/30'
-                          : 'bg-darkBlueGray-800 text-darkBlueGray-400 border-darkBlueGray-600'
-                      }`}
-                      >
-                        {idx + 1}
-                      </div>
-
-                      {/* 步骤文字 */}
-                      <div className="mt-4 text-center">
-                        <p className={`text-base font-semibold mb-1 ${step.active ? 'text-blue-300' : 'text-darkBlueGray-400'}`}>
-                          {step.title}
-                        </p>
-                        <p className="text-xs text-darkBlueGray-500 tracking-wide">
-                          {step.desc}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* 连接线 */}
-                    {idx < 3 && (
-                      <div className="mx-6 w-16 h-0.5 border-t-2 border-dashed border-darkBlueGray-700" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
           </div>
-          {/* 底部操作按钮 */}
-          <div className="fixed left-0 right-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-darkBlueGray-950/98 via-darkBlueGray-900/90 to-transparent py-6 pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="pointer-events-auto"
-            >
-              <div
-                className="flex justify-center relative h-16 px-12 text-xl font-bold rounded-2xl bg-gradient-to-r from-darkBlueGray-600 via-darkBlueGray-700 to-darkBlueGray-800 border-2 border-darkBlueGray-500/60 hover:from-darkBlueGray-500 hover:via-darkBlueGray-600 hover:to-darkBlueGray-700 hover:border-darkBlueGray-400/80 shadow-2xl hover:shadow-darkBlueGray-500/40 transition-all duration-500 transform hover:shadow-xl cursor-pointer"
-                onClick={() => {
-                  // TODO: 跳转到预选页面
-                  navigate('/pre-select')
-                }}
+
+          {/* 底部固定区域 - 选片流程与操作按钮整合 */}
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3, type: 'spring', stiffness: 120 }}
+            className="fixed left-0 right-0 bottom-0 z-20 bg-gradient-to-br from-darkBlueGray-800/95 via-darkBlueGray-900/98 to-darkBlueGray-950/95 backdrop-blur-md border-t border-darkBlueGray-700/50"
+          >
+            <div className="max-w-4xl mx-auto px-6 py-8">
+              {/* 选片流程条 */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.5 }}
+                className="mb-8"
               >
-                {/* 按钮发光效果 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <h3 className="text-center text-darkBlueGray-300 font-medium tracking-wider uppercase mb-6">
+                  选片流程
+                </h3>
+                <div className="flex items-center justify-center gap-6">
+                  {[
+                    { title: '信息确认', desc: 'Info Confirmation', active: true },
+                    { title: '预选照片', desc: 'Photo PreSelection', active: false },
+                    { title: '产品选择', desc: 'Product Assignment', active: false },
+                    { title: '确认提交', desc: 'Final Submission', active: false },
+                  ].map((step, idx) => (
+                    <motion.div
+                      key={step.title}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: 0.7 + idx * 0.08,
+                        type: 'spring',
+                        stiffness: 180,
+                      }}
+                      className="flex items-center"
+                    >
+                      {/* 步骤内容 */}
+                      <div className="flex flex-col items-center">
+                        {/* 步骤圆圈 */}
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
+                            step.active
+                              ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400 shadow-lg shadow-blue-500/40 ring-2 ring-blue-400/30'
+                              : 'bg-darkBlueGray-800 text-darkBlueGray-400 border-darkBlueGray-600 hover:border-darkBlueGray-500'
+                          }`}
+                        >
+                          {idx + 1}
+                        </motion.div>
 
-                <span className="relative flex items-center gap-3 tracking-wide text-white drop-shadow-md font-semibold">
-                  开始预选照片
-                  <RightOutlined className="text-xl transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
-              </div>
-            </motion.div>
-          </div>
+                        {/* 步骤文字 */}
+                        <div className="mt-3 text-center">
+                          <p className={`text-sm font-semibold mb-1 transition-colors duration-300 ${step.active ? 'text-blue-300' : 'text-darkBlueGray-400'}`}>
+                            {step.title}
+                          </p>
+                          <p className="text-xs text-darkBlueGray-500 tracking-wide">
+                            {step.desc}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* 连接线 */}
+                      {idx < 3 && (
+                        <motion.div
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.2, delay: 0.9 + idx * 0.08 }}
+                          className="mx-4 w-12 h-0.5 border-t-2 border-dashed border-darkBlueGray-700 origin-left"
+                        />
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* 操作按钮 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 1.1 }}
+                className="flex justify-center"
+              >
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group flex justify-center items-center relative h-14 px-10 text-lg font-bold rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 border border-blue-500/50 hover:border-blue-400/80 shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 cursor-pointer"
+                  onClick={() => {
+                    navigate('/pre-select')
+                  }}
+                >
+                  {/* 按钮发光效果 */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-cyan-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+
+                  <span className="relative flex items-center gap-3 tracking-wide text-white drop-shadow-md font-semibold">
+                    开始挑选美照
+                    <RightOutlined className="text-lg transition-transform duration-300 group-hover:translate-x-1" />
+                  </span>
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
         </Content>
       </Layout>
     </ConfigProvider>

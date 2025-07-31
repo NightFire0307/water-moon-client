@@ -17,6 +17,7 @@ import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
+import ProgressDots from '@/components/ProgressDots/ProgressDots'
 
 const { Content } = Layout
 
@@ -207,10 +208,15 @@ function ProductSelectPage() {
                   </div>
                 </div>
 
+                <div className='flex gap-4'>
+                {/* 当前进度 */}
+                <ProgressDots currentStep={3} totalSteps={4} />
+
                 <Button type="primary" onClick={() => setConfirmModalOpen(true)}>
                   下一步：提交选片结果
                   <RightOutlined />
                 </Button>
+                </div>
               </div>
 
             </motion.div>

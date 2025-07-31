@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router'
 import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
+import ProgressDots from '../ProgressDots/ProgressDots'
 import { StepHeader } from '../StepHeader/StepHeader'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import PreSelectionConfirmModal from './PreSelectionConfirmModal'
@@ -184,31 +185,15 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
           {/* 全屏和进度显示 */}
           <div className="flex items-center gap-4">
+            <ProgressDots currentStep={2} totalSteps={4} />
             {/* 全屏按钮 */}
-            <Button
+            {/* <Button
               type="text"
               icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
               onClick={toggleFullscreen}
               className="text-darkBlueGray-300 hover:text-white"
               title={isFullscreen ? '退出全屏 (F11)' : '进入全屏 (F11)'}
-            />
-
-            {/* 原有的进度显示 */}
-            <div
-              className="flex items-center gap-6 text-sm select-none relative"
-              onMouseEnter={() => setIsProgressHovered(true)}
-              onMouseLeave={() => setIsProgressHovered(false)}
-            >
-              <Text className="text-darkBlueGray-300">
-                当前：
-                <span className="text-blue-400 font-semibold mx-1">{currentIndex + 1}</span>
-                /
-                <span className="text-white font-semibold mx-1">{ preSelectedPhotos.length }</span>
-              </Text>
-
-              {/* 筛选统计悬浮窗 */}
-              <PreSelectStatsTooltip isProgressHovered={isProgressHovered} />
-            </div>
+            /> */}
 
             {/* 下一步选产品 */}
             <Button
@@ -248,6 +233,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
       {/* 主视图区域 */}
       <Content className={`relative flex-1 ${isFullscreen ? 'pt-0 pb-0 px-0' : 'pt-20 pb-4 px-4'}`}>
+
         <div className="h-full flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8, rotateY: 10 }}
@@ -271,9 +257,28 @@ export const PreSelect: FC<PreSelectProps> = () => {
                 }
               </div>
 
-              {/* 照片信息覆盖层 */}
-              <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm rounded-lg px-3 py-1">
-                <Text className="text-white text-base font-medium">{ currentPhoto?.name ?? '' }</Text>
+              {/* 照片信息覆盖层 - 左上角 */}
+              <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm rounded-lg px-3 py-2">
+                <Text className="text-white text-base font-medium">{currentPhoto?.name ?? ''}</Text>
+              </div>
+
+              {/* 进度显示 - 移到右上角 */}
+              <div
+                className="absolute top-3 right-3 flex items-center gap-4 text-sm select-none"
+                onMouseEnter={() => setIsProgressHovered(true)}
+                onMouseLeave={() => setIsProgressHovered(false)}
+              >
+                <div className="bg-black/50 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-3">
+                  <Text className="text-darkBlueGray-300">
+                    当前：
+                    <span className="text-blue-400 font-semibold mx-1">{currentIndex + 1}</span>
+                    /
+                    <span className="text-white font-semibold mx-1">{preSelectedPhotos.length}</span>
+                  </Text>
+                  
+                  {/* 筛选统计悬浮窗 */}
+                  <PreSelectStatsTooltip isProgressHovered={isProgressHovered} />
+                </div>
               </div>
 
               {/* 状态标识 */}
