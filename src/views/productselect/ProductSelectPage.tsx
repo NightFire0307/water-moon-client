@@ -1,4 +1,11 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import { RightOutlined } from '@ant-design/icons'
+import { Button, ConfigProvider, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import zhCN from 'antd/locale/zh_CN'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -9,13 +16,6 @@ import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
-import { RightOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Layout } from 'antd'
-import { Header } from 'antd/es/layout/layout'
-import Sider from 'antd/es/layout/Sider'
-import zhCN from 'antd/locale/zh_CN'
-import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
 
 const { Content } = Layout
@@ -31,7 +31,7 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
-  const { productSelectedPhotos, filter, currentPhoto, setCurrentPhoto } = usePhotosStore()
+  const { productSelectedPhotos, filter, setCurrentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
 
@@ -85,6 +85,32 @@ function ProductSelectPage() {
     }, 1500)
   }, [])
 
+  // 上一张照片
+  const handlePreviousPhoto = useCallback(() => {
+    if (currentIndex !== 0) {
+      const previousPhoto = filteredPhotos[currentIndex - 1]
+      setCurrentPhoto(previousPhoto)
+      setDropdownMenuStatus(previousPhoto.selectedProducts)
+      previous()
+    }
+    else {
+      showConditionTip('已经是第一张照片了')
+    }
+  }, [currentIndex, filteredPhotos, previous, setCurrentPhoto, setDropdownMenuStatus, showConditionTip])
+
+  // 下一张照片
+  const handleNextPhoto = useCallback(() => {
+    if (currentIndex < filteredPhotos.length - 1) {
+      const nextPhoto = filteredPhotos[currentIndex + 1]
+      setCurrentPhoto(nextPhoto)
+      setDropdownMenuStatus(nextPhoto.selectedProducts)
+      next()
+    }
+    else {
+      showConditionTip('已经是最后一张照片了')
+    }
+  }, [currentIndex, filteredPhotos, next, setCurrentPhoto, setDropdownMenuStatus, showConditionTip])
+
   const handleKeydown = useCallback((e: KeyboardEvent) => {
     // 避免在输入框中触发
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -94,33 +120,16 @@ function ProductSelectPage() {
     switch (e.key) {
       case 'ArrowLeft':
         e.preventDefault()
-        if (currentIndex !== 0) {
-          const previousPhoto = filteredPhotos[currentIndex - 1]
-          setCurrentPhoto(previousPhoto)
-          setDropdownMenuStatus(previousPhoto.selectedProducts)
-          previous()
-        }
-        else {
-          showConditionTip('已经是第一张照片了')
-        }
+        handlePreviousPhoto()
         break
       case 'ArrowRight':
         e.preventDefault()
-        if (currentIndex < filteredPhotos.length - 1) {
-          const nextPhoto = filteredPhotos[currentIndex + 1]
-          setCurrentPhoto(nextPhoto)
-          setDropdownMenuStatus(nextPhoto.selectedProducts)
-          next()
-        }
-        else {
-          showConditionTip('已经是最后一张照片了')
-        }
-
+        handleNextPhoto()
         break
       default:
         break
     }
-  }, [currentIndex, filteredPhotos, next, previous, setCurrentPhoto, setDropdownMenuStatus, showConditionTip])
+  }, [handleNextPhoto, handlePreviousPhoto])
 
   // 全局按键事件
   useEffect(() => {
@@ -147,11 +156,11 @@ function ProductSelectPage() {
         locale={zhCN}
         theme={{
           token: {
-            colorBgElevated: '#334155',
+            colorBgElevated: '#1e293b',
             colorText: '#f8fafc',
             colorTextDisabled: '#64748b',
             colorTextDescription: '#94a3b8',
-            controlItemBgHover: '#475569',
+            controlItemBgHover: 'rgba(16,185,129,0.15)',
           },
           components: {
             Modal: {
@@ -215,7 +224,7 @@ function ProductSelectPage() {
 
             {/* 主视图区域 */}
             <Content className="relative p-4">
-              <ViewerControl transformRef={transformRef} />
+              <ViewerControl transformRef={transformRef} next={handleNextPhoto} previous={handlePreviousPhoto} />
               <MainViewer transformRef={transformRef} />
               <ThumbnailBar
                 photos={filteredPhotos}

@@ -1,11 +1,11 @@
 import type { FC } from 'react'
-import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
-import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
+import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
+import { useProductsStore } from '@/stores/useProductsStore'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
@@ -256,36 +256,6 @@ const ProductSidebar: FC = () => {
           </div>
         </SimpleBar>
       </div>
-
-      {/* 底部统计信息 */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
-        className="mt-4 p-4 rounded-xl bg-gradient-to-br from-darkBlueGray-800/40 to-darkBlueGray-900/40 border border-darkBlueGray-700/30 flex-shrink-0"
-      >
-        <div className="text-xs text-darkBlueGray-400 mb-2">统计信息</div>
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-darkBlueGray-300">总照片数</span>
-            <span className="text-sm font-semibold text-white">{totalCount}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-darkBlueGray-300">已分配</span>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-              <span className="text-sm font-semibold text-emerald-400">{selectedCount}</span>
-            </div>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-darkBlueGray-300">未分配</span>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-orange-400"></div>
-              <span className="text-sm font-semibold text-orange-400">{unselectedCount}</span>
-            </div>
-          </div>
-        </div>
-      </motion.div>
     </motion.div>
   )
 }
