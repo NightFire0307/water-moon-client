@@ -1,14 +1,14 @@
-import type { IProduct } from '@/stores/useProductsStore.tsx'
 import type { FC, ReactElement } from 'react'
-import { submitSelection } from '@/apis/order.ts'
-import CustomModal from '@/components/CustomModal/CustomModal.tsx'
-import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
-import { useCountDown } from '@/hooks/useCountDown.ts'
-import { useProductsStore } from '@/stores/useProductsStore.tsx'
+import type { IProduct } from '@/stores/useProductsStore'
 import { CheckCircleOutlined, LockOutlined, WarningOutlined } from '@ant-design/icons'
 import { Alert, message } from 'antd'
 import cs from 'classnames'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
+import { submitSelection } from '@/apis/order.ts'
+import CustomModal from '@/components/CustomModal/CustomModal.tsx'
+import { OrderInfoContext } from '@/contexts/OrderInfoContext.ts'
+import { useCountDown } from '@/hooks/useCountDown.ts'
+import { useProductsStore } from '@/stores/useProductsStore'
 
 interface ConfirmModalProps {
   open: boolean

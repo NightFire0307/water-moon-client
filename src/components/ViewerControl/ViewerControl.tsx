@@ -127,7 +127,12 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
                   },
                 }}
                 >
-                  <Dropdown open={open} menu={{ items: menuItems, onClick: dropdownMenuClick }} onOpenChange={handleOpenChange}>
+                  <Dropdown
+                    open={open}
+                    menu={{ items: menuItems, onClick: dropdownMenuClick }}
+                    onOpenChange={handleOpenChange}
+                    disabled={currentPhoto === null}
+                  >
                     <Button
                       icon={<PlusOutlined />}
                     >

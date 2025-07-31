@@ -5,12 +5,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
   const { setFilter, getProductSelectedStats } = usePhotosStore()
   const { products } = useProductsStore()
+  const { setCurrentIndex } = usePhotoViewerStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [activeFilterType, setActiveFilterType] = useState<FILTER_TYPE>(FILTER_TYPE.ALL)
 
@@ -56,6 +58,7 @@ const ProductSidebar: FC = () => {
     setSelectedProductId(null)
     setSelectedType('filter')
     setFilter({ productId: undefined, filterType })
+    setCurrentIndex(0) // 重置当前索引
   }
 
   const handleProductClick = (productId: number) => {
@@ -63,6 +66,7 @@ const ProductSidebar: FC = () => {
     setActiveFilterType(FILTER_TYPE.SELECTED)
     setSelectedType('product')
     setFilter({ productId, filterType: FILTER_TYPE.SELECTED })
+    setCurrentIndex(0)
   }
 
   return (

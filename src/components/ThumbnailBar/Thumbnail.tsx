@@ -1,6 +1,6 @@
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
-
 import cs from 'classnames'
+
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 
 interface ThumbnailProps {
   index: number
@@ -24,7 +24,7 @@ export function Thumbnail({ index, thumbnailUrl, isSelected, extra, thumbnailCli
       className={
         cs(
           'relative flex justify-center flex-shrink-0 w-24 h-16  hover:bg-darkBlueGray-600 active:bg-darkBlueGray-500 transition-all rounded-md border-2 box-content select-none',
-          isSelected ? 'border-blue-400 bg-darkBlueGray-600' : 'border-transparent bg-darkBlueGray-700',
+          isSelected ? ' border-blue-400 bg-darkBlueGray-600' : 'border-transparent bg-darkBlueGray-700',
         )
       }
       onClick={handleClick}

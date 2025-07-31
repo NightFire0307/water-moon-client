@@ -1,9 +1,9 @@
-import type { IProduct } from '@/stores/useProductsStore.tsx'
-import { BoxVariantIcon } from '@/assets/icon'
-import { useProductsStore } from '@/stores/useProductsStore.tsx'
+import type { IProduct } from '@/stores/useProductsStore'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { Alert, Flex, Result, Space } from 'antd'
 import { useEffect, useState } from 'react'
+import { BoxVariantIcon } from '@/assets/icon'
+import { useProductsStore } from '@/stores/useProductsStore'
 
 interface ValidationResultProps {
   allSelect: boolean

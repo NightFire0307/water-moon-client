@@ -1,10 +1,10 @@
-import type { IProduct } from './useProductsStore.tsx'
+import type { IProduct } from './useProductsStore'
 import type { IPhoto } from '@/types/photos.ts'
 import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { getOrderPhotos } from '@/apis/order.ts'
-import { useProductsStore } from './useProductsStore.tsx'
+import { useProductsStore } from './useProductsStore'
 
 export interface Photo {
   photoId: number
@@ -23,7 +23,7 @@ interface UsePhotosState {
   productSelectedPhotos: Photo[] // 已选产品的照片列表
   currentPhoto: Photo | null // 当前照片
   isLoading: boolean // 是否正在加载照片
-  mode: 'preSelect' | 'productSelect' | 'submitted' // 预选模式 和 产品选片模式 和 已提交
+  mode: 'preSelect' | 'productSelect' | 'preview' // 预选模式 产品选片模式 预览模式
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
   dirty: boolean // 是否有未保存的更改
 }
@@ -218,7 +218,11 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
         })
       },
       setCurrentPhoto: (currentPhoto) => {
+        const { setDropdownMenuStatus } = useProductsStore.getState()
         set({ currentPhoto })
+
+        // 设置产品选片的下拉菜单状态
+        setDropdownMenuStatus(currentPhoto?.selectedProducts || [])
       },
       setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
         const photoIndex = state.preSelectedPhotos.findIndex(photo => photo.photoId === photoId)
