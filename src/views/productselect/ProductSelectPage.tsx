@@ -1,14 +1,14 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { RightOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Layout } from 'antd'
+import { Button, Layout } from 'antd'
 import { Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
-import zhCN from 'antd/locale/zh_CN'
 import { motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
+import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
 import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
@@ -17,7 +17,6 @@ import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
-import ProgressDots from '@/components/ProgressDots/ProgressDots'
 
 const { Content } = Layout
 
@@ -153,62 +152,29 @@ function ProductSelectPage() {
       setKeyboardDisabled,
     }}
     >
-      <ConfigProvider
-        locale={zhCN}
-        theme={{
-          token: {
-            colorBgElevated: '#1e293b',
-            colorText: '#f8fafc',
-            colorTextDisabled: '#64748b',
-            colorTextDescription: '#94a3b8',
-            controlItemBgHover: 'rgba(16,185,129,0.15)',
-          },
-          components: {
-            Modal: {
-              contentBg: '#1e293b',
-            },
-            Button: {
-              borderColorDisabled: '#475569',
-              defaultBg: '#334155',
-              defaultColor: '#e2e8f0',
-              defaultBorderColor: '#475569',
-              defaultActiveBg: '#0f172a',
-              defaultActiveBorderColor: '#1e293b',
-              defaultActiveColor: '#e2e8f0',
-              defaultHoverBg: '#475569',
-              defaultHoverBorderColor: '#475569',
-              defaultHoverColor: '#ffffff',
-              textTextColor: '#94a3b8',
-              textHoverBg: '#475569',
-              textTextActiveColor: '#cbd5e1',
-              textTextHoverColor: '#f8fafc',
-            },
-          },
-        }}
-      >
-        <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden `}>
-          <Header>
-            <motion.div
-              initial={{ opacity: 0, y: -30 }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{ duration: 0.3 }}
-              className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/30"
+      <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden `}>
+        <Header>
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/30"
+          >
+            <div
+              className="flex items-center justify-between px-4 py-2"
             >
-              <div
-                className="flex items-center justify-between px-4 py-2"
-              >
-                <div className="flex items-end gap-4">
-                  <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
-                  <div className="flex flex-col text-xs text-darkBlueGray-400 mb-0.5">
-                    <span>最近保存时间</span>
-                    <span>2025-07-29 16:27:16</span>
-                  </div>
+              <div className="flex items-end gap-4">
+                <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
+                <div className="flex flex-col text-xs text-darkBlueGray-400 mb-0.5">
+                  <span>最近保存时间</span>
+                  <span>2025-07-29 16:27:16</span>
                 </div>
+              </div>
 
-                <div className='flex gap-4'>
+              <div className="flex gap-4">
                 {/* 当前进度 */}
                 <ProgressDots currentStep={3} totalSteps={4} />
 
@@ -216,46 +182,44 @@ function ProductSelectPage() {
                   下一步：提交选片结果
                   <RightOutlined />
                 </Button>
-                </div>
               </div>
+            </div>
 
-            </motion.div>
-          </Header>
+          </motion.div>
+        </Header>
 
-          <Layout className="bg-darkBlueGray-900">
-            <Sider width={320} className="bg-darkBlueGray-900 ">
-              {/* 产品侧边栏 */}
-              <ProductSidebar />
-            </Sider>
+        <Layout className="bg-darkBlueGray-900">
+          <Sider width={320} className="bg-darkBlueGray-900 ">
+            {/* 产品侧边栏 */}
+            <ProductSidebar />
+          </Sider>
 
-            {/* 主视图区域 */}
-            <Content className="relative p-4">
-              <ViewerControl transformRef={transformRef} next={handleNextPhoto} previous={handlePreviousPhoto} />
-              <MainViewer transformRef={transformRef} />
-              <ThumbnailBar
-                photos={filteredPhotos}
-                currentIndex={currentIndex}
-                onClickThumbnail={(item, index) => {
-                  setCurrentIndex(index)
-                  setCurrentPhoto(item)
-                }}
-              />
-              <ConditionTip
-                visible={conditionTipState.visible}
-                msg={conditionTipState.msg}
-                centered
-              />
-            </Content>
-          </Layout>
+          {/* 主视图区域 */}
+          <Content className="relative p-4">
+            <ViewerControl transformRef={transformRef} next={handleNextPhoto} previous={handlePreviousPhoto} />
+            <MainViewer transformRef={transformRef} />
+            <ThumbnailBar
+              photos={filteredPhotos}
+              currentIndex={currentIndex}
+              onClickThumbnail={(item, index) => {
+                setCurrentIndex(index)
+                setCurrentPhoto(item)
+              }}
+            />
+            <ConditionTip
+              visible={conditionTipState.visible}
+              msg={conditionTipState.msg}
+              centered
+            />
+          </Content>
         </Layout>
+      </Layout>
 
-        {/* 提交选片结果Modal */}
-        <ProductSelectConfirmModal
-          open={confirmModalOpen}
-          onCancel={() => setConfirmModalOpen(false)}
-        />
-
-      </ConfigProvider>
+      {/* 提交选片结果Modal */}
+      <ProductSelectConfirmModal
+        open={confirmModalOpen}
+        onCancel={() => setConfirmModalOpen(false)}
+      />
 
     </PhotoViewerContext.Provider>
 

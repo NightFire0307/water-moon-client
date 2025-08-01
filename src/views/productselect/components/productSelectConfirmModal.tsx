@@ -1,8 +1,8 @@
+import { ExclamationCircleOutlined } from '@ant-design/icons'
+import { useMemo } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { useProductsStore } from '@/stores/useProductsStore'
-import { ExclamationCircleOutlined } from '@ant-design/icons'
-import { useMemo } from 'react'
 
 interface ProductSelectConfirmModalProps {
   open: boolean

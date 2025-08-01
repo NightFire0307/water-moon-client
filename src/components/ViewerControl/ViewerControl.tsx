@@ -78,29 +78,6 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
             >
               {/* 顶部控制栏 */}
               <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-3 p-2 bg-gradient-to-r from-slate-800/95 via-slate-900/95 to-slate-800/95 backdrop-blur-md border border-slate-600/30 rounded-2xl shadow-2xl z-50">
-                {/* 统计信息区域 */}
-                {/* <div className="flex items-center gap-4 px-3 py-1 rounded-xl bg-slate-700/50 border border-slate-600/30">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                    <span className="text-xs text-slate-300">总计</span>
-                    <span className="text-sm font-semibold text-white ml-1">{totalCount}</span>
-                  </div>
-                  <div className="w-px h-4 bg-slate-500/30"></div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                    <span className="text-xs text-slate-300">已选</span>
-                    <span className="text-sm font-semibold text-emerald-400 ml-1">{selectedCount}</span>
-                  </div>
-                  <div className="w-px h-4 bg-slate-500/30"></div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-orange-400"></div>
-                    <span className="text-xs text-slate-300">未选</span>
-                    <span className="text-sm font-semibold text-orange-400 ml-1">{unselectedCount}</span>
-                  </div>
-                </div> */}
-
-                {/* 分隔线 */}
-                {/* <div className="w-px h-8 bg-gradient-to-b from-transparent via-slate-500/50 to-transparent" /> */}
 
                 {/* 产品选择按钮 */}
                 <ConfigProvider theme={{
