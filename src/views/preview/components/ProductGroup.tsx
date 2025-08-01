@@ -1,7 +1,8 @@
+import { useProductsStore } from '@/stores/useProductsStore'
 import { PictureOutlined, ShareAltOutlined, UpOutlined } from '@ant-design/icons'
 import { motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
-import { useProductsStore } from '@/stores/useProductsStore'
+import SimpleBar from 'simplebar-react'
 
 interface ProductItem {
   id: number
@@ -33,7 +34,7 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
     >
       {/* 产品标题栏 */}
       <div className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-        <div className="border-b border-darkBlueGray-700/30 bg-darkBlueGray-800/30 p-6">
+        <div className="border-b border-darkBlueGray-700/30 bg-darkBlueGray-800/30 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-darkBlueGray-500/50 bg-gradient-to-br from-darkBlueGray-600 to-darkBlueGray-700 shadow-lg">
@@ -81,7 +82,7 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
         transition={{ duration: 0.3 }}
         style={{ overflow: 'hidden' }}
       >
-        <div className="p-6">
+        <div className="p-4">
           {
             // eslint-disable-next-line style/multiline-ternary
             items.length === 0 ? (
@@ -96,74 +97,76 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
                 <div className="text-lg font-medium text-darkBlueGray-400">该产品尚未分配照片</div>
               </motion.div>
             ) : (
-              <div className="grid grid-cols-[repeat(auto-fill,_minmax(_auto,240px))] gap-6">
-                {items.map((photo, photoIndex) => (
-                  <motion.div
-                    key={photo.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{
-                      delay: photoIndex * 0.05,
-                      duration: 0.4,
-                      ease: 'easeOut',
-                    }}
+              <SimpleBar>
+                <div className="grid grid-cols-[repeat(auto-fill,_minmax(_auto,240px))] gap-4">
+                  {items.map((photo, photoIndex) => (
+                    <motion.div
+                      key={photo.id}
+                      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{
+                        delay: photoIndex * 0.05,
+                        duration: 0.4,
+                        ease: 'easeOut',
+                      }}
 
-                  >
-                    <div className="max-w-60 overflow-hidden rounded-xl border border-darkBlueGray-700/50 bg-gradient-to-br from-darkBlueGray-600/90 via-darkBlueGray-800/95 to-darkBlueGray-900/90 shadow-lg transition-all duration-300 hover:border-darkBlueGray-600/70 hover:shadow-2xl">
-                      {/* 图片容器 */}
-                      <div className="relative aspect-square overflow-hidden">
-                        <img
-                          src={photo.url}
-                          alt={photo.name}
-                          className="h-full object-container transition-transform duration-300 group-hover:scale-110 mx-auto"
-                        />
-                        {/* 悬浮遮罩 */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-darkBlueGray-900/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                    >
+                      <div className="max-w-60 overflow-hidden rounded-xl border border-darkBlueGray-700/50 bg-gradient-to-br from-darkBlueGray-600/90 via-darkBlueGray-800/95 to-darkBlueGray-900/90 shadow-lg transition-all duration-300 hover:border-darkBlueGray-600/70 hover:shadow-2xl">
+                        {/* 图片容器 */}
+                        <div className="relative aspect-square overflow-hidden flex items-center justify-center">
+                          <img
+                            src={photo.url}
+                            alt={photo.name}
+                            className="max-h-full max-w-full object-container transition-transform duration-300 group-hover:scale-110 mx-auto"
+                          />
+                          {/* 悬浮遮罩 */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-darkBlueGray-900/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
 
-                        {/* 多产品共享标记 */}
-                        {photo.selectedProducts.length > 1 && (
-                          <div className="absolute left-2 top-2">
-                            <div className="group/tooltip relative">
-                              <div className="flex cursor-help items-center gap-1 rounded-md border border-blue-500/50 bg-blue-600/90 px-2 py-1 backdrop-blur-sm transition-colors duration-200 hover:bg-blue-500/90">
-                                <ShareAltOutlined />
-                                <span className="text-xs font-semibold text-white">
-                                  {photo.selectedProducts.length}
-                                  个产品
-                                </span>
-                              </div>
-
-                              {/* 悬浮提示框 */}
-                              <div className="invisible absolute right-0 left-0 mt-2 w-40 z-50 rounded-lg border border-darkBlueGray-600/50 bg-darkBlueGray-800/95 p-3 opacity-0 shadow-xl backdrop-blur-sm transition-all duration-200 group-hover/tooltip:visible group-hover/tooltip:opacity-100">
-                                <div className="mb-2 text-xs font-medium text-darkBlueGray-200">
-                                  该照片已分配到：
+                          {/* 多产品共享标记 */}
+                          {photo.selectedProducts.length > 1 && (
+                            <div className="absolute left-2 top-2">
+                              <div className="group/tooltip relative">
+                                <div className="flex cursor-help items-center gap-1 rounded-md border border-blue-500/50 bg-blue-600/90 px-2 py-1 backdrop-blur-sm transition-colors duration-200 hover:bg-blue-500/90">
+                                  <ShareAltOutlined />
+                                  <span className="text-xs font-semibold text-white">
+                                    {photo.selectedProducts.length}
+                                    个产品
+                                  </span>
                                 </div>
-                                <div className="space-y-1">
-                                  {photo.selectedProducts.map(selectedProduct => (
-                                    <div key={selectedProduct.productId} className="flex items-center gap-2 text-xs">
-                                      <div className="h-2 w-2 rounded-full bg-blue-400"></div>
-                                      <span className="text-darkBlueGray-300">{selectedProduct.name}</span>
-                                      <span className="text-darkBlueGray-400">
-                                        {selectedProduct.type}
-                                      </span>
-                                    </div>
-                                  ))}
+
+                                {/* 悬浮提示框 */}
+                                <div className="invisible absolute right-0 left-0 mt-2 w-40 z-50 rounded-lg border border-darkBlueGray-600/50 bg-darkBlueGray-800/95 p-3 opacity-0 shadow-xl backdrop-blur-sm transition-all duration-200 group-hover/tooltip:visible group-hover/tooltip:opacity-100">
+                                  <div className="mb-2 text-xs font-medium text-darkBlueGray-200">
+                                    该照片已分配到：
+                                  </div>
+                                  <div className="space-y-1">
+                                    {photo.selectedProducts.map(selectedProduct => (
+                                      <div key={selectedProduct.productId} className="flex items-center gap-2 text-xs">
+                                        <div className="h-2 w-2 rounded-full bg-blue-400"></div>
+                                        <span className="text-darkBlueGray-300">{selectedProduct.name}</span>
+                                        <span className="text-darkBlueGray-400">
+                                          {selectedProduct.type}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  {/* 小箭头 */}
+                                  <div className="absolute -top-1 left-3 h-2 w-2 rotate-45 transform border-l border-t border-darkBlueGray-600/50 bg-darkBlueGray-800" />
                                 </div>
-                                {/* 小箭头 */}
-                                <div className="absolute -top-1 left-3 h-2 w-2 rotate-45 transform border-l border-t border-darkBlueGray-600/50 bg-darkBlueGray-800" />
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
+                          )}
+                        </div>
 
-                      {/* 信息区域 - 简化显示 */}
-                      <div className="p-3">
-                        <div className="truncate text-xs font-medium text-slate-100">{photo.name}</div>
+                        {/* 信息区域 - 简化显示 */}
+                        <div className="p-3">
+                          <div className="truncate text-xs font-medium text-slate-100">{photo.name}</div>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </SimpleBar>
             )
           }
         </div>

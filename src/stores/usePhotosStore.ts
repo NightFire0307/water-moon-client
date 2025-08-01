@@ -1,9 +1,9 @@
-import type { IProduct } from './useProductsStore'
 import type { IPhoto } from '@/types/photos.ts'
+import type { IProduct } from './useProductsStore'
+import { getOrderPhotos } from '@/apis/order.ts'
 import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import { getOrderPhotos } from '@/apis/order.ts'
 import { useProductsStore } from './useProductsStore'
 
 export interface Photo {
@@ -77,8 +77,15 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
         filterType: FILTER_TYPE.ALL,
       },
       fetchPhotos: async () => {
+        const state = get()
         // 设置加载状态
         set({ isLoading: true })
+
+        // 如果有持久化数据则直接使用
+        if (state.originalPhotos.length > 0) {
+          set({ isLoading: false })
+          return
+        }
 
         try {
           const products = useProductsStore.getState().products

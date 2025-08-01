@@ -1,8 +1,8 @@
-import { ExclamationCircleOutlined } from '@ant-design/icons'
-import { useMemo } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { ExclamationCircleOutlined } from '@ant-design/icons'
+import { useMemo } from 'react'
 
 interface ProductSelectConfirmModalProps {
   open: boolean
@@ -31,8 +31,8 @@ function ProductSelectConfirmModal({ open, onConfirm, onCancel }: ProductSelectC
   return (
     <CustomModal
       open={open}
-      title="确认提交选片结果"
-      okText={hasUnassignedPhotos ? '请先完成照片分配' : '提交选片结果'}
+      title="确认完成分配"
+      okText={hasUnassignedPhotos ? '请先完成照片分配' : '确认并预览'}
       disabledOk={hasUnassignedPhotos}
       centered
       onOk={onConfirm}

@@ -35,8 +35,6 @@ function App() {
           colorTextDisabled: '#64748b',
           colorTextDescription: '#94a3b8',
           controlItemBgHover: '#475569',
-          colorBgContainer: '#1e293b',
-          colorBorder: '#475569',
         },
         components: {
           Modal: {
@@ -46,10 +44,10 @@ function App() {
             borderColorDisabled: '#475569',
             defaultBg: '#334155',
             defaultColor: '#e2e8f0',
-            defaultBorderColor: '#475569',
             defaultActiveBg: '#0f172a',
             defaultActiveBorderColor: '#1e293b',
             defaultActiveColor: '#e2e8f0',
+            defaultBorderColor: '#475569',
             defaultHoverBg: '#475569',
             defaultHoverBorderColor: '#475569',
             defaultHoverColor: '#ffffff',

@@ -9,11 +9,13 @@ interface CustomModalProps extends PropsWithChildren, ModalProps {
   onOk?: () => void
   onCancel?: () => void
   disabledOk?: boolean
+  okIcon?: ReactElement
   okButtonClassName?: string
   okButtonStyle?: React.CSSProperties
 }
 
-const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCancel, onOk, footer, closeIcon, okText, disabledOk, okButtonClassName, okButtonStyle, ...reset }) => {
+const customModal: FC<CustomModalProps> = (
+  { children, title, desc, icon, onCancel, onOk, footer, closeIcon, okText, disabledOk, okButtonClassName, okButtonStyle, okIcon, ...reset }) => {
   return (
     <Modal
       {...reset}
@@ -41,8 +43,9 @@ const customModal: FC<CustomModalProps> = ({ children, title, desc, icon, onCanc
           type="primary"
           onClick={() => onOk && onOk()}
           disabled={disabledOk ?? false}
-          className="bg-blue-600 text-white font-semibold border-none hover:bg-blue-700 disabled:bg-gray-400 transition-all duration-200"
+          className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800 disabled:bg-blue-300 text-white font-semibold border-none  transition-all duration-200"
           style={okButtonStyle}
+          icon={okIcon}
         >
           { okText || '确定'}
         </Button>

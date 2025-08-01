@@ -1,8 +1,8 @@
 import type { IOrderProduct } from '@/types/order.ts'
+import { updateOrderPhotos } from '@/apis/order.ts'
 import { message } from 'antd'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import { updateOrderPhotos } from '@/apis/order.ts'
 import { usePhotosStore } from './usePhotosStore'
 
 /**
@@ -68,7 +68,10 @@ export const useProductsStore = create<ProductState & ProductActions>()(
             return state
           }
           else {
-            // 处理订单产品数据，生成产品列表
+            // 如果有持久化数据则直接返回
+            if (state.products.length > 0) {
+              return state
+            }
             const products = orderProducts.map(product => ({
               productId: product.product.id,
               name: product.product.name,

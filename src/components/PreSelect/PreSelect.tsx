@@ -1,11 +1,11 @@
 import type { FC } from 'react'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '../ProgressDots/ProgressDots'
 import { StepHeader } from '../StepHeader/StepHeader'
@@ -199,7 +199,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
             <Button
               type="primary"
               onClick={() => setPreSelectConfirmModalOpen(true)}
-              className=" bg-blue-600 text-white font-semibold border-none shadow-md hover:bg-blue-700  hover:shadow-lg transition-all duration-200"
+              className=" bg-blue-500 hover:bg-blue-600 active:bg-blue-800 text-white font-medium border-none shadow-md   hover:shadow-lg transition-all duration-200"
               style={{ boxShadow: '0 2px 8px 0 rgba(37,99,235,0.15)' }}
             >
               下一步：选择产品
@@ -275,7 +275,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
                     /
                     <span className="text-white font-semibold mx-1">{preSelectedPhotos.length}</span>
                   </Text>
-                  
+
                   {/* 筛选统计悬浮窗 */}
                   <PreSelectStatsTooltip isProgressHovered={isProgressHovered} />
                 </div>

@@ -1,10 +1,4 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { RightOutlined } from '@ant-design/icons'
-import { Button, Layout } from 'antd'
-import { Header } from 'antd/es/layout/layout'
-import Sider from 'antd/es/layout/Sider'
-import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -16,6 +10,13 @@ import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { RightOutlined } from '@ant-design/icons'
+import { Button, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
 
 const { Content } = Layout
@@ -34,6 +35,7 @@ function ProductSelectPage() {
   const { productSelectedPhotos, filter, setCurrentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
+  const navigate = useNavigate()
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
@@ -180,8 +182,12 @@ function ProductSelectPage() {
                 {/* 当前进度 */}
                 <ProgressDots currentStep={3} totalSteps={4} />
 
-                <Button type="primary" onClick={() => setConfirmModalOpen(true)}>
-                  下一步：提交选片结果
+                <Button
+                  type="primary"
+                  onClick={() => setConfirmModalOpen(true)}
+                  className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800"
+                >
+                  下一步：最终预览
                   <RightOutlined />
                 </Button>
               </div>
@@ -213,7 +219,11 @@ function ProductSelectPage() {
       </Layout>
 
       {/* 提交选片结果Modal */}
-      <ProductSelectConfirmModal open={confirmModalOpen} onCancel={() => setConfirmModalOpen(false)} />
+      <ProductSelectConfirmModal
+        open={confirmModalOpen}
+        onConfirm={() => navigate('/preview')}
+        onCancel={() => setConfirmModalOpen(false)}
+      />
     </PhotoViewerContext.Provider>
   )
 }
