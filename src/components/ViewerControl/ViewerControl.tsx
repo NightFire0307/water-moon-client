@@ -94,13 +94,6 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
                       defaultActiveColor: '#ffffff',
                       borderRadius: 10,
                     },
-                    Dropdown: {
-                      colorBgElevated: '#1e293b',
-                      colorText: '#f1f5f9',
-                      controlItemBgHover: '#334155',
-                      colorTextDisabled: '#64748b',
-                      borderRadiusLG: 12,
-                    },
                   },
                 }}
                 >

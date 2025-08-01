@@ -58,6 +58,13 @@ function App() {
             textTextActiveColor: '#cbd5e1',
             textTextHoverColor: '#f8fafc',
           },
+          Dropdown: {
+            colorBgElevated: '#1e293b',
+            colorText: '#f1f5f9',
+            controlItemBgHover: '#334155',
+            colorTextDisabled: '#64748b',
+            borderRadiusLG: 12,
+          },
         },
       }}
     >

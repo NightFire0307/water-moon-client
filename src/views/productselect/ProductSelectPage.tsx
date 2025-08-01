@@ -111,25 +111,28 @@ function ProductSelectPage() {
     }
   }, [currentIndex, filteredPhotos, next, setCurrentPhoto, setDropdownMenuStatus, showConditionTip])
 
-  const handleKeydown = useCallback((e: KeyboardEvent) => {
-    // 避免在输入框中触发
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-      return
-    }
+  const handleKeydown = useCallback(
+    (e: KeyboardEvent) => {
+      // 避免在输入框中触发
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return
+      }
 
-    switch (e.key) {
-      case 'ArrowLeft':
-        e.preventDefault()
-        handlePreviousPhoto()
-        break
-      case 'ArrowRight':
-        e.preventDefault()
-        handleNextPhoto()
-        break
-      default:
-        break
-    }
-  }, [handleNextPhoto, handlePreviousPhoto])
+      switch (e.key) {
+        case 'ArrowLeft':
+          e.preventDefault()
+          handlePreviousPhoto()
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          handleNextPhoto()
+          break
+        default:
+          break
+      }
+    },
+    [handleNextPhoto, handlePreviousPhoto],
+  )
 
   // 全局按键事件
   useEffect(() => {
@@ -141,18 +144,19 @@ function ProductSelectPage() {
   }, [handleKeydown])
 
   return (
-    <PhotoViewerContext.Provider value={{
-      thumbnailVisible,
-      setThumbnailVisible,
-      viewerControlVisible,
-      setViewerControlVisible,
-      productSidebarVisible,
-      setProductSidebarVisible,
-      keyboardDisabled,
-      setKeyboardDisabled,
-    }}
+    <PhotoViewerContext.Provider
+      value={{
+        thumbnailVisible,
+        setThumbnailVisible,
+        viewerControlVisible,
+        setViewerControlVisible,
+        productSidebarVisible,
+        setProductSidebarVisible,
+        keyboardDisabled,
+        setKeyboardDisabled,
+      }}
     >
-      <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden `}>
+      <Layout className="relative h-screen overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950">
         <Header>
           <motion.div
             initial={{ opacity: 0, y: -30 }}
@@ -161,14 +165,12 @@ function ProductSelectPage() {
               y: 0,
             }}
             transition={{ duration: 0.3 }}
-            className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/30"
+            className="absolute left-0 right-0 top-0 z-30 border-b border-darkBlueGray-700/30 bg-darkBlueGray-900/70 backdrop-blur-md"
           >
-            <div
-              className="flex items-center justify-between px-4 py-2"
-            >
+            <div className="flex items-center justify-between px-4 py-2">
               <div className="flex items-end gap-4">
                 <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
-                <div className="flex flex-col text-xs text-darkBlueGray-400 mb-0.5">
+                <div className="mb-0.5 flex flex-col text-xs text-darkBlueGray-400">
                   <span>最近保存时间</span>
                   <span>2025-07-29 16:27:16</span>
                 </div>
@@ -184,12 +186,11 @@ function ProductSelectPage() {
                 </Button>
               </div>
             </div>
-
           </motion.div>
         </Header>
 
         <Layout className="bg-darkBlueGray-900">
-          <Sider width={320} className="bg-darkBlueGray-900 ">
+          <Sider width={320} className="bg-darkBlueGray-900">
             {/* 产品侧边栏 */}
             <ProductSidebar />
           </Sider>
@@ -206,23 +207,14 @@ function ProductSelectPage() {
                 setCurrentPhoto(item)
               }}
             />
-            <ConditionTip
-              visible={conditionTipState.visible}
-              msg={conditionTipState.msg}
-              centered
-            />
+            <ConditionTip visible={conditionTipState.visible} msg={conditionTipState.msg} centered />
           </Content>
         </Layout>
       </Layout>
 
       {/* 提交选片结果Modal */}
-      <ProductSelectConfirmModal
-        open={confirmModalOpen}
-        onCancel={() => setConfirmModalOpen(false)}
-      />
-
+      <ProductSelectConfirmModal open={confirmModalOpen} onCancel={() => setConfirmModalOpen(false)} />
     </PhotoViewerContext.Provider>
-
   )
 }
 
