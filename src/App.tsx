@@ -14,7 +14,7 @@ import './App.css'
 function App() {
   const [resetModalOpen, setResetModalOpen] = useState(false)
   const { generateProducts } = useProductsStore()
-  const { fetchPhotos, mode } = usePhotosStore()
+  const { fetchPhotos, selectionStage } = usePhotosStore()
   const { setOrderInfo } = useOrderStore()
 
   const fetchOrderInfo = async () => {
@@ -26,6 +26,8 @@ function App() {
   useEffect(() => {
     fetchPhotos()
     fetchOrderInfo()
+
+    // 判断当前选片模式
   }, [])
 
   return (
@@ -73,7 +75,7 @@ function App() {
       <FullScreenLoading />
 
       {
-        mode !== 'submitted' && (
+        selectionStage !== 'submitted' && (
           <>
             <FloatButton
               icon={<ReloadOutlined className=" rotate-180" />}

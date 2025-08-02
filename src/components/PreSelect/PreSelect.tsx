@@ -1,11 +1,11 @@
 import type { FC } from 'react'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '../ProgressDots/ProgressDots'
 import { StepHeader } from '../StepHeader/StepHeader'
@@ -23,7 +23,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, copyPreSelectedPhotos, setMode } = usePhotosStore()
+  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, copyPreSelectedPhotos, setSelectionStage } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
@@ -54,7 +54,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
     setCurrentIndex(0)
 
     // 设置当前模式为产品选择
-    setMode('productSelect')
+    setSelectionStage('productSelect')
 
     // 模拟异步操作
     setTimeout(() => {

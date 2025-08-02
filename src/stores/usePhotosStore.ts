@@ -23,7 +23,7 @@ interface UsePhotosState {
   productSelectedPhotos: Photo[] // 已选产品的照片列表
   currentPhoto: Photo | null // 当前照片
   isLoading: boolean // 是否正在加载照片
-  mode: 'preSelect' | 'productSelect' | 'preview' // 预选模式 产品选片模式 预览模式
+  selectionStage: 'preSelect' | 'productSelect' | 'preview' | 'submitted' // 当前选片阶段
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
   dirty: boolean // 是否有未保存的更改
 }
@@ -49,7 +49,7 @@ interface UsePhotosAction {
   setFilter: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void // 设置过滤条件
   setLoading: (isLoading: boolean) => void // 设置加载状态
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
-  setMode: (mode: 'preSelect' | 'productSelect') => void // 设置当前模式
+  setSelectionStage: (stage: 'preSelect' | 'productSelect' | 'preview' | 'submitted') => void // 设置当前模式
   setDirty: (dirty: boolean) => void // 设置是否有未保存的更改
   setAllPendingToExclude: () => void // 将所有待处理的照片状态设置为排除
   setAllPendingToSelected: () => void // 将所有待处理的照片状态设置为选中
@@ -70,7 +70,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       productSelectedPhotos: [],
       currentPhoto: null,
       isLoading: true,
-      mode: 'preSelect',
+      selectionStage: 'preSelect',
       dirty: false,
       filter: {
         productId: undefined,
@@ -280,7 +280,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
 
         set({ productSelectedPhotos })
       },
-      setMode: mode => set({ mode }),
+      setSelectionStage: stage => set({ selectionStage: stage }),
       setFilter: filter => set({ filter }),
       setDirty: () => { },
       setAllPendingToExclude: () => set((state) => {
