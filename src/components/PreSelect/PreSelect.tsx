@@ -1,11 +1,11 @@
 import type { FC } from 'react'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
-import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, FullscreenOutlined, RightOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '../ProgressDots/ProgressDots'
 import { StepHeader } from '../StepHeader/StepHeader'
@@ -158,7 +158,10 @@ export const PreSelect: FC<PreSelectProps> = () => {
         <div
           className="flex items-center justify-between px-4 py-2"
         >
-          <StepHeader stepNumber={2} stepTitle="预选照片" stepDesc="Photo PreSelection" />
+          <div className="flex items-center gap-4">
+            <Button icon={<LeftOutlined />} type="text" size="large" onClick={() => navigate('/order-info')} />
+            <StepHeader stepNumber={2} stepTitle="预选照片" stepDesc="Photo PreSelection" />
+          </div>
 
           {/* 快捷键提示 */}
           <div className="flex items-center justify-center gap-8">

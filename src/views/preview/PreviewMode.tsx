@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import SimpleBar from 'simplebar-react'
+import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { useProductsStore } from '@/stores/useProductsStore'
@@ -69,8 +70,9 @@ export default function PreviewMode() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
+            className="flex gap-4"
           >
-
+            <ProgressDots currentStep={4} totalSteps={4} />
             <Button
               type="primary"
               onClick={() => setShowSubmitModal(true)}
