@@ -1,4 +1,4 @@
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { CheckOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, message } from 'antd'
 import { motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
@@ -16,7 +16,7 @@ const { Content, Header } = Layout
 export default function PreviewMode() {
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const { products } = useProductsStore()
-  const { productSelectedPhotos } = usePhotosStore()
+  const { productSelectedPhotos, mode, setMode } = usePhotosStore()
   const navigate = useNavigate()
 
   /**
@@ -62,8 +62,31 @@ export default function PreviewMode() {
               icon={<LeftOutlined />}
               size="large"
               onClick={() => navigate('/product-select')} // 返回产品选择页面
+              disabled={mode === 'submitted'}
             />
             <StepHeader stepNumber={4} stepTitle="选片结果预览" stepDesc="Selection Result Preview" />
+          </div>
+
+          {/* 中间的成功提示区域 */}
+          <div className="flex-1 flex justify-center">
+            {mode === 'submitted' && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="bg-darkBlueGray-800/60 backdrop-blur-sm text-darkBlueGray-100 px-4 py-2 rounded-lg border border-darkBlueGray-600/30"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 bg-green-500/20 rounded-full flex items-center justify-center">
+                    <CheckOutlined className="text-green-400 text-xs" />
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-medium text-white">选片结果已提交成功</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
 
           <motion.div
@@ -77,8 +100,9 @@ export default function PreviewMode() {
               type="primary"
               onClick={() => setShowSubmitModal(true)}
               className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800 font-medium text-white"
+              disabled={mode === 'submitted'}
             >
-              下一步：提交选片结果
+              { mode === 'submitted' ? '已提交' : '下一步：提交选片结果' }
               <RightOutlined />
             </Button>
           </motion.div>
@@ -116,10 +140,11 @@ export default function PreviewMode() {
         open={showSubmitModal}
         onConfirm={() => {
           setShowSubmitModal(false)
-          message.success('选片结果已提交成功！')
+          setMode('submitted')
         }}
         onCancel={() => setShowSubmitModal(false)}
       />
+
     </Layout>
   )
 }

@@ -1,7 +1,6 @@
-import { useProductsStore } from '@/stores/useProductsStore'
 import { PictureOutlined, ShareAltOutlined, UpOutlined } from '@ant-design/icons'
 import { motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import SimpleBar from 'simplebar-react'
 
 interface ProductItem {
@@ -97,8 +96,8 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
                 <div className="text-lg font-medium text-darkBlueGray-400">该产品尚未分配照片</div>
               </motion.div>
             ) : (
-              <SimpleBar>
-                <div className="grid grid-cols-[repeat(auto-fill,_minmax(_auto,240px))] gap-4">
+              <SimpleBar className="h-[300px]">
+                <div className="grid grid-cols-[repeat(auto-fill,_minmax(_auto,256px))] gap-4">
                   {items.map((photo, photoIndex) => (
                     <motion.div
                       key={photo.id}
@@ -111,7 +110,7 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
                       }}
 
                     >
-                      <div className="max-w-60 overflow-hidden rounded-xl border border-darkBlueGray-700/50 bg-gradient-to-br from-darkBlueGray-600/90 via-darkBlueGray-800/95 to-darkBlueGray-900/90 shadow-lg transition-all duration-300 hover:border-darkBlueGray-600/70 hover:shadow-2xl">
+                      <div className="max-w-full overflow-hidden rounded-xl border border-darkBlueGray-700/50 bg-gradient-to-br from-darkBlueGray-600/90 via-darkBlueGray-800/95 to-darkBlueGray-900/90 shadow-lg transition-all duration-300 hover:border-darkBlueGray-600/70 hover:shadow-2xl">
                         {/* 图片容器 */}
                         <div className="relative aspect-square overflow-hidden flex items-center justify-center">
                           <img
