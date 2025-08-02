@@ -1,4 +1,11 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Button, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -10,13 +17,6 @@ import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
-import { RightOutlined } from '@ant-design/icons'
-import { Button, Layout } from 'antd'
-import { Header } from 'antd/es/layout/layout'
-import Sider from 'antd/es/layout/Sider'
-import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
 
 const { Content } = Layout
@@ -171,7 +171,15 @@ function ProductSelectPage() {
           >
             <div className="flex items-center justify-between px-4 py-2">
               <div className="flex items-end gap-4">
-                <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
+                <div className="flex items-center gap-4">
+                  <Button
+                    type="text"
+                    icon={<LeftOutlined />}
+                    size="large"
+                    onClick={() => navigate('/pre-select')} // 返回产品选择页面
+                  />
+                  <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
+                </div>
                 <div className="mb-0.5 flex flex-col text-xs text-darkBlueGray-400">
                   <span>最近保存时间</span>
                   <span>2025-07-29 16:27:16</span>

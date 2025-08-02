@@ -1,11 +1,12 @@
-import { StepHeader } from '@/components/StepHeader/StepHeader'
-import { usePhotosStore } from '@/stores/usePhotosStore'
-import { useProductsStore } from '@/stores/useProductsStore'
-import { LockOutlined, RightOutlined } from '@ant-design/icons'
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, message } from 'antd'
 import { motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router'
 import SimpleBar from 'simplebar-react'
+import { StepHeader } from '@/components/StepHeader/StepHeader'
+import { usePhotosStore } from '@/stores/usePhotosStore'
+import { useProductsStore } from '@/stores/useProductsStore'
 import ConfirmSelResModal from './components/ConfirmSelResModal'
 import ProductGroup from './components/ProductGroup'
 
@@ -15,6 +16,7 @@ export default function PreviewMode() {
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const { products } = useProductsStore()
   const { productSelectedPhotos } = usePhotosStore()
+  const navigate = useNavigate()
 
   /**
    * 生成产品组数据
@@ -43,12 +45,6 @@ export default function PreviewMode() {
     })
   }, [products, productSelectedPhotos])
 
-  const handleSubmit = () => {
-    setShowSubmitModal(false)
-    // 这里可以添加提交逻辑
-    // 提交选片结果到服务器
-  }
-
   return (
     <Layout className="h-screen bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950">
       {/* 顶部标题栏 */}
@@ -59,13 +55,22 @@ export default function PreviewMode() {
           transition={{ duration: 0.3 }}
           className="flex h-full items-center justify-between"
         >
-          <StepHeader stepNumber={4} stepTitle="选片结果预览" stepDesc="Selection Result Preview" />
+          <div className="flex items-center gap-4">
+            <Button
+              type="text"
+              icon={<LeftOutlined />}
+              size="large"
+              onClick={() => navigate('/product-select')} // 返回产品选择页面
+            />
+            <StepHeader stepNumber={4} stepTitle="选片结果预览" stepDesc="Selection Result Preview" />
+          </div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
+
             <Button
               type="primary"
               onClick={() => setShowSubmitModal(true)}
