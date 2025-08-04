@@ -20,7 +20,7 @@ function App() {
   const fetchOrderInfo = async () => {
     const { data } = await getOrderInfo()
     setOrderInfo(data)
-    generateProducts(data.order_products)
+    generateProducts(data.orderProducts)
   }
 
   useEffect(() => {

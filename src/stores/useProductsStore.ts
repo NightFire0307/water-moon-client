@@ -73,12 +73,12 @@ export const useProductsStore = create<ProductState & ProductActions>()(
               return state
             }
             const products = orderProducts.map(product => ({
-              productId: product.product.id,
-              name: product.product.name,
-              productType: product.product.product_type,
-              photoLimit: product.product.photo_limit,
-              selectedPhotoIds: product.selected_photos,
-              allowOverLimit: product.product.photo_limit === 0,
+              productId: product.productId,
+              name: product.productName,
+              productType: product.productType,
+              photoLimit: product.photoLimit,
+              selectedPhotoIds: product.selectedPhotos.map(photo => photo.id),
+              allowOverLimit: product.photoLimit === 0,
               remark: product.remark || '',
             }))
 

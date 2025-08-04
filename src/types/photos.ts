@@ -2,10 +2,10 @@ import type { ResponsePromise } from '@/types/common.ts'
 
 export interface IPhoto {
   id: number
-  file_name: string
-  thumbnail_url: string
-  original_url: string
-  is_recommend: boolean
+  fileName: string
+  thumbnailUrl: string
+  originalUrl: string
+  isRecommend: boolean
   remark?: string
 }
 
