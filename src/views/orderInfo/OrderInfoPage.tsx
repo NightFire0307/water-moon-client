@@ -1,4 +1,7 @@
 import type { IOrder, IOrderProduct } from '@/types/order'
+import { getOrderInfo } from '@/apis/order'
+import ProgressDots from '@/components/ProgressDots/ProgressDots'
+import { useProductsStore } from '@/stores/useProductsStore'
 import {
   CalendarOutlined,
   CheckCircleOutlined,
@@ -10,9 +13,6 @@ import { Badge, Layout, Progress } from 'antd'
 import { motion } from 'framer-motion'
 import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { getOrderInfo } from '@/apis/order'
-import ProgressDots from '@/components/ProgressDots/ProgressDots'
-import { useProductsStore } from '@/stores/useProductsStore'
 
 const { Content } = Layout
 
@@ -33,7 +33,7 @@ const OrderInfoPage: FC = () => {
   const fetchOrderInfo = async () => {
     const { data } = await getOrderInfo()
     setOrderInfo(data)
-    generateProducts(data.order_products)
+    generateProducts(data.orderProducts)
   }
 
   useEffect(() => {
@@ -58,8 +58,8 @@ const OrderInfoPage: FC = () => {
 
   // 获取产品选择状态
   const getProductSelectionStatus = (orderProduct: IOrderProduct) => {
-    const requiredCount = orderProduct.product.photo_limit * orderProduct.count
-    const selectedCount = orderProduct.selected_photos.length
+    const requiredCount = orderProduct.photoLimit * orderProduct.count
+    const selectedCount = orderProduct.selectedPhotos.length
 
     if (selectedCount === 0) {
       return { text: '未开始', color: 'oklch(70.5% 0.213 47.604)' }
@@ -142,7 +142,7 @@ const OrderInfoPage: FC = () => {
               <p className="text-darkBlueGray-300 mb-3 font-medium tracking-wide">订单编号</p>
               <div className="inline-block px-8 py-4 bg-gradient-to-r from-darkBlueGray-800 to-darkBlueGray-700 rounded-2xl border border-darkBlueGray-600 shadow-2xl">
                 <span className="text-white font-mono text-3xl md:text-4xl font-black tracking-[0.2em] drop-shadow-sm ml-[0.2em]">
-                  {orderInfo?.order_number ?? '加载中...'}
+                  {orderInfo?.orderNumber ?? '加载中...'}
                 </span>
               </div>
             </div>
@@ -152,13 +152,13 @@ const OrderInfoPage: FC = () => {
               <div className="text-center">
                 <p className="text-darkBlueGray-400 text-xs mb-2 uppercase tracking-wider">客户姓名</p>
                 <span className="text-white text-2xl md:text-3xl font-bold tracking-wide">
-                  {orderInfo?.customer_name ?? '加载中...'}
+                  {orderInfo?.customerName ?? '加载中...'}
                 </span>
               </div>
               <div className="text-center">
                 <p className="text-darkBlueGray-400 text-xs mb-2 uppercase tracking-wider">客户手机</p>
                 <span className="text-blue-300 text-xl md:text-2xl font-mono font-semibold tracking-wider">
-                  {orderInfo?.customer_phone ?? '加载中...'}
+                  {orderInfo?.customerPhone ?? '加载中...'}
                 </span>
               </div>
             </div>
@@ -193,10 +193,10 @@ const OrderInfoPage: FC = () => {
               产品列表
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              {orderInfo?.order_products.map((orderProduct) => {
+              {orderInfo?.orderProducts.map((orderProduct) => {
                 const selectionStatus = getProductSelectionStatus(orderProduct)
-                const requiredPhotos = orderProduct.product.photo_limit * orderProduct.count
-                const selectedPhotos = orderProduct.selected_photos.length
+                const requiredPhotos = orderProduct.photoLimit * orderProduct.count
+                const selectedPhotos = orderProduct.selectedPhotos.length
                 const progressPercent = requiredPhotos > 0 ? (selectedPhotos / requiredPhotos) * 100 : 0
 
                 return (
@@ -207,7 +207,7 @@ const OrderInfoPage: FC = () => {
                     {/* 顶部：产品类型标签 + 状态徽章 */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="inline-flex items-center px-3 py-1 bg-blue-00/20 text-blue-300 text-xs font-semibold rounded-full border border-blue-500/30">
-                        {orderProduct.product.product_type}
+                        {orderProduct.productType}
                       </div>
                       <Badge
                         color={selectionStatus.color}
@@ -222,7 +222,7 @@ const OrderInfoPage: FC = () => {
                     {/* 产品名称 */}
                     <div className="mb-5">
                       <h4 className="text-white text-xl font-bold mb-2 leading-tight group-hover:text-blue-200 transition-colors">
-                        {orderProduct.product.name}
+                        {orderProduct.productName}
                       </h4>
                     </div>
 
@@ -238,7 +238,7 @@ const OrderInfoPage: FC = () => {
                       {/* 照片需求 */}
                       <div className="text-center bg-darkBlueGray-700/30 rounded-xl p-3 border border-darkBlueGray-600/30">
                         <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">每件照片</p>
-                        <p className="text-blue-300 text-2xl font-bold">{orderProduct.product.photo_limit === 0 ? '∞' : orderProduct.product.photo_limit}</p>
+                        <p className="text-blue-300 text-2xl font-bold">{orderProduct.photoLimit === 0 ? '∞' : orderProduct.photoLimit}</p>
                         <p className="text-darkBlueGray-300 text-xs">张</p>
                       </div>
                     </div>

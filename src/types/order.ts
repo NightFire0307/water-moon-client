@@ -2,37 +2,33 @@ import type { ResponsePromise } from '@/types/common.ts'
 
 export interface IOrder {
   id: number
-  customer_name: string
-  customer_phone: string
-  order_number: string
+  customerName: string
+  customerPhone: string
+  orderNumber: string
   status: number
-  order_products: IOrderProduct[]
-  total_photos: number
-  max_select_photos: number
-  extra_photo_price: number
+  orderProducts: IOrderProduct[]
+  totalPhotos: number
+  maxSelectPhotos: number
+  extraPhotoPrice: number
 }
 
 export interface IOrderProduct {
   id: number
   count: number
-  product: IProduct
-  order_product_photos: {
-    photo_id: number
+  photoLimit: number
+  productId: number
+  productName: string
+  productType: string
+  selectedPhotos: {
+    id: number
     remark?: string
   }[]
-  remark: string
-}
-
-export interface IProduct {
-  id: number
-  name: string
-  photo_limit: number
-  product_type: string
+  remark?: string
 }
 
 interface IOrderProductSelectedPhoto {
   orderProductId: number
-  selected_photos: number[]
+  selectedPhotos: number[]
 }
 
 export type IOrderResponse = ResponsePromise<IOrder>
