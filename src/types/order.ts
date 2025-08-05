@@ -16,7 +16,10 @@ export interface IOrderProduct {
   id: number
   count: number
   product: IProduct
-  selected_photos: number[]
+  order_product_photos: {
+    photo_id: number
+    remark?: string
+  }[]
   remark: string
 }
 
