@@ -5,70 +5,207 @@ import {
   ClockCircleOutlined,
   PictureOutlined,
 } from '@ant-design/icons'
+import { motion } from 'framer-motion'
 import { Outlet } from 'react-router'
 
 const AuthLayout: FC = () => {
   return (
-    <div className=" flex h-screen text-white">
-      <div className="flex flex-col justify-between md:w-1/2 p-8 bg-darkBlueGray-800">
-        <div className="flex flex-col gap-8 max-w-md">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 flex justify-center items-center bg-white rounded-md text-darkBlueGray-800 text-xl">
+    <div className="flex h-screen text-white">
+      {/* 左侧内容区域 - 深色主题 */}
+      <div className="relative flex flex-col justify-between md:w-1/2 p-8 overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-800">
+        {/* 背景装饰 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-darkBlueGray-900/90 via-darkBlueGray-950/95 to-darkBlueGray-800/90"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-cyan-500/15 rounded-full blur-2xl translate-x-16 translate-y-16"></div>
+
+        {/* 主要内容 */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="relative z-10 flex flex-col gap-8 max-w-md"
+        >
+          {/* Logo和标题 */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex items-center gap-3"
+          >
+            <div className="w-12 h-12 flex justify-center items-center bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl text-white text-2xl shadow-lg shadow-blue-500/25">
               <CameraOutlined />
             </div>
-            <div className="text-2xl font-bold">在线选片系统</div>
-          </div>
-
-          <div className="text-3xl font-bold">专业照片选择体验</div>
-
-          <span className="text-text-muted leading-normal">欢迎使用我们的在线选片系统。我们为您精心挑选的照片已准备就绪，只需输入您收到的动态密码，即可开始您的专属选片之旅。</span>
-
-          <div>
-            <div className="flex gap-3 mb-3">
-              <div className="flex items-center justify-center w-8 h-8 bg-darkBlueGray-600 rounded-md">
-                <PictureOutlined />
-              </div>
-              <div>
-                <h3>高质量照片展示</h3>
-                <p className="text-sm leading-10 text-text-muted">以最佳分辨率和清晰度展示您的每一张照片</p>
-              </div>
+            <div className="text-3xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+              在线选片系统
             </div>
+          </motion.div>
 
-            <div className="flex gap-3 mb-3">
-              <div className="flex items-center justify-center w-8 h-8 bg-darkBlueGray-600 rounded-md">
-                <CheckCircleOutlined />
-              </div>
-              <div>
-                <h3>简单直观的选择</h3>
-                <p className="text-sm leading-10 text-text-muted">轻松标记和组织您喜爱的照片，一键完成选片</p>
-              </div>
-            </div>
+          {/* 主标题 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-4xl font-bold bg-gradient-to-r from-blue-200 via-white to-cyan-200 bg-clip-text text-transparent leading-tight"
+          >
+            精选照片，美好回忆
+          </motion.div>
 
-            <div className="flex gap-3 mb-3">
-              <div className="flex items-center justify-center w-8 h-8 bg-darkBlueGray-600 rounded-md">
-                <ClockCircleOutlined />
-              </div>
-              <div>
-                <h3>随时随地访问</h3>
-                <p className="text-sm leading-10 text-text-muted">在任何设备上继续您的选片进度，不受时间和地点限制</p>
-              </div>
-            </div>
-          </div>
-        </div>
+          {/* 描述文字 */}
+          <motion.span
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="text-darkBlueGray-300 leading-relaxed text-lg"
+          >
+            每一张照片都是珍贵的记忆片段。在这里，您可以轻松浏览、筛选和收藏您最钟爱的瞬间，让美好时光永远定格。
+          </motion.span>
 
-        <p className=" text-text-muted text-sm">© 2025 在线选片系统 · 所有权利保留</p>
+          {/* 特性列表 */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="space-y-4"
+          >
+            {[
+              {
+                icon: <PictureOutlined />,
+                title: '高清画质预览',
+                desc: '专业级图像处理，完美还原每个细节与色彩',
+                delay: 0.1,
+              },
+              {
+                icon: <CheckCircleOutlined />,
+                title: '智能选片助手',
+                desc: '批量操作、快速筛选，让选片变得简单高效',
+                delay: 0.2,
+              },
+              {
+                icon: <ClockCircleOutlined />,
+                title: '云端同步保存',
+                desc: '多设备无缝切换，选片进度实时同步，随时随地继续',
+                delay: 0.3,
+              },
+            ].map(feature => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 1 + feature.delay }}
+                className="flex gap-4 p-4 rounded-xl bg-darkBlueGray-800/40 backdrop-blur-sm border border-darkBlueGray-700/30 hover:bg-darkBlueGray-800/60 transition-all duration-300"
+              >
+                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-500/30 text-blue-300 text-xl">
+                  {feature.icon}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-semibold text-lg mb-1">{feature.title}</h3>
+                  <p className="text-darkBlueGray-300 text-sm leading-relaxed">{feature.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+
+        {/* 底部版权信息 */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.5 }}
+          className="relative z-10 text-darkBlueGray-400 text-sm"
+        >
+          © 2025 水月影像工作室 · 用心记录每一个美好瞬间
+        </motion.p>
       </div>
 
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-darkBlueGray-100">
-        <div className="flex flex-col justify-between gap-4 p-8 w-2/3 shadow-xl rounded-xl bg-darkBlueGray-50 border  border-darkBlueGray-300/60">
-          <div>
-            <h2 className="text-2xl font-bold text-text-primary">欢迎访问在线选片系统</h2>
+      {/* 右侧登录区域 - 深色主题 */}
+      <div className="relative w-full md:w-1/2 flex items-center justify-center p-8 overflow-hidden bg-gradient-to-bl from-darkBlueGray-900 via-darkBlueGray-800 to-darkBlueGray-900">
+        {/* 背景装饰 */}
+        <div className="absolute inset-0 bg-gradient-to-bl from-darkBlueGray-900/95 via-darkBlueGray-850/98 to-darkBlueGray-800/92"></div>
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/12 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-60 h-60 bg-cyan-500/12 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-purple-500/8 rounded-full blur-xl -translate-x-1/2 -translate-y-1/2"></div>
+
+        {/* 左侧边界分隔 - 简化分割效果 */}
+        <div className="absolute top-0 left-0 w-px h-full bg-gradient-to-b from-transparent via-blue-500/40 to-transparent"></div>
+        <div className="absolute top-0 left-0 w-4 h-full bg-gradient-to-r from-blue-800/5 to-transparent"></div>
+
+        {/* 登录卡片 */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
+          className="relative z-10 w-full max-w-md"
+        >
+          <div className="relative bg-gradient-to-br from-darkBlueGray-800/95 via-darkBlueGray-750/98 to-darkBlueGray-700/92 backdrop-blur-xl rounded-3xl shadow-2xl border border-darkBlueGray-600/50 p-10 overflow-hidden">
+            {/* 顶部装饰光效 */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/80 to-transparent"></div>
+            <div className="absolute top-0 left-1/2 w-20 h-20 bg-blue-500/20 rounded-full blur-2xl -translate-x-1/2 -translate-y-10"></div>
+
+            {/* 边框光效 */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/20 via-transparent to-cyan-500/20 opacity-60"></div>
+            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-darkBlueGray-800/90 to-darkBlueGray-700/95"></div>
+
+            <div className="relative z-10">
+              {/* 标题 */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="mb-10 text-center"
+              >
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500/25 to-cyan-500/25 rounded-2xl border border-blue-500/60 mb-6">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg">
+                    <div className="w-4 h-4 bg-white rounded-sm"></div>
+                  </div>
+                </div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent mb-2">
+                  欢迎回来
+                </h2>
+                <p className="text-darkBlueGray-300 text-base font-medium">登录您的选片账户</p>
+              </motion.div>
+
+              {/* 登录表单插槽 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+              >
+                <Outlet />
+              </motion.div>
+
+              {/* 分隔线 */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="flex items-center my-8"
+              >
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-darkBlueGray-400/80 to-transparent"></div>
+                <span className="px-4 text-darkBlueGray-300 text-sm font-medium">安全登录</span>
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-darkBlueGray-400/80 to-transparent"></div>
+              </motion.div>
+
+              {/* 底部提示 */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.9 }}
+                className="text-center space-y-3"
+              >
+                <div className="flex items-center justify-center gap-2 text-darkBlueGray-300 text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-sm"></div>
+                  <span className="font-medium">数据传输已加密</span>
+                </div>
+                <p className="text-darkBlueGray-400 text-sm">
+                  遇到问题？请联系您的选片师
+                </p>
+              </motion.div>
+            </div>
+
+            {/* 底部装饰光效 */}
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent"></div>
           </div>
-          <Outlet />
-          <p className="text-center text-sm text-text-muted">
-            遇到问题？请联系您的选片师
-          </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   )
