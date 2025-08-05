@@ -23,11 +23,11 @@ const AuthLayout: FC = () => {
   return (
     <div className="flex h-screen text-white">
       {/* 左侧内容区域 - 深色主题 */}
-      <div className="relative flex flex-col justify-between md:w-1/2 p-8 overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-800">
+      <div className="relative flex flex-col justify-between md:w-2/5 p-8 overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-800">
         {/* 背景装饰 */}
         <div className="absolute inset-0 bg-gradient-to-br from-darkBlueGray-900/90 via-darkBlueGray-950/95 to-darkBlueGray-800/90"></div>
         <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-cyan-500/15 rounded-full blur-2xl translate-x-16 translate-y-16"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-cyan-500/15 rounded-full blur-2xl translate-x-16 translate-y-16 animate-pulse" />
 
         {/* 主要内容 */}
         <motion.div
@@ -124,12 +124,12 @@ const AuthLayout: FC = () => {
           transition={{ duration: 0.6, delay: 1.5 }}
           className="relative z-10 text-darkBlueGray-400 text-sm"
         >
-          © 2025 水月影像工作室 · 用心记录每一个美好瞬间
+          © 2025 繁花工作室 · 用心记录每一个美好瞬间
         </motion.p>
       </div>
 
       {/* 右侧登录区域 - 深色主题 */}
-      <div className="relative w-full md:w-1/2 flex items-center justify-center p-8 overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950">
+      <div className="relative w-full md:w-3/5 flex items-center justify-center p-8 overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950">
         {/* 背景装饰 */}
         <div className="absolute inset-0 bg-gradient-to-br from-darkBlueGray-950/95 via-darkBlueGray-900/98 to-darkBlueGray-950/92"></div>
         <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/8 rounded-full blur-3xl"></div>
@@ -145,7 +145,7 @@ const AuthLayout: FC = () => {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
-          className="relative z-10 w-full max-w-md"
+          className="relative z-10 w-full max-w-xl"
         >
           <div className="relative bg-gradient-to-br from-darkBlueGray-800/95 via-darkBlueGray-750/98 to-darkBlueGray-700/92 backdrop-blur-xl rounded-3xl shadow-2xl border border-darkBlueGray-600/50 p-10 overflow-hidden">
             {/* 顶部装饰光效 */}
@@ -191,24 +191,8 @@ const AuthLayout: FC = () => {
                 className="flex items-center my-8"
               >
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-darkBlueGray-400/80 to-transparent"></div>
-                <span className="px-4 text-darkBlueGray-300 text-sm font-medium">安全登录</span>
+                <span className="px-4 text-darkBlueGray-300 text-sm font-medium">如有疑问，请联系您的选片师</span>
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-darkBlueGray-400/80 to-transparent"></div>
-              </motion.div>
-
-              {/* 底部提示 */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.9 }}
-                className="text-center space-y-3"
-              >
-                <div className="flex items-center justify-center gap-2 text-darkBlueGray-300 text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-sm"></div>
-                  <span className="font-medium">数据传输已加密</span>
-                </div>
-                <p className="text-darkBlueGray-400 text-sm">
-                  遇到问题？请联系您的选片师
-                </p>
               </motion.div>
             </div>
 

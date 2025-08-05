@@ -16,7 +16,7 @@ interface ILoginForm {
   credential: string
 }
 
-const useStyle = createStyles(({ prefixCls, css }) => ({
+export const useStyle = createStyles(({ prefixCls, css }) => ({
   loginContainer: css`
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     backdrop-filter: blur(20px);
@@ -93,7 +93,7 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
       background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
       border: none;
       border-radius: 16px;
-      height: 56px;
+      height: 48px;
       font-size: 16px;
       font-weight: 600;
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
@@ -170,7 +170,6 @@ function Login() {
 
   return (
     <div className="relative">
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -180,7 +179,7 @@ function Login() {
         {/* 登录类型切换 */}
         <div className='flex justify-center mb-8'>
           <Segmented 
-            options={[{ label: '订单登录', value: 'order' }, { label: '动态链接', value: 'link' }]} 
+            options={[{ label: '订单登录', value: 'order' }, { label: '动态密码', value: 'link' }]} 
             onChange={(value) => setLoginType(value as 'order' | 'link')}
           />
         </div>
@@ -264,7 +263,6 @@ function Login() {
               <Button
                 type="primary"
                 block
-                size="large"
                 loading={isLoading}
                 onClick={handleSubmit}
                 className={styles.primaryButton}
@@ -276,23 +274,6 @@ function Login() {
             </motion.div>
           </Form>
         </ConfigProvider>
-
-        {/* 登录提示 */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.6 }}
-          className="mt-8 text-center"
-        >
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <Text className="text-darkBlueGray-300 text-sm font-medium">
-              {loginType === 'order'
-                ? '请使用您的订单号和手机号登录'
-                : '请使用收到的动态链接密码登录'}
-            </Text>
-          </div>
-        </motion.div>
       </motion.div>
     </div>
   )

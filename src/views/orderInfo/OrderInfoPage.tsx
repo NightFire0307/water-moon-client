@@ -3,16 +3,17 @@ import { getOrderInfo } from '@/apis/order'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { useProductsStore } from '@/stores/useProductsStore'
 import {
+  ArrowRightOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
-  RightOutlined,
 } from '@ant-design/icons'
-import { Badge, Layout, Progress } from 'antd'
+import { Badge, Button, Layout, Progress } from 'antd'
 import { motion } from 'framer-motion'
 import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
+
 
 const { Content } = Layout
 
@@ -28,7 +29,6 @@ const OrderInfoPage: FC = () => {
   const [orderInfo, setOrderInfo] = useState<IOrder | null>(null)
   const navigate = useNavigate()
   const { generateProducts } = useProductsStore()
-
   // 获取订单信息
   const fetchOrderInfo = async () => {
     const { data } = await getOrderInfo()
@@ -364,22 +364,15 @@ const OrderInfoPage: FC = () => {
               transition={{ duration: 0.3, delay: 1.1 }}
               className="flex justify-center"
             >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="group flex justify-center items-center relative h-14 px-10 text-lg font-bold rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 border border-blue-500/50 hover:border-blue-400/80 shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 cursor-pointer"
-                onClick={() => {
-                  navigate('/pre-select')
-                }}
+              <Button 
+                type="primary"
+                size='large' 
+                icon={<ArrowRightOutlined />}
+                iconPosition='end'
+                onClick={() => navigate('/pre-select')}
               >
-                {/* 按钮发光效果 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-cyan-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
-
-                <span className="relative flex items-center gap-3 tracking-wide text-white drop-shadow-md font-semibold">
-                  开始挑选美照
-                  <RightOutlined className="text-lg transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
-              </motion.div>
+                开始挑选美照
+              </Button>
             </motion.div>
           </div>
         </motion.div>
