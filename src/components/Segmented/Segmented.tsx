@@ -1,6 +1,6 @@
 import cs from 'classnames'
 import { motion } from 'framer-motion'
-import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 interface SegmentedProps {
   options: { label: ReactNode, value: string | number }[]
@@ -22,12 +22,12 @@ function Segmented({ options, onChange }: SegmentedProps) {
         width: item.offsetWidth
       })
     }
-  }, [isSelected, itemsRef.current, options])
+  }, [isSelected, options])
 
   return (
     <div 
       ref={containerRef} 
-      className="relative p-1 h-10 inline-flex items-center bg-darkBlueGray-900/80 backdrop-blur-sm rounded-xl border border-darkBlueGray-700/60 shadow-lg select-none">
+      className="relative p-1 h-10 inline-flex items-center bg-darkBlueGray-800/80 backdrop-blur-sm rounded-xl border border-darkBlueGray-700/60 shadow-lg select-none">
       {
         options.map((option, idx) => (
           <div
@@ -38,6 +38,7 @@ function Segmented({ options, onChange }: SegmentedProps) {
             key={option.value}
             onClick={() => {
               setIsSelected(option.value)
+              onChange?.(option.value)
             }}
           >
             {option.label}

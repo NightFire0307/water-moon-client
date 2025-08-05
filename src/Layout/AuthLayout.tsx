@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import { useEffect, type FC } from 'react'
 import {
   CameraOutlined,
   CheckCircleOutlined,
@@ -6,9 +6,20 @@ import {
   PictureOutlined,
 } from '@ant-design/icons'
 import { motion } from 'framer-motion'
-import { Outlet } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 const AuthLayout: FC = () => {
+  const { accessToken } = useAuthStore()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (accessToken) {
+      // 如果已经登录，重定向到订单确认页面
+      navigate('/order-info')
+    }
+  }, [accessToken])
+
   return (
     <div className="flex h-screen text-white">
       {/* 左侧内容区域 - 深色主题 */}
@@ -118,16 +129,16 @@ const AuthLayout: FC = () => {
       </div>
 
       {/* 右侧登录区域 - 深色主题 */}
-      <div className="relative w-full md:w-1/2 flex items-center justify-center p-8 overflow-hidden bg-gradient-to-bl from-darkBlueGray-900 via-darkBlueGray-800 to-darkBlueGray-900">
+      <div className="relative w-full md:w-1/2 flex items-center justify-center p-8 overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950">
         {/* 背景装饰 */}
-        <div className="absolute inset-0 bg-gradient-to-bl from-darkBlueGray-900/95 via-darkBlueGray-850/98 to-darkBlueGray-800/92"></div>
-        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/12 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-60 h-60 bg-cyan-500/12 rounded-full blur-2xl"></div>
-        <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-purple-500/8 rounded-full blur-xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-darkBlueGray-950/95 via-darkBlueGray-900/98 to-darkBlueGray-950/92"></div>
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/8 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-60 h-60 bg-cyan-500/8 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-blue-400/6 rounded-full blur-xl -translate-x-1/2 -translate-y-1/2"></div>
 
         {/* 左侧边界分隔 - 简化分割效果 */}
-        <div className="absolute top-0 left-0 w-px h-full bg-gradient-to-b from-transparent via-blue-500/40 to-transparent"></div>
-        <div className="absolute top-0 left-0 w-4 h-full bg-gradient-to-r from-blue-800/5 to-transparent"></div>
+        <div className="absolute top-0 left-0 w-px h-full bg-gradient-to-b from-transparent via-darkBlueGray-700/50 to-transparent"></div>
+        <div className="absolute top-0 left-0 w-4 h-full bg-gradient-to-r from-darkBlueGray-800/20 to-transparent"></div>
 
         {/* 登录卡片 */}
         <motion.div
@@ -142,8 +153,7 @@ const AuthLayout: FC = () => {
             <div className="absolute top-0 left-1/2 w-20 h-20 bg-blue-500/20 rounded-full blur-2xl -translate-x-1/2 -translate-y-10"></div>
 
             {/* 边框光效 */}
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/20 via-transparent to-cyan-500/20 opacity-60"></div>
-            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-darkBlueGray-800/90 to-darkBlueGray-700/95"></div>
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/20 via-transparent to-cyan-500/10 opacity-60"></div>
 
             <div className="relative z-10">
               {/* 标题 */}

@@ -253,7 +253,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
                         <img
                           src={currentPhoto.thumbnail_url}
                           alt={currentPhoto.name}
-                          className="object-container h-full"
+                          className="object-container max-h-full max-w-full"
                         />
                       )
                     : (<Text className="text-darkBlueGray-400 text-lg">照片预览区域</Text>)

@@ -2,34 +2,23 @@ import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
 interface UseAuthState {
-  access_token: string
+  accessToken: string
 }
 
-interface CustomAction {
-  setAccessToken: (token: string) => void
-  redirectLogin: () => void
+interface UseAuthAction {
+  setAccessToken: (accessToken: string) => void
+  clearAccessToken: () => void
 }
 
-export const useAuthStore = create<UseAuthState & CustomAction>()(
+export const useAuthStore = create<UseAuthState & UseAuthAction>()(
   devtools(set => ({
-    access_token: sessionStorage.getItem('access_token') !== 'undefined' ? sessionStorage.getItem('access_token') : '',
-    isPreview: false,
-    orderInfo: {},
-    setAccessToken: (token: string) => set(() => {
-      // 更新 Session Storage
-      sessionStorage.setItem('access_token', token)
-      return { access_token: token }
-    }),
-    redirectLogin: () => {
-      // 清除 Session Storage 中的 access_token
-      sessionStorage.removeItem('access_token')
-      // 重定向到登录页面
-      setTimeout(() => {
-        window.location.href = '/'
-      }, 1500)
+    accessToken: sessionStorage.getItem('access_token') || '',
+    setAccessToken: (accessToken) => {
+      sessionStorage.setItem('access_token', accessToken)
+      set({ accessToken })
     },
+    clearAccessToken: () => set({ accessToken: ''}),
   }), {
-    name: 'custom-store',
-    enabled: true,
+    name: 'auth-store',
   }),
 )

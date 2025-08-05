@@ -1,11 +1,11 @@
-import { ArrowRightOutlined, LockOutlined, MobileOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Form, Input, message, Switch, Typography } from 'antd'
+import { ArrowRightOutlined, LockOutlined, MobileOutlined, NumberOutlined } from '@ant-design/icons'
+import { Button, ConfigProvider, Form, Input, message, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { useForm } from 'antd/es/form/Form'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { login, verifyShortUrl } from '@/apis/login.ts'
+import { login } from '@/apis/login.ts'
 import Segmented from '@/components/Segmented/Segmented'
 import { useAuthStore } from '@/stores/useAuthStore.tsx'
 
@@ -24,8 +24,8 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
   `,
   inputField: css`
     &.${prefixCls}-input {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(51, 65, 85, 0.6);
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(71, 85, 105, 0.6);
       color: #f8fafc;
       border-radius: 16px;
       padding: 16px 20px;
@@ -35,24 +35,24 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
       
       &:hover {
         border-color: rgba(59, 130, 246, 0.7);
-        background: rgba(15, 23, 42, 0.9);
+        background: rgba(30, 41, 59, 0.9);
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
       }
       
       &:focus {
         border-color: #3b82f6;
-        background: rgba(15, 23, 42, 1);
+        background: rgba(30, 41, 59, 1);
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.15);
       }
       
       &::placeholder {
-        color: #64748b;
+        color: #94a3b8;
       }
     }
     
     &.${prefixCls}-input-affix-wrapper {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(51, 65, 85, 0.6);
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(71, 85, 105, 0.6);
       border-radius: 16px;
       padding: 16px 20px;
       transition: all 0.3s ease;
@@ -60,13 +60,13 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
       
       &:hover {
         border-color: rgba(59, 130, 246, 0.7);
-        background: rgba(15, 23, 42, 0.9);
+        background: rgba(30, 41, 59, 0.9);
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
       }
       
       &.${prefixCls}-input-affix-wrapper-focused {
         border-color: #3b82f6;
-        background: rgba(15, 23, 42, 1);
+        background: rgba(30, 41, 59, 1);
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.15);
       }
       
@@ -77,12 +77,12 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
         font-size: 15px;
         
         &::placeholder {
-          color: #64748b;
+          color: #94a3b8;
         }
       }
       
       .${prefixCls}-input-prefix {
-        color: #64748b;
+        color: #94a3b8;
         margin-right: 16px;
         font-size: 16px;
       }
@@ -96,48 +96,30 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
       height: 56px;
       font-size: 16px;
       font-weight: 600;
-      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
-      }
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+      transition: all 0.2s ease;
       
       &:hover {
         background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
-        
-        &::before {
-          left: 100%;
-        }
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
       }
       
       &:active {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        transform: translateY(1px);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
       }
     }
   `,
   switchButton: css`
-    background: rgba(51, 65, 85, 0.8);
-    border: 1px solid rgba(71, 85, 105, 0.5);
+    background: rgba(71, 85, 105, 0.8);
+    border: 1px solid rgba(100, 116, 139, 0.5);
     border-radius: 8px;
     color: #cbd5e1;
     transition: all 0.3s ease;
     
     &:hover {
-      background: rgba(71, 85, 105, 0.8);
-      border-color: rgba(100, 116, 139, 0.6);
+      background: rgba(100, 116, 139, 0.8);
+      border-color: rgba(148, 163, 184, 0.6);
       color: #f8fafc;
     }
   `,
@@ -155,7 +137,7 @@ function Login() {
   const navigate = useNavigate()
   const { styles } = useStyle()
 
-  async function handleSubmit() {
+  const handleSubmit = async () => {
     setIsLoading(true)
 
     try {
@@ -178,11 +160,6 @@ function Login() {
     }
   }
 
-  const handleLoginTypeSwitch = () => {
-    setLoginType(loginType === 'order' ? 'link' : 'order')
-    form.resetFields()
-  }
-
   useEffect(() => {
     if (pwd) {
       form.setFieldsValue({
@@ -201,8 +178,11 @@ function Login() {
         className="relative"
       >
         {/* 登录类型切换 */}
-        <div className='flex justify-center'>
-          <Segmented options={[{ label: '订单登录', value: 'order' }, { label: '动态链接', value: 'link' }]} />
+        <div className='flex justify-center mb-8'>
+          <Segmented 
+            options={[{ label: '订单登录', value: 'order' }, { label: '动态链接', value: 'link' }]} 
+            onChange={(value) => setLoginType(value as 'order' | 'link')}
+          />
         </div>
 
         <ConfigProvider
@@ -214,9 +194,9 @@ function Login() {
               },
               Input: {
                 colorText: '#f8fafc',
-                colorTextPlaceholder: '#64748b',
-                colorBgContainer: 'rgba(15, 23, 42, 0.8)',
-                colorBorder: 'rgba(51, 65, 85, 0.6)',
+                colorTextPlaceholder: '#94a3b8',
+                colorBgContainer: 'rgba(30, 41, 59, 0.8)',
+                colorBorder: 'rgba(71, 85, 105, 0.6)',
                 colorPrimaryHover: 'rgba(59, 130, 246, 0.7)',
                 controlHeight: 56,
                 borderRadius: 16,
@@ -240,7 +220,7 @@ function Login() {
                   <Input
                     className={styles.inputField}
                     placeholder="请输入您的订单号"
-                    prefix={<MobileOutlined className="text-darkBlueGray-400" />}
+                    prefix={<NumberOutlined className="text-darkBlueGray-400" />}
                     size="large"
                   />
                 </Form.Item>
@@ -264,7 +244,7 @@ function Login() {
                 <Input
                   className={styles.inputField}
                   placeholder={loginType === 'link' ? '请输入您的动态密码' : '请输入您的手机号'}
-                  prefix={<LockOutlined className="text-darkBlueGray-400" />}
+                  prefix={<MobileOutlined className="text-darkBlueGray-400" />}
                   size="large"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -306,7 +286,7 @@ function Login() {
         >
           <div className="flex items-center justify-center gap-2 mb-2">
             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <Text className="text-darkBlueGray-400 text-sm font-medium">
+            <Text className="text-darkBlueGray-300 text-sm font-medium">
               {loginType === 'order'
                 ? '请使用您的订单号和手机号登录'
                 : '请使用收到的动态链接密码登录'}

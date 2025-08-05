@@ -32,7 +32,7 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
-  const { productSelectedPhotos, filter, setCurrentPhoto } = usePhotosStore()
+  const { productSelectedPhotos, filter, setCurrentPhoto, currentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
   const navigate = useNavigate()
@@ -66,14 +66,19 @@ function ProductSelectPage() {
 
   // 监听过滤后的照片变化，自动设置当前第一张照片
   useEffect(() => {
-    if (filteredPhotos.length > 0) {
-      const firstPhoto = filteredPhotos[0]
-      setCurrentPhoto(firstPhoto)
-    }
-    else {
+    if (filteredPhotos.length === 0) {
       setCurrentPhoto(null)
+      setCurrentIndex(0)
     }
-  }, [filteredPhotos, setCurrentPhoto])
+
+    // 如果当前照片不在过滤后的列表中，自动切换到第一张
+    const inList = filteredPhotos.find(photo => photo.photoId === currentPhoto?.photoId)
+
+    if (!inList) {
+      setCurrentPhoto(filteredPhotos[0] || null)
+      setCurrentIndex(0)
+    }
+  }, [filteredPhotos])
 
   // 控制提示信息显示
   // 例如：当切换到最后一张照片时，显示提示信息

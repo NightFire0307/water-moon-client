@@ -99,11 +99,11 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
 
             return {
               photoId: photo.id,
-              thumbnail_url: photo.thumbnail_url,
-              original_url: photo.original_url,
-              name: photo.file_name,
+              thumbnail_url: photo.thumbnailUrl,
+              original_url: photo.originalUrl,
+              name: photo.fileName,
               remark: photo.remark ?? '',
-              isRecommend: photo.is_recommend,
+              isRecommend: photo.isRecommend,
               selectedProducts: selectedProducts.map(p => p.productId),
               preSelectStatus: PreSelectStatus.PENDING, // 默认状态为待处理
             }
