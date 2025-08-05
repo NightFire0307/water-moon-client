@@ -15,6 +15,7 @@ export interface Photo {
   isRecommend: boolean // 是否推荐: true表示推荐，false表示不推荐
   preSelectStatus: PreSelectStatus // 预选状态
   selectedProducts: number[]// 选中的产品ID列表
+  dirty: boolean // 是否有未保存的更改
 }
 
 interface UsePhotosState {
@@ -25,7 +26,6 @@ interface UsePhotosState {
   isLoading: boolean // 是否正在加载照片
   selectionStage: 'preSelect' | 'productSelect' | 'preview' | 'submitted' // 当前选片阶段
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
-  dirty: boolean // 是否有未保存的更改
 }
 
 // 照片预选状态枚举
@@ -58,6 +58,7 @@ interface UsePhotosAction {
   copyPreSelectedPhotos: () => void // 复制预选照片到产品选片
   getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
+  setPreSelectedPhotos: (photos: Photo[]) => void // 设置预选照片列表
 }
 
 const BATCH_SIZE = 10
@@ -106,6 +107,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
               isRecommend: photo.is_recommend,
               selectedProducts: selectedProducts.map(p => p.productId),
               preSelectStatus: PreSelectStatus.PENDING, // 默认状态为待处理
+              dirty: false,
             }
           }
 
@@ -218,7 +220,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
         set({
           preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
             if (photo.photoId === state.currentPhoto?.photoId) {
-              return { ...photo, preSelectStatus }
+              return { ...photo, preSelectStatus, dirty: true }
             }
             return photo
           }),
@@ -310,6 +312,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           }),
         }
       }),
+      setPreSelectedPhotos: preSelectedPhotos => set({ preSelectedPhotos }),
     }), {
       name: 'photos-storage',
       partialize: (state) => {

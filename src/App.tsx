@@ -1,7 +1,7 @@
 import { ReloadOutlined } from '@ant-design/icons'
 import { ConfigProvider, FloatButton } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import {  useState } from 'react'
+import { useState } from 'react'
 import { Outlet } from 'react-router'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 import ResetSelectionModal from './components/ResetSelectionModal/ResetSelectionModal'

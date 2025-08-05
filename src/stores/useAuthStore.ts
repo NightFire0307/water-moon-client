@@ -17,7 +17,7 @@ export const useAuthStore = create<UseAuthState & UseAuthAction>()(
       sessionStorage.setItem('access_token', accessToken)
       set({ accessToken })
     },
-    clearAccessToken: () => set({ accessToken: ''}),
+    clearAccessToken: () => set({ accessToken: '' }),
   }), {
     name: 'auth-store',
   }),

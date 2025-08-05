@@ -1,9 +1,9 @@
-import { CheckCircleOutlined, InfoCircleOutlined, WarningOutlined } from '@ant-design/icons'
-import { useMemo, useState } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
-
 import { useOrderStore } from '@/stores/useOrderStore'
 import { usePhotosStore } from '@/stores/usePhotosStore'
+
+import { CheckCircleOutlined, InfoCircleOutlined, WarningOutlined } from '@ant-design/icons'
+import { useMemo, useState } from 'react'
 
 interface PreSelectionConfirmModalProps {
   open: boolean
@@ -39,7 +39,7 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
       return 'underSelected'
     }
 
-    const maxSelectPhotos = orderInfo.max_select_photos
+    const maxSelectPhotos = orderInfo.maxSelectPhotos
 
     // 如果选择数量少于套餐数量
     if (selectedCount < maxSelectPhotos) {
@@ -74,9 +74,9 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
     if (orderInfo === null)
       return {}
     return {
-      selectedDiff: orderInfo.max_select_photos - selectedCount,
-      overSelectedAmount: selectedCount - orderInfo.max_select_photos > 0
-        ? (selectedCount - orderInfo.max_select_photos) * orderInfo.extra_photo_price
+      selectedDiff: orderInfo.maxSelectPhotos - selectedCount,
+      overSelectedAmount: selectedCount - orderInfo.maxSelectPhotos > 0
+        ? (selectedCount - orderInfo.maxSelectPhotos) * orderInfo.extraPhotoPrice
         : 0,
     }
   }, [orderInfo, selectedCount])
@@ -88,7 +88,7 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
     if (!orderInfo)
       return { percent: 0, current: 0, target: 0 }
 
-    const target = orderInfo.max_select_photos
+    const target = orderInfo.maxSelectPhotos
     const current = selectedCount
     const percent = Math.min(Math.round((current / target) * 100), 100)
 

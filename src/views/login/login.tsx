@@ -1,13 +1,13 @@
-import { ArrowRightOutlined, LockOutlined, MobileOutlined, NumberOutlined } from '@ant-design/icons'
+import { login } from '@/apis/login.ts'
+import Segmented from '@/components/Segmented/Segmented'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { ArrowRightOutlined, MobileOutlined, NumberOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Form, Input, message, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { useForm } from 'antd/es/form/Form'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { login } from '@/apis/login.ts'
-import Segmented from '@/components/Segmented/Segmented'
-import { useAuthStore } from '@/stores/useAuthStore.tsx'
 
 const { Text } = Typography
 
@@ -177,10 +177,10 @@ function Login() {
         className="relative"
       >
         {/* 登录类型切换 */}
-        <div className='flex justify-center mb-8'>
-          <Segmented 
-            options={[{ label: '订单登录', value: 'order' }, { label: '动态密码', value: 'link' }]} 
-            onChange={(value) => setLoginType(value as 'order' | 'link')}
+        <div className="flex justify-center mb-8">
+          <Segmented
+            options={[{ label: '订单登录', value: 'order' }, { label: '动态密码', value: 'link' }]}
+            onChange={value => setLoginType(value as 'order' | 'link')}
           />
         </div>
 

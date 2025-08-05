@@ -1,7 +1,10 @@
-import { CheckCircleOutlined, GroupOutlined, InfoCircleOutlined, LoadingOutlined, LockOutlined, PictureOutlined } from '@ant-design/icons'
-import { useState } from 'react'
 import { PackageIcon } from '@/assets/icon'
 import CustomModal from '@/components/CustomModal/CustomModal'
+import { useOrderStore } from '@/stores/useOrderStore'
+import { usePhotosStore } from '@/stores/usePhotosStore'
+import { useProductsStore } from '@/stores/useProductsStore'
+import { CheckCircleOutlined, GroupOutlined, InfoCircleOutlined, LoadingOutlined, LockOutlined, PictureOutlined } from '@ant-design/icons'
+import { useState } from 'react'
 
 interface ConfirmSelResModalProps {
   open: boolean
@@ -11,6 +14,9 @@ interface ConfirmSelResModalProps {
 
 function ConfirmSelResModal({ open, onConfirm, onCancel }: ConfirmSelResModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { orderInfo } = useOrderStore()
+  const { preSelectedPhotos } = usePhotosStore()
+  const { products } = useProductsStore()
 
   const handleConfirm = () => {
     setIsSubmitting(true)
@@ -69,7 +75,7 @@ function ConfirmSelResModal({ open, onConfirm, onCancel }: ConfirmSelResModalPro
             <div className="w-12 h-12 mx-auto mb-4 bg-darkBlueGray-700/50 rounded-xl flex items-center justify-center">
               <GroupOutlined className="text-xl text-darkBlueGray-300" />
             </div>
-            <div className="text-2xl font-bold text-darkBlueGray-200 mb-2">20</div>
+            <div className="text-2xl font-bold text-darkBlueGray-200 mb-2">{orderInfo?.maxSelectPhotos ?? 0}</div>
             <div className="text-sm text-darkBlueGray-400 font-medium">套餐规定</div>
           </div>
 
@@ -84,7 +90,7 @@ function ConfirmSelResModal({ open, onConfirm, onCancel }: ConfirmSelResModalPro
               </div>
 
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="text-2xl font-bold text-blue-300">25</div>
+                <div className="text-2xl font-bold text-blue-300">{ preSelectedPhotos.length }</div>
                 {25 > 20 && (
                   <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
                 )}
@@ -111,7 +117,7 @@ function ConfirmSelResModal({ open, onConfirm, onCancel }: ConfirmSelResModalPro
             <div className="w-12 h-12 mx-auto mb-4 bg-darkBlueGray-700/40 rounded-xl flex items-center justify-center">
               <PackageIcon className="text-xl text-darkBlueGray-300" />
             </div>
-            <div className="text-xl font-bold text-darkBlueGray-300 mb-2">3</div>
+            <div className="text-xl font-bold text-darkBlueGray-300 mb-2">{ products.length }</div>
             <div className="text-sm text-darkBlueGray-500 font-medium">产品总数</div>
           </div>
         </div>

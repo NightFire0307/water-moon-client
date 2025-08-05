@@ -1,11 +1,11 @@
-import { InfoCircleOutlined, LoadingOutlined } from '@ant-design/icons'
-import { Tooltip, Typography } from 'antd'
-import { useEffect, useMemo } from 'react'
-import { type ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { InfoCircleOutlined, LoadingOutlined } from '@ant-design/icons'
+import { Tooltip, Typography } from 'antd'
+import { useEffect, useMemo } from 'react'
+import { type ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
 const { Text } = Typography
 
@@ -78,7 +78,7 @@ export function MainViewer({ transformRef }: MainViewerProps) {
                   </div>
 
                   {/* 选中的产品标签 */}
-                  <div className="flex flex-col gap-2 absolute top-4 right-4">
+                  <div className="flex flex-col gap-2 absolute top-4 right-4 z-50">
                     {
                       currentProducts.length > 0 && currentProducts.map(({ productId, name }) => (
                         <div

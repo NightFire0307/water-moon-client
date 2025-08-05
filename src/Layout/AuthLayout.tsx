@@ -1,4 +1,4 @@
-import { useEffect, type FC } from 'react'
+import { useAuthStore } from '@/stores/useAuthStore'
 import {
   CameraOutlined,
   CheckCircleOutlined,
@@ -6,8 +6,8 @@ import {
   PictureOutlined,
 } from '@ant-design/icons'
 import { motion } from 'framer-motion'
+import { type FC, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router'
-import { useAuthStore } from '@/stores/useAuthStore'
 
 const AuthLayout: FC = () => {
   const { accessToken } = useAuthStore()
