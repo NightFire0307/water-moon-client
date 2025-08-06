@@ -1,9 +1,9 @@
-import type { IPhoto } from '@/types/photos.ts'
 import type { IProduct } from './useProductsStore'
-import { getOrderPhotos } from '@/apis/order.ts'
+import type { IPhoto } from '@/types/photos.ts'
 import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import { getOrderPhotos } from '@/apis/order.ts'
 import { useProductsStore } from './useProductsStore'
 
 export interface Photo {
@@ -70,7 +70,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       preSelectedPhotos: [],
       productSelectedPhotos: [],
       currentPhoto: null,
-      isLoading: true,
+      isLoading: false,
       selectionStage: 'preSelect',
       dirty: false,
       filter: {
@@ -172,8 +172,8 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
             return state
           }
 
-          // 更新选中的产品ID
-          photo.selectedProducts = productIds
+          photo.selectedProducts = productIds // 更新选中的产品ID
+          photo.dirty = true // 标记为已更改
 
           // 如果当前照片是被选中的，更新currentPhoto
           if (state.currentPhoto?.photoId === photoId) {

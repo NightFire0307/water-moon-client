@@ -14,6 +14,8 @@ import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
 import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
+import { useAutoSync } from '@/hooks/useAutoSync'
+import { syncProductPhotos } from '@/services/photoSyncService'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
@@ -36,6 +38,7 @@ function ProductSelectPage() {
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
   const navigate = useNavigate()
+  useAutoSync(syncProductPhotos) // 启动产品照片同步
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter

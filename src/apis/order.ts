@@ -61,3 +61,12 @@ export function submitSelection(orderId: number): Promise<Response<number>> {
     method: 'POST',
   })
 }
+
+// 更新产品分片状态
+export function updateProductPhotos(data) {
+  return request({
+    url: '/selection/order-product/photos',
+    method: 'POST',
+    data,
+  })
+}

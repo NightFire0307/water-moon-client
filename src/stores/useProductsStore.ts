@@ -1,5 +1,4 @@
 import type { IOrderProduct } from '@/types/order.ts'
-import { updateOrderPhotos } from '@/apis/order.ts'
 import { message } from 'antd'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
@@ -73,7 +72,7 @@ export const useProductsStore = create<ProductState & ProductActions>()(
               return state
             }
             const products = orderProducts.map(product => ({
-              productId: product.productId,
+              productId: product.id,
               name: product.productName,
               productType: product.productType,
               photoLimit: product.photoLimit,
