@@ -1,4 +1,4 @@
-import type { IOrder } from '@/types/order.ts'
+import type { IOrder } from '@/types/user/order'
 import { createContext, useContext } from 'react'
 
 export const OrderInfoContext = createContext<IOrder | null>(null)

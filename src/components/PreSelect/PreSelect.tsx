@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { PreSelectStatus, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
@@ -12,6 +12,9 @@ import { StepHeader } from '../StepHeader/StepHeader'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import PreSelectionConfirmModal from './PreSelectionConfirmModal'
 import { PreSelectStatsTooltip } from './PreSelectStatsTooltip'
+import { PreSelectStatus } from '@/types/selection/preSelection'
+import { useAutoSync } from '@/hooks/useAutoSync'
+import { syncPreSelectedPhotos } from '@/services/photoSyncService'
 
 const { Content } = Layout
 const { Text } = Typography
@@ -23,10 +26,11 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, copyPreSelectedPhotos, setSelectionStage } = usePhotosStore()
+  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setSelectionStage, setProductSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
+  const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
 
   // 全屏切换处理
   const toggleFullscreen = () => {
@@ -41,11 +45,12 @@ export const PreSelect: FC<PreSelectProps> = () => {
   }
 
   // 处理预选确认
-  const handlePreSelectConfirm = () => {
+  const handlePreSelectConfirm = async () => {
     showLoading()
 
     // 拷贝预选照片到产品选片
-    copyPreSelectedPhotos()
+    const productSelectedPhotos = preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
+    setProductSelectedPhotos(productSelectedPhotos)
 
     // 设置当前索引为 null
     setCurrentPhoto(null)
@@ -56,12 +61,11 @@ export const PreSelect: FC<PreSelectProps> = () => {
     // 设置当前模式为产品选择
     setSelectionStage('productSelect')
 
-    // 模拟异步操作
-    setTimeout(() => {
-      hideLoading()
-      // 跳转到产品选择页面
-      navigate('/product-select')
-    }, 2000)
+    // 立即同步预选照片
+    await syncNow()
+    hideLoading()
+    // 跳转到产品选择页面
+    navigate('/product-select')
   }
 
   // 监听全屏状态变化
@@ -290,7 +294,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="absolute top-3 right-3 bg-green-600/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg"
+                  className="absolute top-3 right-32 bg-green-600/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg"
                 >
                   <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
                   <Text className="text-white text-sm font-semibold">已选择</Text>

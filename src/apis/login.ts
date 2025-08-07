@@ -1,4 +1,4 @@
-import type { IRefreshTokenResponse } from '@/types/login.ts'
+import type { IRefreshTokenResponse } from '@/types/user/login'
 import request from '@/utils/request.ts'
 
 interface LoginData {

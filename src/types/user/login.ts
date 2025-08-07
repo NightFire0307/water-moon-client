@@ -1,4 +1,4 @@
-import type { ResponsePromise } from '@/types/common.ts'
+import type { ResponsePromise } from '@/types/common/apiResponse'
 
 interface IRefreshToken {
   accessToken: string

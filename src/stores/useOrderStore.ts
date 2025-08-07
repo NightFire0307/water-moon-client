@@ -1,4 +1,4 @@
-import type { IOrder } from '@/types/order'
+import type { IOrder } from '@/types/user/order'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 

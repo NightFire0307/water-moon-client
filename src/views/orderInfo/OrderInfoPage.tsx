@@ -1,4 +1,4 @@
-import type { IOrder, IOrderProduct } from '@/types/order'
+import type { IOrder, IOrderProduct } from '@/types/user/order'
 import { getOrderInfo } from '@/apis/order'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { useProductsStore } from '@/stores/useProductsStore'

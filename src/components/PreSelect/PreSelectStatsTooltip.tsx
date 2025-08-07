@@ -29,7 +29,7 @@ export function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsToolt
         duration: 0.3,
         ease: [0.4, 0, 0.2, 1],
       }}
-      className="absolute top-8 right-0 z-50"
+      className="absolute top-10 right-0 z-50"
       style={{ display: isProgressHovered ? 'block' : 'none' }}
     >
       <div className="bg-darkBlueGray-800/95 backdrop-blur-lg rounded-xl border border-darkBlueGray-700/50 shadow-2xl p-4 min-w-[240px]">

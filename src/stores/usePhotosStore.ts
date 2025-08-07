@@ -5,6 +5,7 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { getOrderPhotos } from '@/apis/order.ts'
 import { useProductsStore } from './useProductsStore'
+import { PreSelectStatus } from '@/types/selection/preSelection'
 
 export interface Photo {
   photoId: number
@@ -28,12 +29,6 @@ interface UsePhotosState {
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
 }
 
-// 照片预选状态枚举
-export enum PreSelectStatus {
-  PENDING = 'pending', // 待处理
-  SELECTED = 'selected', // 选中
-  EXCLUDE = 'exclude', // 排除
-}
 
 export enum FILTER_TYPE {
   ALL = 'all',
@@ -55,10 +50,10 @@ interface UsePhotosAction {
   setAllPendingToSelected: () => void // 将所有待处理的照片状态设置为选中
   setAllToPending: () => void // 将所有照片状态设置为待处理
   togglePreSelected: (preSelectStatus: PreSelectStatus) => void // 设置预选标记
-  copyPreSelectedPhotos: () => void // 复制预选照片到产品选片
   getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
   setPreSelectedPhotos: (photos: Photo[]) => void // 设置预选照片列表
+  setProductSelectedPhotos: (photos: Photo[]) => void // 设置产品选片照片列表
 }
 
 const BATCH_SIZE = 10
@@ -275,13 +270,6 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           pendingCount,
         }
       },
-      // 复制预选中的照片到产品选片
-      copyPreSelectedPhotos: () => {
-        const state = get()
-        const productSelectedPhotos = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
-
-        set({ productSelectedPhotos })
-      },
       setSelectionStage: stage => set({ selectionStage: stage }),
       setFilter: filter => set({ filter }),
       setDirty: () => { },
@@ -313,6 +301,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
         }
       }),
       setPreSelectedPhotos: preSelectedPhotos => set({ preSelectedPhotos }),
+      setProductSelectedPhotos: productSelectedPhotos => set({ productSelectedPhotos }),
     }), {
       name: 'photos-storage',
       partialize: (state) => {

@@ -1,4 +1,4 @@
-import { updateOrderPhotos, updateProductPhotos } from '@/apis/order'
+import { updatePreSelectedPhotos, updateProductPhotos } from '@/apis/order'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 
 /**
@@ -6,14 +6,13 @@ import { usePhotosStore } from '@/stores/usePhotosStore'
  * @returns
  */
 export async function syncPreSelectedPhotos() {
+  console.log('开始同步预选照片')
   const store = usePhotosStore.getState()
   const changedPhotos = store.preSelectedPhotos.filter(photo => photo.dirty)
     .map(photo => ({
       id: photo.photoId,
       status: photo.preSelectStatus,
     }))
-
-  console.log('准备同步预选照片:', changedPhotos)
 
   // 如果没有更改的照片则不同步
   if (changedPhotos.length === 0)
@@ -22,11 +21,17 @@ export async function syncPreSelectedPhotos() {
   console.log('同步预选照片:', changedPhotos)
   // TODO: 调用API同步预选照片状态
 
-  store.setPreSelectedPhotos(
-    store.preSelectedPhotos.map((photo) => {
-      return photo.dirty ? { ...photo, dirty: false } : photo
-    }),
-  )
+  try {
+    await updatePreSelectedPhotos({ photos: changedPhotos })
+
+    store.setPreSelectedPhotos(
+      store.preSelectedPhotos.map((photo) => {
+        return photo.dirty ? { ...photo, dirty: false } : photo
+      }),
+    )
+  } catch (err) {
+    return Promise.reject(err)
+  }
 }
 
 /**
@@ -48,7 +53,9 @@ export async function syncProductPhotos() {
     })
   }
 
-  if (changedProductPhotos.length === 0)
+  console.log('准备同步产品照片', photoMap)
+
+  if (photoMap.size === 0)
     return
 
   // 将Map转换为数据格式
@@ -57,13 +64,18 @@ export async function syncProductPhotos() {
   console.log('同步产品照片:', items)
 
   // TODO: 调用API同步产品照片状态
-  // try {
-  //   await updateProductPhotos({ items })
+  try {
+    await updateProductPhotos({ items })
 
-  //   // 同步成功后，重置脏数据标记
-  //   store.setPreSelectedPhotos()
-  // }
-  // catch (err) {
-  //   console.error('同步产品照片失败:', err)
-  // }
+    // 同步成功后，重置脏数据标记
+    store.setProductSelectedPhotos(
+      store.productSelectedPhotos.map((photo) => {
+        return photo.dirty ? { ...photo, dirty: false } : photo
+      }
+      )
+    )
+  }
+  catch (err) {
+    console.error('同步产品照片失败:', err)
+  }
 }
