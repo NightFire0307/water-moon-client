@@ -1,16 +1,17 @@
 import type { IProduct } from './useProductsStore'
+import type { PaginationParams } from '@/types/common/pagination'
 import type { IPhoto } from '@/types/photos.ts'
 import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { getOrderPhotos } from '@/apis/order.ts'
-import { useProductsStore } from './useProductsStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
+import { useProductsStore } from './useProductsStore'
 
 export interface Photo {
   photoId: number
-  original_url: string
-  thumbnail_url: string
+  originalUrl: string
+  thumbnailUrl: string
   name: string
   remark: string // 照片备注
   isRecommend: boolean // 是否推荐: true表示推荐，false表示不推荐
@@ -29,7 +30,6 @@ interface UsePhotosState {
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
 }
 
-
 export enum FILTER_TYPE {
   ALL = 'all',
   SELECTED = 'selected',
@@ -37,7 +37,7 @@ export enum FILTER_TYPE {
 }
 
 interface UsePhotosAction {
-  fetchPhotos: () => Promise<void>
+  fetchPhotos: (params?: PaginationParams) => Promise<{ hasMore: boolean, nextPage?: () => Promise<{ hasMore: boolean }> }>
   setCurrentPhoto: (currentPhoto: Photo | null) => void // 设置当前照片
   setPhotoSelectedProducts: (photoId: number, productIds: number[]) => void
   setPhotoRemark: (remark: string) => void // 照片备注
@@ -56,8 +56,6 @@ interface UsePhotosAction {
   setProductSelectedPhotos: (photos: Photo[]) => void // 设置产品选片照片列表
 }
 
-const BATCH_SIZE = 10
-
 export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
   devtools(
     persist((set, get) => ({
@@ -72,90 +70,43 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
         productId: undefined,
         filterType: FILTER_TYPE.ALL,
       },
-      fetchPhotos: async () => {
-        const state = get()
+      fetchPhotos: async (params) => {
+
         // 设置加载状态
         set({ isLoading: true })
 
-        // 如果有持久化数据则直接使用
-        if (state.originalPhotos.length > 0) {
-          set({ isLoading: false })
-          return
+        const loadBatch = async (params?: PaginationParams) => {
+          const { data } = await getOrderPhotos(params)
+
+          set(state => ({
+            originalPhotos: [
+              ...data.list.map(photo => ({
+                photoId: photo.id,
+                originalUrl: photo.originalUrl,
+                thumbnailUrl: photo.thumbnailUrl,
+                name: photo.fileName,
+                remark: '',
+                isRecommend: photo.isRecommend,
+                preSelectStatus: PreSelectStatus.PENDING,
+                selectedProducts: [],
+                dirty: false,
+              }))
+            ]
+          }))
+
+          return {
+            hasMore: data.current * data.pageSize < data.total,
+            page: data.current + 1,
+          }
         }
 
-        try {
-          const products = useProductsStore.getState().products
-          const { data } = await getOrderPhotos()
-          const allList = data.list
-          const photos: Photo[] = []
+        const { hasMore, page } = await loadBatch({ pageSize: 50, ...params })
 
-          // 创建照片对象的公共方法
-          const createPhotoObject = (photo: IPhoto, products: IProduct[]): Photo => {
-            const selectedProducts = products.filter(p => p.selectedPhotoIds.includes(photo.id))
+        set({ isLoading: false, preSelectedPhotos: cloneDeep(get().originalPhotos) })
 
-            return {
-              photoId: photo.id,
-              thumbnail_url: photo.thumbnail_url,
-              original_url: photo.original_url,
-              name: photo.file_name,
-              remark: photo.remark ?? '',
-              isRecommend: photo.is_recommend,
-              selectedProducts: selectedProducts.map(p => p.productId),
-              preSelectStatus: PreSelectStatus.PENDING, // 默认状态为待处理
-              dirty: false,
-            }
-          }
-
-          // 第一阶段：使用rAF加载首屏可见照片（高优先级）
-          const loadInitialBatch = () => {
-            const initialBatch = allList.slice(0, BATCH_SIZE)
-
-            for (const photo of initialBatch) {
-              photos.push(createPhotoObject(photo, products))
-            }
-
-            set({ originalPhotos: photos, isLoading: false, preSelectedPhotos: cloneDeep(photos) })
-
-            // 启动第二阶段空闲时加载
-            if (allList.length > BATCH_SIZE) {
-              requestIdleCallback(() => loadRemainingPhotos(BATCH_SIZE), { timeout: 1000 })
-            }
-          }
-
-          // 第二阶段：使用rIC加载剩余照片（低优先级）
-          function loadRemainingPhotos(startIndex: number) {
-            const idleCallback = (deadline: IdleDeadline) => {
-              const batch: Photo[] = []
-              let i = startIndex
-
-              // 在空闲时间内处理尽可能多的照片
-              while (i < allList.length && (deadline.timeRemaining() > 0 || deadline.didTimeout)) {
-                batch.push(createPhotoObject(allList[i], products))
-                i++
-              }
-
-              // 更新状态
-              if (batch.length > 0) {
-                set(state => ({
-                  originalPhotos: [...state.originalPhotos, ...batch],
-                }))
-              }
-
-              // 如果还有剩余照片，继续调度
-              if (i < allList.length) {
-                requestIdleCallback(() => loadRemainingPhotos(i), { timeout: 1000 })
-              }
-            }
-
-            requestIdleCallback(idleCallback, { timeout: 1000 })
-          }
-
-          // 启动初始加载
-          requestAnimationFrame(loadInitialBatch)
-        }
-        catch (error) {
-          console.error('Failed to fetch photos:', error)
-          set({ isLoading: false })
+        return {
+          hasMore,
+          nextPage: () => loadBatch({ current: page })
         }
       },
       setPhotoSelectedProducts: (photoId, productIds) => {

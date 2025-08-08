@@ -1,8 +1,10 @@
 import type { Photo } from '@/stores/usePhotosStore'
-import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import SimpleBar from 'simplebar-react'
+import { motion } from 'framer-motion'
+import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { FixedSizeList, type ListChildComponentProps } from 'react-window'
 import useMouseOver from '@/hooks/useMouseOver'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { Thumbnail } from './Thumbnail'
 import 'simplebar-react/dist/simplebar.min.css'
 
@@ -15,17 +17,10 @@ interface ThumbnailBarProps {
   onClickThumbnail?: (item: Photo, index: number,) => void // 缩略图Bar点击回调
 }
 
-export function ThumbnailBar({ photos, visible, currentIndex, extra, onClickThumbnail }: ThumbnailBarProps) {
-  const { isHover, handleMouseEnter, handleMouseLeave } = useMouseOver({ delay: 150 })
-  const scrollRef = useRef<HTMLDivElement | null>(null)
-  const [initialVisible, setInitialVisible] = useState(false)
-
-  // 判断是否为受控组件
-  const isControlled = visible !== undefined
-
-  const thumbnailVisible = useMemo(() => {
-    return isControlled ? visible : initialVisible
-  }, [isControlled, visible, initialVisible])
+// 列表项组件
+function Column({ index, style, data }: ListChildComponentProps<Omit<ThumbnailBarProps, 'currentIndex' | 'visible' | 'onVisibleChange'>>) {
+  const { photos, extra, onClickThumbnail } = data
+  const { currentIndex } = usePhotoViewerStore()
 
   // 处理缩略图点击
   const handleThumbnailClick = useCallback((photo: Photo, index: number) => {
@@ -41,26 +36,52 @@ export function ThumbnailBar({ photos, visible, currentIndex, extra, onClickThum
     return extra ?? null
   }, [extra])
 
-  useEffect(() => {
-    const el = scrollRef.current
+  return (
+    <div style={style} className="flex justify-center items-center">
+      <Thumbnail
+        index={index}
+        extra={extraContent(photos[index], index)}
+        isSelected={currentIndex === index}
+        thumbnailUrl={photos[index].thumbnailUrl}
+        thumbnailClick={() => handleThumbnailClick(photos[index], index)}
+      />
+    </div>
+  )
+}
 
-    isHover ? setInitialVisible(true) : setInitialVisible(false)
+export function ThumbnailBar({ photos, visible, extra, onClickThumbnail }: ThumbnailBarProps) {
+  const { isHover, handleMouseEnter, handleMouseLeave } = useMouseOver({ delay: 150 })
+  const listRef = useRef<FixedSizeList | null>(null)
+  const scrollOffset = useRef(0)
+  const [initialVisible, setInitialVisible] = useState(false)
 
-    if (!el)
+  // 判断是否为受控组件
+  const isControlled = visible !== undefined
+
+  const thumbnailVisible = useMemo(() => {
+    return isControlled ? visible : initialVisible
+  }, [isControlled, visible, initialVisible])
+
+  // 自定义滚条处理
+  function handleOnWheel({ deltaY, currentTarget }: React.WheelEvent<HTMLDivElement>) {
+    const container = listRef.current
+    if (!container)
       return
 
-    const scrollWheel = (e: WheelEvent) => {
-      el.scrollTo({
-        left: el.scrollLeft + e.deltaY,
-        behavior: 'auto',
-      })
-    }
+    const maxScroll = photos.length * 125 - currentTarget.clientWidth // 最大滚动距离, 125 是每个缩略图的宽度
+    scrollOffset.current = Math.max(
+      0,
+      Math.min(scrollOffset.current + deltaY, maxScroll),
+    )
+    container.scrollTo(scrollOffset.current)
+  }
 
-    el.addEventListener('wheel', scrollWheel, { passive: true })
+  const outerElementType = forwardRef<HTMLDivElement>((props, ref) => (
+    <div ref={ref} onWheel={handleOnWheel} {...props} />
+  ))
 
-    return () => {
-      el.removeEventListener('wheel', scrollWheel)
-    }
+  useEffect(() => {
+    setInitialVisible(isHover)
   }, [isHover, setInitialVisible])
 
   return (
@@ -69,47 +90,40 @@ export function ThumbnailBar({ photos, visible, currentIndex, extra, onClickThum
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <AnimatePresence>
-        {
-          thumbnailVisible && (
-            <motion.div
-              key="thumbnail-bar"
-              initial={{ translateY: '100%' }}
-              animate={{ translateY: '0%' }}
-              exit={{ translateY: '100%' }}
-              className="px-4 h-full flex items-center bg-darkBlueGray-900/80 backdrop-blur-md border-t border-darkBlueGray-700/30"
-            >
-              {
-                photos.length > 0
-                  ? (
-                      <SimpleBar scrollableNodeProps={{ ref: scrollRef }} className="overflow-y-hidden">
-                        <div className="h-full flex gap-1 items-center">
-                          {
-                            photos.map((photo, index) => (
-                              <Thumbnail
-                                key={photo.photoId}
-                                index={index}
-                                isSelected={currentIndex === index}
-                                thumbnailUrl={photo.thumbnail_url}
-                                thumbnailClick={() => handleThumbnailClick(photo, index)}
-                                extra={extraContent(photo, index)}
-                              />
-                            ))
-                          }
-                        </div>
-                      </SimpleBar>
-                    )
-                  : (
-                      <div className="flex items-center justify-center w-full h-full text-darkBlueGray-300">
-                        <span>没有可用的缩略图</span>
-                      </div>
-                    )
-              }
-
-            </motion.div>
-          )
-        }
-      </AnimatePresence>
+      <motion.div
+        key="thumbnail-bar"
+        initial={false}
+        animate={{ translateY: thumbnailVisible ? '0%' : '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="px-4 h-full bg-darkBlueGray-900/80 backdrop-blur-md border-t border-darkBlueGray-700/30"
+        style={{ pointerEvents: thumbnailVisible ? 'auto' : 'none' }}
+      >
+        {photos.length > 0
+          ? (
+              <AutoSizer>
+                {({ width, height }) => (
+                  <FixedSizeList
+                    ref={listRef}
+                    itemCount={photos.length}
+                    itemSize={125}
+                    width={width}
+                    height={height}
+                    layout="horizontal"
+                    itemData={{ photos, onClickThumbnail, extra }}
+                    outerElementType={outerElementType}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    {Column}
+                  </FixedSizeList>
+                )}
+              </AutoSizer>
+            )
+          : (
+              <div className="flex items-center justify-center w-full h-full text-darkBlueGray-300">
+                <span>没有可用的缩略图</span>
+              </div>
+            )}
+      </motion.div>
     </div>
   )
 }

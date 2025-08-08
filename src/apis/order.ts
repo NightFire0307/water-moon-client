@@ -1,9 +1,10 @@
 import type { Response } from '@/types/common/apiResponse'
-import type { IOrderResponse } from '@/types/user/order'
+import type { PaginationParams } from '@/types/common/pagination'
 import type { IPhotoResponse } from '@/types/photos.ts'
-import request from '@/utils/request.ts'
 import type { UpdatePreselectRequest } from '@/types/selection/preSelection'
 import type { UpdateProductSelectRequest } from '@/types/selection/productSelection'
+import type { IOrderResponse } from '@/types/user/order'
+import request from '@/utils/request.ts'
 
 // 获取订单信息
 export function getOrderInfo(): IOrderResponse {
@@ -14,11 +15,11 @@ export function getOrderInfo(): IOrderResponse {
 }
 
 // 获取订单照片
-export function getOrderPhotos(): IPhotoResponse {
+export function getOrderPhotos(params?: PaginationParams): IPhotoResponse {
   return request({
     url: '/selection/photos',
     method: 'GET',
-    params: { pageSize: 200 },
+    params,
   })
 }
 

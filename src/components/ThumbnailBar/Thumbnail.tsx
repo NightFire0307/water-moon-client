@@ -23,7 +23,7 @@ export function Thumbnail({ index, thumbnailUrl, isSelected, extra, thumbnailCli
     <div
       className={
         cs(
-          'relative flex justify-center flex-shrink-0 w-24 h-16  hover:bg-darkBlueGray-600 active:bg-darkBlueGray-500 transition-all rounded-md border-2 box-content select-none',
+          'box-content relative flex justify-center flex-shrink-0 w-28 h-16 hover:bg-darkBlueGray-600 active:bg-darkBlueGray-500 transition-all rounded-md border-2  select-none',
           isSelected ? ' border-blue-400 bg-darkBlueGray-600' : 'border-transparent bg-darkBlueGray-700',
         )
       }

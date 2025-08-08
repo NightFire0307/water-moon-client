@@ -1,20 +1,20 @@
 import type { FC } from 'react'
-import { usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { useAutoSync } from '@/hooks/useAutoSync'
+import { syncPreSelectedPhotos } from '@/services/photoSyncService'
+import { usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { PreSelectStatus } from '@/types/selection/preSelection'
 import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '../ProgressDots/ProgressDots'
 import { StepHeader } from '../StepHeader/StepHeader'
 import { ThumbnailBar } from '../ThumbnailBar/ThumbnailBar'
 import PreSelectionConfirmModal from './PreSelectionConfirmModal'
 import { PreSelectStatsTooltip } from './PreSelectStatsTooltip'
-import { PreSelectStatus } from '@/types/selection/preSelection'
-import { useAutoSync } from '@/hooks/useAutoSync'
-import { syncPreSelectedPhotos } from '@/services/photoSyncService'
 
 const { Content } = Layout
 const { Text } = Typography
@@ -252,10 +252,10 @@ export const PreSelect: FC<PreSelectProps> = () => {
             <div className="relative bg-darkBlueGray-800 rounded-xl shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
               <div className="w-full h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 flex items-center justify-center px-16">
                 {
-                  currentPhoto?.thumbnail_url
+                  currentPhoto?.thumbnailUrl
                     ? (
                         <img
-                          src={currentPhoto.thumbnail_url}
+                          src={currentPhoto.thumbnailUrl}
                           alt={currentPhoto.name}
                           className="object-container max-h-full max-w-full"
                         />
@@ -380,7 +380,6 @@ export const PreSelect: FC<PreSelectProps> = () => {
       {/* 缩略图栏 */}
       <ThumbnailBar
         photos={preSelectedPhotos}
-        currentIndex={currentIndex}
         extra={item => (
           <>
             {
