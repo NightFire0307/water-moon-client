@@ -1,14 +1,14 @@
 import type { FC } from 'react'
-import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout, Typography } from 'antd'
-import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncPreSelectedPhotos } from '@/services/photoSyncService'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
+import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Button, Layout, Typography } from 'antd'
+import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '../ProgressDots/ProgressDots'
 import { StepHeader } from '../StepHeader/StepHeader'
@@ -26,11 +26,12 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setSelectionStage, setProductSelectedPhotos } = usePhotosStore()
+  const { preSelectedPhotos, getPreSelectedPhotos, currentPhoto, togglePreSelected, originalPhotos, setCurrentPhoto, setSelectionStage, setProductSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
+  const preSelectPhotos = getPreSelectedPhotos()
 
   // 全屏切换处理
   const toggleFullscreen = () => {
@@ -141,12 +142,15 @@ export const PreSelect: FC<PreSelectProps> = () => {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [currentPhoto, currentIndex])
 
+  // useEffect(() => {
+  //   if (currentPhoto === null && preSelectedPhotos.length > 0) {
+  //     setCurrentPhoto(preSelectedPhotos[0])
+  //   }
+  // }, [currentPhoto, preSelectedPhotos])
+
   useEffect(() => {
-    if (currentPhoto === null && preSelectedPhotos.length > 0) {
-      setCurrentPhoto(preSelectedPhotos[0])
-      console.log(preSelectedPhotos[0])
-    }
-  }, [currentPhoto, preSelectedPhotos])
+    console.log(originalPhotos)
+  }, [originalPhotos])
 
   return (
     <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}>
@@ -380,7 +384,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
       {/* 缩略图栏 */}
       <ThumbnailBar
-        photos={preSelectedPhotos}
+        photos={preSelectPhotos}
         extra={item => (
           <>
             {
