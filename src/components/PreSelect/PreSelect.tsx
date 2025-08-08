@@ -144,6 +144,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
   useEffect(() => {
     if (currentPhoto === null && preSelectedPhotos.length > 0) {
       setCurrentPhoto(preSelectedPhotos[0])
+      console.log(preSelectedPhotos[0])
     }
   }, [currentPhoto, preSelectedPhotos])
 
@@ -252,10 +253,10 @@ export const PreSelect: FC<PreSelectProps> = () => {
             <div className="relative bg-darkBlueGray-800 rounded-xl shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
               <div className="w-full h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 flex items-center justify-center px-16">
                 {
-                  currentPhoto?.thumbnailUrl
+                  currentPhoto?.mediumUrl
                     ? (
                         <img
-                          src={currentPhoto.thumbnailUrl}
+                          src={currentPhoto.mediumUrl}
                           alt={currentPhoto.name}
                           className="object-container max-h-full max-w-full"
                         />

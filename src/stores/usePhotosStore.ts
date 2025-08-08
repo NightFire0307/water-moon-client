@@ -1,6 +1,4 @@
-import type { IProduct } from './useProductsStore'
 import type { PaginationParams } from '@/types/common/pagination'
-import type { IPhoto } from '@/types/photos.ts'
 import { cloneDeep } from 'lodash-es'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
@@ -10,8 +8,9 @@ import { useProductsStore } from './useProductsStore'
 
 export interface Photo {
   photoId: number
-  originalUrl: string
-  thumbnailUrl: string
+  originalUrl: string // 原图链接
+  thumbnailUrl: string // 缩略图链接
+  mediumUrl: string // 中等大小图片链接
   name: string
   remark: string // 照片备注
   isRecommend: boolean // 是否推荐: true表示推荐，false表示不推荐
@@ -71,7 +70,6 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
         filterType: FILTER_TYPE.ALL,
       },
       fetchPhotos: async (params) => {
-
         // 设置加载状态
         set({ isLoading: true })
 
@@ -84,14 +82,15 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
                 photoId: photo.id,
                 originalUrl: photo.originalUrl,
                 thumbnailUrl: photo.thumbnailUrl,
+                mediumUrl: photo.mediumUrl,
                 name: photo.fileName,
                 remark: '',
                 isRecommend: photo.isRecommend,
                 preSelectStatus: PreSelectStatus.PENDING,
                 selectedProducts: [],
                 dirty: false,
-              }))
-            ]
+              })),
+            ],
           }))
 
           return {
@@ -106,7 +105,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
 
         return {
           hasMore,
-          nextPage: () => loadBatch({ current: page })
+          nextPage: () => loadBatch({ current: page }),
         }
       },
       setPhotoSelectedProducts: (photoId, productIds) => {

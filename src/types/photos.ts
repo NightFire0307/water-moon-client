@@ -5,6 +5,7 @@ export interface IPhoto {
   fileName: string
   thumbnailUrl: string
   originalUrl: string
+  mediumUrl: string
   isRecommend: boolean
   remark?: string
 }

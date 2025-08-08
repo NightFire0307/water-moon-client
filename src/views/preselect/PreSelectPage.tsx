@@ -1,8 +1,8 @@
+import { type FC, useEffect } from 'react'
 import PreSelect from '@/components/PreSelect/PreSelect'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncPreSelectedPhotos } from '@/services/photoSyncService'
 import { usePhotosStore } from '@/stores/usePhotosStore'
-import { type FC, useEffect} from 'react'
 
 const PreSelectPage: FC = () => {
   const { fetchPhotos } = usePhotosStore()
