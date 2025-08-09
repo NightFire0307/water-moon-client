@@ -3,8 +3,9 @@ import CustomModal from '@/components/CustomModal/CustomModal'
 import { useOrderStore } from '@/stores/useOrderStore'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { PreSelectStatus } from '@/types/selection/preSelection'
 import { CheckCircleOutlined, GroupOutlined, InfoCircleOutlined, LoadingOutlined, LockOutlined, PictureOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 interface ConfirmSelResModalProps {
   open: boolean
@@ -15,8 +16,20 @@ interface ConfirmSelResModalProps {
 function ConfirmSelResModal({ open, onConfirm, onCancel }: ConfirmSelResModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { orderInfo } = useOrderStore()
-  const { preSelectedPhotos } = usePhotosStore()
+  const { getPreSelectedPhotos } = usePhotosStore()
   const { products } = useProductsStore()
+
+  const preSelectedPhotos = getPreSelectedPhotos()
+
+  // 过滤已选照片数量
+  const selectedCount = useMemo(() => {
+    return preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED).length
+  }, [preSelectedPhotos])
+
+  // 计算超出数量
+  const extraCount = useMemo(() => {
+    return Math.max(0, selectedCount - (orderInfo?.maxSelectPhotos || 0))
+  }, [orderInfo, selectedCount])
 
   const handleConfirm = () => {
     setIsSubmitting(true)
@@ -90,20 +103,20 @@ function ConfirmSelResModal({ open, onConfirm, onCancel }: ConfirmSelResModalPro
               </div>
 
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="text-2xl font-bold text-blue-300">{ preSelectedPhotos.length }</div>
-                {25 > 20 && (
+                <div className="text-2xl font-bold text-blue-300">{ selectedCount }</div>
+                {extraCount > 0 && (
                   <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
                 )}
               </div>
 
               <div className="text-sm text-blue-400 font-medium mb-1">已选择</div>
 
-              {25 > 20 && (
+              {extraCount > 0 && (
                 <div className="inline-flex items-center px-3 py-1 bg-amber-500/15 border border-amber-500/30 rounded-full">
                   <span className="text-xs text-amber-300 font-medium">
                     超出
                     {' '}
-                    {25 - 20}
+                    {extraCount}
                     {' '}
                     张
                   </span>

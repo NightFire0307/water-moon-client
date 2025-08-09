@@ -13,8 +13,8 @@ interface ProductSelectConfirmModalProps {
 
 function ProductSelectConfirmModal({ open, onConfirm, onCancel }: ProductSelectConfirmModalProps) {
   const { products } = useProductsStore()
-  const { getPreSelectedPhotos } = usePhotosStore()
-  const productSelectedPhotos = getPreSelectedPhotos()
+  const { getProductSelectedPhotos } = usePhotosStore()
+  const productSelectedPhotos = getProductSelectedPhotos()
 
   // 获取照片分配结果
   const assignedState = useMemo(() => {
