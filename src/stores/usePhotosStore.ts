@@ -114,7 +114,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
                 name: photo.fileName,
                 remark: state.originalPhotos.get(photo.id)?.remark || '',
                 isRecommend: photo.isRecommend,
-                preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || PreSelectStatus.PENDING,
+                preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || photo.preSelectStatus,
                 selectedProducts: [],
                 dirty: false,
               })
