@@ -26,7 +26,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { preSelectedPhotos, getPreSelectedPhotos, currentPhoto, togglePreSelected, originalPhotos, setCurrentPhoto, setSelectionStage, setProductSelectedPhotos } = usePhotosStore()
+  const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setSelectionStage } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
@@ -50,8 +50,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
     showLoading()
 
     // 拷贝预选照片到产品选片
-    const productSelectedPhotos = preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
-    setProductSelectedPhotos(productSelectedPhotos)
+    // const productSelectedPhotos = preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
+    // setProductSelectedPhotos(productSelectedPhotos)
 
     // 设置当前索引为 null
     setCurrentPhoto(null)
@@ -91,7 +91,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
         // 如果当前是第一张照片，则不切换
         if (currentIndex !== 0) {
-          const previousPhoto = preSelectedPhotos[currentIndex - 1]
+          const previousPhoto = preSelectPhotos[currentIndex - 1]
           setCurrentPhoto(previousPhoto)
           previous()
         }
@@ -100,13 +100,13 @@ export const PreSelect: FC<PreSelectProps> = () => {
         e.preventDefault()
 
         // 如果index不是最后一张则切换到下一张
-        if (currentIndex < preSelectedPhotos.length - 1) {
+        if (currentIndex < preSelectPhotos.length - 1) {
           // 如果当前照片为 pending 则自动标记 selected
           if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
             togglePreSelected(PreSelectStatus.SELECTED)
           }
 
-          const nextPhoto = preSelectedPhotos[currentIndex + 1]
+          const nextPhoto = preSelectPhotos[currentIndex + 1]
           setCurrentPhoto(nextPhoto)
 
           next()
@@ -125,8 +125,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
           togglePreSelected(PreSelectStatus.EXCLUDE)
         }
 
-        if (currentIndex < preSelectedPhotos.length - 1) {
-          const nextPhoto = preSelectedPhotos[currentIndex + 1]
+        if (currentIndex < preSelectPhotos.length - 1) {
+          const nextPhoto = preSelectPhotos[currentIndex + 1]
           setCurrentPhoto(nextPhoto)
           next()
         }
@@ -142,15 +142,11 @@ export const PreSelect: FC<PreSelectProps> = () => {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [currentPhoto, currentIndex])
 
-  // useEffect(() => {
-  //   if (currentPhoto === null && preSelectedPhotos.length > 0) {
-  //     setCurrentPhoto(preSelectedPhotos[0])
-  //   }
-  // }, [currentPhoto, preSelectedPhotos])
-
   useEffect(() => {
-    console.log(originalPhotos)
-  }, [originalPhotos])
+    if (currentPhoto === null && preSelectPhotos.length > 0) {
+      setCurrentPhoto(preSelectPhotos[0])
+    }
+  }, [currentPhoto, preSelectPhotos])
 
   return (
     <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}>
@@ -231,7 +227,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
           <Text className="text-white text-sm">
             <span className="text-blue-400 font-semibold">3</span>
             <span className="text-darkBlueGray-300 mx-1">/</span>
-            <span className="text-white font-semibold">{preSelectedPhotos.length}</span>
+            <span className="text-white font-semibold">{preSelectPhotos.length}</span>
           </Text>
           <Button
             type="text"
@@ -285,7 +281,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
                     当前：
                     <span className="text-blue-400 font-semibold mx-1">{currentIndex + 1}</span>
                     /
-                    <span className="text-white font-semibold mx-1">{preSelectedPhotos.length}</span>
+                    <span className="text-white font-semibold mx-1">{preSelectPhotos.length}</span>
                   </Text>
 
                   {/* 筛选统计悬浮窗 */}
