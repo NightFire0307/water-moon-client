@@ -26,7 +26,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setSelectionStage } = usePhotosStore()
+  const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setSelectionStage, setProductSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
@@ -49,9 +49,13 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const handlePreSelectConfirm = async () => {
     showLoading()
 
-    // 拷贝预选照片到产品选片
-    // const productSelectedPhotos = preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
-    // setProductSelectedPhotos(productSelectedPhotos)
+    // 将预选照片所有选中的复制到产品选片
+    setProductSelectedPhotos(
+      new Map([...preSelectPhotos.entries()]
+        .filter(([_, photo]) => photo.preSelectStatus === PreSelectStatus.SELECTED)
+        .map(([_, { photoId, ...rest }]) => ([photoId, rest])),
+      ),
+    )
 
     // 设置当前索引为 null
     setCurrentPhoto(null)
@@ -250,8 +254,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
             className="relative w-full h-full"
           >
             {/* 照片容器 */}
-            <div className="relative bg-darkBlueGray-800 rounded-xl shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
-              <div className="w-full h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 flex items-center justify-center px-16">
+            <div className="relative bg-darkBlueGray-800 rounded-md shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
+              <div className="w-full h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 flex items-center justify-center">
                 {
                   currentPhoto?.mediumUrl
                     ? (
@@ -266,53 +270,71 @@ export const PreSelect: FC<PreSelectProps> = () => {
               </div>
 
               {/* 照片信息覆盖层 - 左上角 */}
-              <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm rounded-lg px-3 py-2">
-                <Text className="text-white text-base font-medium">{currentPhoto?.name ?? ''}</Text>
+              <div className="absolute top-4 left-4 bg-darkBlueGray-800/80 backdrop-blur-md rounded-lg px-4 py-2 select-none border border-darkBlueGray-600/50 shadow-lg">
+                <Text className="text-white text-sm font-medium">{currentPhoto?.name ?? '暂无照片'}</Text>
               </div>
 
-              {/* 进度显示 - 移到右上角 */}
-              <div
-                className="absolute top-3 right-3 flex items-center gap-4 text-sm select-none"
-                onMouseEnter={() => setIsProgressHovered(true)}
-                onMouseLeave={() => setIsProgressHovered(false)}
-              >
-                <div className="bg-black/50 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-3">
-                  <Text className="text-darkBlueGray-300">
-                    当前：
-                    <span className="text-blue-400 font-semibold mx-1">{currentIndex + 1}</span>
-                    /
-                    <span className="text-white font-semibold mx-1">{preSelectPhotos.length}</span>
-                  </Text>
+              {/* 进度显示和状态标识 - 右上角区域 */}
+              <div className="absolute top-4 right-4 flex flex-col items-end gap-3 select-none">
+                {/* 状态标识 */}
+                {currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="bg-green-600/90 backdrop-blur-sm rounded-md px-4 py-2 flex items-center gap-2 shadow-lg border border-green-500/30"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
+                    <Text className="text-white text-sm font-semibold">已选择</Text>
+                  </motion.div>
+                )}
+
+                {currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDE && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="bg-red-600/90 backdrop-blur-sm rounded-md px-4 py-2 flex items-center gap-2 shadow-lg border border-red-500/30"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-red-400 shadow-lg shadow-red-400/50"></div>
+                    <Text className="text-white text-sm font-semibold">已排除</Text>
+                  </motion.div>
+                )}
+
+                {currentPhoto?.preSelectStatus === PreSelectStatus.PENDING && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="bg-yellow-600/90 backdrop-blur-sm rounded-md px-4 py-2 flex items-center gap-2 shadow-lg border border-yellow-500/30"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/50 animate-pulse"></div>
+                    <Text className="text-white text-sm font-semibold">待处理</Text>
+                  </motion.div>
+                )}
+
+                {/* 进度统计 */}
+                <div
+                  className="relative w-24 bg-darkBlueGray-800/70 backdrop-blur-sm rounded-md px-3 py-2 border border-white/5 shadow-md opacity-80 hover:opacity-100 transition-opacity duration-200"
+                  onMouseEnter={() => setIsProgressHovered(true)}
+                  onMouseLeave={() => setIsProgressHovered(false)}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="text-center">
+                      <Text className="text-blue-400 text-sm font-medium block leading-tight">{currentIndex + 1}</Text>
+                      <Text className="text-darkBlueGray-500 text-xs">当前</Text>
+                    </div>
+                    <div className="w-px h-5 bg-darkBlueGray-600"></div>
+                    <div className="text-center">
+                      <Text className="text-white text-sm font-medium block leading-tight">{preSelectPhotos.length}</Text>
+                      <Text className="text-darkBlueGray-500 text-xs">总数</Text>
+                    </div>
+                  </div>
 
                   {/* 筛选统计悬浮窗 */}
                   <PreSelectStatsTooltip isProgressHovered={isProgressHovered} />
                 </div>
               </div>
-
-              {/* 状态标识 */}
-              {currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="absolute top-3 right-32 bg-green-600/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg"
-                >
-                  <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
-                  <Text className="text-white text-sm font-semibold">已选择</Text>
-                </motion.div>
-              )}
-
-              {currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDE && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="absolute top-3 right-3 bg-red-600/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg"
-                >
-                  <div className="w-3 h-3 rounded-full bg-red-400 shadow-lg shadow-red-400/50"></div>
-                  <Text className="text-white text-sm font-semibold">已排除</Text>
-                </motion.div>
-              )}
 
               {/* 大型中央状态指示器 */}
               {currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED && (

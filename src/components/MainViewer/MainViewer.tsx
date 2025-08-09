@@ -4,7 +4,7 @@ import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { InfoCircleOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Tooltip, Typography } from 'antd'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { type ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
 const { Text } = Typography
@@ -36,7 +36,8 @@ export function MainViewer({ transformRef }: MainViewerProps) {
   const { rotate } = usePhotoViewerStore()
   const { currentPhoto } = usePhotosStore()
   const isLoading = usePhotosStore(state => state.isLoading)
-  const productSelectedPhotos = usePhotosStore(state => state.productSelectedPhotos)
+  const { getProductSelectedPhotos } = usePhotosStore()
+  const productSelectedPhotos = getProductSelectedPhotos()
   const { products } = useProductsStore()
 
   // 当前照片选中的产品名称
@@ -103,7 +104,7 @@ export function MainViewer({ transformRef }: MainViewerProps) {
                       contentStyle={{ width: '100%', height: '100%' }}
                     >
                       <img
-                        src={currentPhoto?.thumbnail_url}
+                        src={currentPhoto?.mediumUrl}
                         alt={currentPhoto?.name}
                         className="w-full h-full object-contain transition-all"
                         style={{ transform: `rotate(${rotate}deg)` }}

@@ -1,13 +1,13 @@
 import type { DropdownProps } from 'antd/lib'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps } from 'antd'
-import { AnimatePresence, motion } from 'framer-motion'
-import { type RefObject, useEffect, useMemo, useState } from 'react'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
+import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps } from 'antd'
+import { AnimatePresence, motion } from 'framer-motion'
+import { type RefObject, useEffect, useMemo, useState } from 'react'
 import { usePhotosStore } from '../../stores/usePhotosStore'
 
 interface ViewerControlProps {
@@ -45,6 +45,11 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
   const handleRemark = () => {
     setKeyboardDisabled(true)
     setRemarkModalVisible(true)
+
+    // 获取当前照片的备注内容
+    if (currentPhoto) {
+      form.setFieldsValue({ remark: currentPhoto.remark || '' })
+    }
   }
 
   // 保存备注

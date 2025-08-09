@@ -1,7 +1,6 @@
-import type { IOrder, IOrderProduct } from '@/types/user/order'
-import { getOrderInfo } from '@/apis/order'
+import type { IOrderProduct } from '@/types/user/order'
+import type { FC } from 'react'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
-import { useProductsStore } from '@/stores/useProductsStore'
 import {
   ArrowRightOutlined,
   CalendarOutlined,
@@ -11,9 +10,7 @@ import {
 } from '@ant-design/icons'
 import { Badge, Button, Layout, Progress } from 'antd'
 import { motion } from 'framer-motion'
-import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-
 
 const { Content } = Layout
 
@@ -26,19 +23,7 @@ enum SelectionStatus {
 }
 
 const OrderInfoPage: FC = () => {
-  const [orderInfo, setOrderInfo] = useState<IOrder | null>(null)
   const navigate = useNavigate()
-  const { generateProducts } = useProductsStore()
-  // 获取订单信息
-  const fetchOrderInfo = async () => {
-    const { data } = await getOrderInfo()
-    setOrderInfo(data)
-    generateProducts(data.orderProducts)
-  }
-
-  useEffect(() => {
-    fetchOrderInfo()
-  }, [])
 
   // 获取选片状态显示信息
   const getSelectionStatusInfo = (status: SelectionStatus) => {
@@ -364,11 +349,11 @@ const OrderInfoPage: FC = () => {
               transition={{ duration: 0.3, delay: 1.1 }}
               className="flex justify-center"
             >
-              <Button 
+              <Button
                 type="primary"
-                size='large' 
+                size="large"
                 icon={<ArrowRightOutlined />}
-                iconPosition='end'
+                iconPosition="end"
                 onClick={() => navigate('/pre-select')}
               >
                 开始挑选美照

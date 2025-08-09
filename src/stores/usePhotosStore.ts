@@ -51,8 +51,9 @@ interface UsePhotosAction {
   getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
   getPreSelectedPhotos: () => Photo[] // 获取预选照片列表
-  setPreSelectedPhotos: (photo: Photo) => void // 设置预选照片列表
-  setProductSelectedPhotos: (photo: Photo) => void // 设置产品选片照片列表
+  getProductSelectedPhotos: () => Photo[] // 获取产品选片照片列表
+  setPreSelectedPhotos: (preSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置预选照片列表
+  setProductSelectedPhotos: (productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置产品选片照片列表
 }
 
 // 合并缓存预选照片
@@ -177,6 +178,8 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           return state
 
         const productSelectPhoto = state.productSelectedPhotos.get(state.currentPhoto.photoId)
+        console.log(state.productSelectedPhotos)
+        console.log(state.currentPhoto)
 
         if (!productSelectPhoto || productSelectPhoto.preSelectStatus !== PreSelectStatus.SELECTED)
           return state
@@ -234,15 +237,16 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       }),
       // 获取产品选片的统计信息
       getProductSelectedStats: () => {
-        // const state = get()
-        // const totalCount = state.productSelectedPhotos.length
-        // const selectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length > 0).length
-        // const unselectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length === 0).length
+        const state = get()
+        const productSelectedPhotos = state.getProductSelectedPhotos()
+        const totalCount = productSelectedPhotos.length
+        const selectedCount = productSelectedPhotos.filter(photo => photo.selectedProducts.length > 0).length
+        const unselectedCount = productSelectedPhotos.filter(photo => photo.selectedProducts.length === 0).length
 
         return {
-          selectedCount: 0,
-          unselectedCount: 0,
-          totalCount: 0,
+          selectedCount,
+          unselectedCount,
+          totalCount,
         }
       },
       // 获取预选照片的统计信息
@@ -289,12 +293,13 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       }),
       setAllPendingToSelected: () => set((state) => {
         return {
-          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
-            if (photo.preSelectStatus === PreSelectStatus.PENDING) {
-              return { ...photo, preSelectStatus: PreSelectStatus.SELECTED }
-            }
-            return photo
-          }),
+          preSelectedPhotos: new Map([...state.preSelectedPhotos.entries()].map(([photoId, photo]) => (
+            [photoId, {
+              ...photo,
+              preSelectStatus: photo.preSelectStatus === PreSelectStatus.PENDING ? PreSelectStatus.SELECTED : photo.preSelectStatus,
+              dirty: true,
+            }]
+          ))),
         }
       }),
       setAllToPending: () => set((state) => {
@@ -317,12 +322,21 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
 
         return preSelectPhotos
       },
-      setPreSelectedPhotos: preSelectedPhoto => set(state => ({
-        preSelectedPhotos: new Map(state.preSelectedPhotos).set(preSelectedPhoto.photoId, { ...preSelectedPhoto, dirty: true }),
-      })),
-      setProductSelectedPhotos: productSelectedPhoto => set(state => ({
-        productSelectedPhotos: state.productSelectedPhotos.set(productSelectedPhoto.photoId, productSelectedPhoto),
-      })),
+      getProductSelectedPhotos: () => {
+        const state = get()
+        const productSelectedPhotos: Photo[] = []
+
+        for (const [photoId, value] of state.productSelectedPhotos.entries()) {
+          productSelectedPhotos.push({
+            photoId,
+            ...value,
+          })
+        }
+
+        return productSelectedPhotos
+      },
+      setPreSelectedPhotos: preSelectedPhotos => set({ preSelectedPhotos }),
+      setProductSelectedPhotos: productSelectedPhotos => set({ productSelectedPhotos }),
     }), {
       name: 'photos-storage',
       storage: createJSONStorage(() => localStorage, {

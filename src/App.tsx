@@ -1,16 +1,31 @@
 import { ReloadOutlined } from '@ant-design/icons'
 import { ConfigProvider, FloatButton } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router'
+import { getOrderInfo } from './apis/order'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 import ResetSelectionModal from './components/ResetSelectionModal/ResetSelectionModal'
+import { useOrderStore } from './stores/useOrderStore'
 import { usePhotosStore } from './stores/usePhotosStore'
+import { useProductsStore } from './stores/useProductsStore'
 import './App.css'
 
 function App() {
   const [resetModalOpen, setResetModalOpen] = useState(false)
   const { selectionStage } = usePhotosStore()
+  const { setOrderInfo } = useOrderStore()
+  const { generateProducts } = useProductsStore()
+  // 获取订单信息
+  const fetchOrderInfo = async () => {
+    const { data } = await getOrderInfo()
+    setOrderInfo(data)
+    generateProducts(data.orderProducts)
+  }
+
+  useEffect(() => {
+    fetchOrderInfo()
+  }, [])
 
   return (
     <ConfigProvider

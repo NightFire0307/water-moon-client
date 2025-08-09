@@ -8,7 +8,8 @@ import { usePhotosStore } from '@/stores/usePhotosStore'
 export async function syncPreSelectedPhotos() {
   console.log('开始同步预选照片')
   const store = usePhotosStore.getState()
-  const changedPhotos = store.preSelectedPhotos.filter(photo => photo.dirty)
+  const allPreselectedPhotos = store.getPreSelectedPhotos()
+  const changedPhotos = allPreselectedPhotos.filter(photo => photo.dirty)
     .map(photo => ({
       id: photo.photoId,
       status: photo.preSelectStatus,
@@ -25,11 +26,15 @@ export async function syncPreSelectedPhotos() {
     await updatePreSelectedPhotos({ photos: changedPhotos })
 
     store.setPreSelectedPhotos(
-      store.preSelectedPhotos.map((photo) => {
-        return photo.dirty ? { ...photo, dirty: false } : photo
-      }),
+      new Map([...store.preSelectedPhotos.entries()].map(([photoId, photo]) => (
+        [photoId, {
+          ...photo,
+          dirty: false, // 同步成功后重置脏数据标记
+        }]
+      ))),
     )
-  } catch (err) {
+  }
+  catch (err) {
     return Promise.reject(err)
   }
 }
@@ -40,7 +45,8 @@ export async function syncPreSelectedPhotos() {
 export async function syncProductPhotos() {
   const store = usePhotosStore.getState()
   const photoMap = new Map<number, { id: number, remark?: string }[]>()
-  const changedProductPhotos = store.productSelectedPhotos.filter(photo => photo.dirty)
+  const productSelectedPhotos = store.getProductSelectedPhotos()
+  const changedProductPhotos = productSelectedPhotos.filter(photo => photo.dirty)
 
   for (const change of changedProductPhotos) {
     change.selectedProducts.forEach((productId) => {
@@ -69,10 +75,12 @@ export async function syncProductPhotos() {
 
     // 同步成功后，重置脏数据标记
     store.setProductSelectedPhotos(
-      store.productSelectedPhotos.map((photo) => {
-        return photo.dirty ? { ...photo, dirty: false } : photo
-      }
-      )
+      new Map([...store.productSelectedPhotos.entries()].map(([photoId, photo]) => (
+        [photoId, {
+          ...photo,
+          dirty: false, // 同步成功后重置脏数据标记
+        }]
+      ))),
     )
   }
   catch (err) {
