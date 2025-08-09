@@ -1,6 +1,7 @@
 import type { IOrderProduct } from '@/types/user/order'
 import type { FC } from 'react'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
+import { useOrderStore } from '@/stores/useOrderStore'
 import {
   ArrowRightOutlined,
   CalendarOutlined,
@@ -24,6 +25,7 @@ enum SelectionStatus {
 
 const OrderInfoPage: FC = () => {
   const navigate = useNavigate()
+  const { orderInfo } = useOrderStore()
 
   // 获取选片状态显示信息
   const getSelectionStatusInfo = (status: SelectionStatus) => {
