@@ -1,5 +1,6 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
+import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
@@ -39,7 +40,8 @@ function ProductSelectPage() {
   const { setDropdownMenuStatus } = useProductsStore()
   const navigate = useNavigate()
   const productSelectedPhotos = getProductSelectedPhotos()
-  // useAutoSync(syncProductPhotos) // 启动产品照片同步
+  const { showLoading, hideLoading } = useFullScreenLoading()
+  const { syncNow } = useAutoSync(syncProductPhotos) // 启动产品照片同步
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
@@ -145,6 +147,16 @@ function ProductSelectPage() {
     [handleNextPhoto, handlePreviousPhoto],
   )
 
+  // 处理提交事件
+  const handleConfirm = async () => {
+    showLoading('正在同步产品选片结果...')
+    await syncNow()
+    setTimeout(() => {
+      hideLoading()
+      navigate('/preview')
+    }, 1500)
+  }
+
   // 全局按键事件
   useEffect(() => {
     window.addEventListener('keydown', handleKeydown)
@@ -238,7 +250,7 @@ function ProductSelectPage() {
       {/* 提交选片结果Modal */}
       <ProductSelectConfirmModal
         open={confirmModalOpen}
-        onConfirm={() => navigate('/preview')}
+        onConfirm={handleConfirm}
         onCancel={() => setConfirmModalOpen(false)}
       />
     </PhotoViewerContext.Provider>
