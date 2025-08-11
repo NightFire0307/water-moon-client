@@ -1,19 +1,18 @@
-import type { IOrder, IOrderProduct } from '@/types/user/order'
-import { getOrderInfo } from '@/apis/order'
+import type { IOrderProduct } from '@/types/user/order'
+import type { FC } from 'react'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
-import { useProductsStore } from '@/stores/useProductsStore'
+import { useOrderStore } from '@/stores/useOrderStore'
 import {
   ArrowRightOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
   ExclamationCircleOutlined,
+  FieldTimeOutlined,
+  FlagOutlined,
 } from '@ant-design/icons'
-import { Badge, Button, Layout, Progress } from 'antd'
+import { Button, Layout, Progress } from 'antd'
 import { motion } from 'framer-motion'
-import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-
 
 const { Content } = Layout
 
@@ -26,33 +25,47 @@ enum SelectionStatus {
 }
 
 const OrderInfoPage: FC = () => {
-  const [orderInfo, setOrderInfo] = useState<IOrder | null>(null)
   const navigate = useNavigate()
-  const { generateProducts } = useProductsStore()
-  // 获取订单信息
-  const fetchOrderInfo = async () => {
-    const { data } = await getOrderInfo()
-    setOrderInfo(data)
-    generateProducts(data.orderProducts)
-  }
-
-  useEffect(() => {
-    fetchOrderInfo()
-  }, [])
+  const { orderInfo } = useOrderStore()
 
   // 获取选片状态显示信息
   const getSelectionStatusInfo = (status: SelectionStatus) => {
     switch (status) {
       case SelectionStatus.PENDING:
-        return { text: '待开始', color: 'orange', icon: <ClockCircleOutlined /> }
+        return {
+          text: '待开始',
+          icon: <FlagOutlined />,
+          iconColor: 'text-yellow-400',
+          textColor: 'text-yellow-300',
+        }
       case SelectionStatus.PRE_SELECTING:
-        return { text: '预选完成', color: 'blue', icon: <CheckCircleOutlined /> }
+        return {
+          text: '预选完成',
+          icon: <CheckCircleOutlined />,
+          iconColor: 'text-blue-400',
+          textColor: 'text-blue-300',
+        }
       case SelectionStatus.PRODUCT_SELECTING:
-        return { text: '产品选择完成', color: 'green', icon: <CheckCircleOutlined /> }
+        return {
+          text: '产品选择完成',
+          icon: <CheckCircleOutlined />,
+          iconColor: 'text-green-400',
+          textColor: 'text-green-300',
+        }
       case SelectionStatus.SUBMITTED:
-        return { text: '已提交', color: 'green', icon: <CheckCircleOutlined /> }
+        return {
+          text: '已提交',
+          icon: <CheckCircleOutlined />,
+          iconColor: 'text-green-400',
+          textColor: 'text-green-300',
+        }
       default:
-        return { text: '未知状态', color: 'default', icon: <ExclamationCircleOutlined /> }
+        return {
+          text: '未知状态',
+          icon: <ExclamationCircleOutlined />,
+          iconColor: 'text-gray-400',
+          textColor: 'text-gray-300',
+        }
     }
   }
 
@@ -62,13 +75,31 @@ const OrderInfoPage: FC = () => {
     const selectedCount = orderProduct.selectedPhotos.length
 
     if (selectedCount === 0) {
-      return { text: '未开始', color: 'oklch(70.5% 0.213 47.604)' }
+      return {
+        text: '未开始',
+        bgColor: 'bg-yellow-600/20',
+        borderColor: 'border-yellow-500/30',
+        textColor: 'text-yellow-300',
+        dotColor: 'bg-yellow-400',
+      }
     }
     else if (selectedCount < requiredCount) {
-      return { text: `已选 ${selectedCount}/${requiredCount}`, color: 'processing' }
+      return {
+        text: `已选 ${selectedCount}/${requiredCount}`,
+        bgColor: 'bg-blue-500/20',
+        borderColor: 'border-blue-500/30',
+        textColor: 'text-blue-300',
+        dotColor: 'bg-blue-400',
+      }
     }
     else {
-      return { text: '已完成', color: 'oklch(72.3% 0.219 149.579)' }
+      return {
+        text: '已完成',
+        bgColor: 'bg-green-600/20',
+        borderColor: 'border-green-500/30',
+        textColor: 'text-green-300',
+        dotColor: 'bg-green-400',
+      }
     }
   }
 
@@ -168,17 +199,17 @@ const OrderInfoPage: FC = () => {
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                 <CalendarOutlined className="text-blue-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">创建日期</p>
-                <p className="text-white text-lg font-semibold">2025-07-26</p>
+                <p className="text-blue-300 text-lg font-semibold">2025-07-26</p>
               </div>
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
-                <ClockCircleOutlined className="text-orange-400 text-2xl mb-3 block mx-auto" />
+                <FieldTimeOutlined className="text-orange-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">截止日期</p>
                 <p className="text-orange-300 text-lg font-semibold">2025-08-26</p>
               </div>
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
-                {statusInfo.icon && <div className="text-2xl mb-3 flex justify-center">{statusInfo.icon}</div>}
+                {statusInfo.icon && <div className={`${statusInfo.iconColor} text-2xl mb-3 block mx-auto`}>{statusInfo.icon}</div>}
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">选片状态</p>
-                <p className="text-white text-lg font-semibold">{statusInfo.text}</p>
+                <p className={`text-lg font-semibold ${statusInfo.textColor}`}>{statusInfo.text}</p>
               </div>
             </div>
           </motion.div>
@@ -197,7 +228,19 @@ const OrderInfoPage: FC = () => {
                 const selectionStatus = getProductSelectionStatus(orderProduct)
                 const requiredPhotos = orderProduct.photoLimit * orderProduct.count
                 const selectedPhotos = orderProduct.selectedPhotos.length
-                const progressPercent = requiredPhotos > 0 ? (selectedPhotos / requiredPhotos) * 100 : 0
+                const progressPercent = requiredPhotos > 0
+                  ? (selectedPhotos / requiredPhotos) * 100
+                  : requiredPhotos === 0
+                    ? selectedPhotos > 0 ? 100 : 0
+                    : 0
+
+                // 根据进度确定颜色
+                const getProgressColor = () => {
+                  if (progressPercent >= 100) {
+                    return { from: '#10b981', to: '#059669' } // 绿色
+                  }
+                  return { from: '#3b82f6', to: '#1d4ed8' } // 蓝色统一：blue-500 to blue-700
+                }
 
                 return (
                   <div
@@ -206,22 +249,25 @@ const OrderInfoPage: FC = () => {
                   >
                     {/* 顶部：产品类型标签 + 状态徽章 */}
                     <div className="flex items-center justify-between mb-4">
-                      <div className="inline-flex items-center px-3 py-1 bg-blue-00/20 text-blue-300 text-xs font-semibold rounded-full border border-blue-500/30">
+                      <div className="inline-flex items-center px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-semibold rounded-full border border-blue-500/30">
                         {orderProduct.productType}
                       </div>
-                      <Badge
-                        color={selectionStatus.color}
-                        text={(
-                          <span className="text-white text-xs font-medium ml-1">
-                            {selectionStatus.text}
-                          </span>
-                        )}
-                      />
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
+                        className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border ${selectionStatus.bgColor} ${selectionStatus.borderColor}`}
+                      >
+                        <div className={`w-2 h-2 rounded-full mr-2 ${selectionStatus.dotColor}`} />
+                        <span className={selectionStatus.textColor}>
+                          {selectionStatus.text}
+                        </span>
+                      </motion.div>
                     </div>
 
                     {/* 产品名称 */}
                     <div className="mb-5">
-                      <h4 className="text-white text-xl font-bold mb-2 leading-tight group-hover:text-blue-200 transition-colors">
+                      <h4 className="text-white text-xl font-bold mb-2 leading-tight group-hover:text-blue-300 transition-colors">
                         {orderProduct.productName}
                       </h4>
                     </div>
@@ -237,7 +283,7 @@ const OrderInfoPage: FC = () => {
 
                       {/* 照片需求 */}
                       <div className="text-center bg-darkBlueGray-700/30 rounded-xl p-3 border border-darkBlueGray-600/30">
-                        <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">每件照片</p>
+                        <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">应选照片</p>
                         <p className="text-blue-300 text-2xl font-bold">{orderProduct.photoLimit === 0 ? '∞' : orderProduct.photoLimit}</p>
                         <p className="text-darkBlueGray-300 text-xs">张</p>
                       </div>
@@ -258,16 +304,16 @@ const OrderInfoPage: FC = () => {
                       {/* 进度条 */}
                       <Progress
                         percent={progressPercent}
-                        strokeColor={{ from: '#3b82f6', to: '#2563eb' }}
-                        trailColor="#64748b"
+                        strokeColor={getProgressColor()}
+                        trailColor="#475569"
                         showInfo={false}
                       />
 
                       {/* 总计提示 */}
                       <div className="flex items-center justify-between text-xs pt-2 border-t border-darkBlueGray-600/30">
                         <span className="text-darkBlueGray-400">总计需要</span>
-                        <span className="text-orange-300 font-semibold">
-                          {requiredPhotos}
+                        <span className="text-blue-300 font-semibold">
+                          {requiredPhotos === 0 ? '∞' : requiredPhotos}
                           {' '}
                           张照片
                         </span>
@@ -364,12 +410,13 @@ const OrderInfoPage: FC = () => {
               transition={{ duration: 0.3, delay: 1.1 }}
               className="flex justify-center"
             >
-              <Button 
+              <Button
                 type="primary"
-                size='large' 
+                size="large"
                 icon={<ArrowRightOutlined />}
-                iconPosition='end'
+                iconPosition="end"
                 onClick={() => navigate('/pre-select')}
+                className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 border-blue-500 hover:border-blue-600 active:border-blue-700 transition-all duration-200"
               >
                 开始挑选美照
               </Button>

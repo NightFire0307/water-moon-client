@@ -1,12 +1,6 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout } from 'antd'
-import { Header } from 'antd/es/layout/layout'
-import Sider from 'antd/es/layout/Sider'
-import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
+import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
@@ -19,6 +13,13 @@ import { syncProductPhotos } from '@/services/photoSyncService'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Button, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
 
 const { Content } = Layout
@@ -34,11 +35,13 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
-  const { productSelectedPhotos, filter, setCurrentPhoto, currentPhoto } = usePhotosStore()
+  const { getProductSelectedPhotos, filter, setCurrentPhoto, currentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
   const navigate = useNavigate()
-  useAutoSync(syncProductPhotos) // 启动产品照片同步
+  const productSelectedPhotos = getProductSelectedPhotos()
+  const { showLoading, hideLoading } = useFullScreenLoading()
+  const { syncNow } = useAutoSync(syncProductPhotos) // 启动产品照片同步
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
@@ -70,8 +73,11 @@ function ProductSelectPage() {
   // 监听过滤后的照片变化，自动设置当前第一张照片
   useEffect(() => {
     if (filteredPhotos.length === 0) {
-      setCurrentPhoto(null)
-      setCurrentIndex(0)
+      if (currentPhoto !== null) {
+        setCurrentPhoto(null)
+        setCurrentIndex(0)
+      }
+      return
     }
 
     // 如果当前照片不在过滤后的列表中，自动切换到第一张
@@ -81,7 +87,7 @@ function ProductSelectPage() {
       setCurrentPhoto(filteredPhotos[0] || null)
       setCurrentIndex(0)
     }
-  }, [filteredPhotos])
+  }, [filteredPhotos, currentPhoto])
 
   // 控制提示信息显示
   // 例如：当切换到最后一张照片时，显示提示信息
@@ -143,6 +149,16 @@ function ProductSelectPage() {
     },
     [handleNextPhoto, handlePreviousPhoto],
   )
+
+  // 处理提交事件
+  const handleConfirm = async () => {
+    showLoading('正在同步产品选片结果...')
+    await syncNow()
+    setTimeout(() => {
+      hideLoading()
+      navigate('/preview')
+    }, 1500)
+  }
 
   // 全局按键事件
   useEffect(() => {
@@ -237,7 +253,7 @@ function ProductSelectPage() {
       {/* 提交选片结果Modal */}
       <ProductSelectConfirmModal
         open={confirmModalOpen}
-        onConfirm={() => navigate('/preview')}
+        onConfirm={handleConfirm}
         onCancel={() => setConfirmModalOpen(false)}
       />
     </PhotoViewerContext.Provider>

@@ -1,4 +1,5 @@
 import type { ResponsePromise } from '@/types/common/apiResponse'
+import type { PreSelectStatus } from './selection/preSelection'
 
 export interface IPhoto {
   id: number
@@ -7,6 +8,7 @@ export interface IPhoto {
   originalUrl: string
   mediumUrl: string
   isRecommend: boolean
+  preSelectStatus: PreSelectStatus
   remark?: string
 }
 

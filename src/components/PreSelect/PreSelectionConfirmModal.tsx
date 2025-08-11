@@ -174,7 +174,7 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
                   {selectionStatus === 'underSelected' && `您选择的照片距离套餐指定张数还差 ${orderSelectedStats.selectedDiff} 张，如果继续可能影响后续产品选择。`}
                   {selectionStatus === 'exactSelected' && '您已完成照片预选，可以进入下一步进行产品选择。'}
                   {selectionStatus === 'exactSelectedWithPending' && `您已选择了套餐要求的 ${selectedCount} 张照片。`}
-                  {selectionStatus === 'overSelected' && `您选择的照片超过了套餐规定数量，超出部分将产生额外 ￥${orderSelectedStats.overSelectedAmount} 费用。`}
+                  {selectionStatus === 'overSelected' && `您选择的照片超过了套餐规定数量，超出部分将产生额外费用。`}
                 </p>
               </div>
             </div>

@@ -1,24 +1,33 @@
 import { useLayoutEffect, useState } from 'react'
 
-let isLoading: boolean = false
-const listeners = new Set<(val: boolean) => void>()
+interface LoadingState {
+  isLoading: boolean
+  message?: string
+}
 
-function showLoading() {
+let isLoading: boolean = false
+const listeners = new Set<(val: LoadingState) => void>()
+
+function showLoading(message?: string) {
   isLoading = true
-  listeners.forEach(fn => fn(isLoading))
-  console.log(listeners.size, 'listeners size')
+  listeners.forEach(fn => fn({ isLoading, message }))
 }
 
 function hideLoading() {
   isLoading = false
-  listeners.forEach(fn => fn(isLoading))
+  listeners.forEach(fn => fn({ isLoading }))
 }
 
 export function useFullScreenLoading() {
-  const [loading, setLoading] = useState(isLoading)
+  const [loadingState, setLoadingState] = useState<LoadingState>({
+    isLoading: false,
+    message: '订单数据加载中...',
+  })
 
+  // 注：这里使用 useLayoutEffect 而不是 useEffect
+  // 避免在某些情况下，loading 状态更新后，组件未及时响应
   useLayoutEffect(() => {
-    const listener = (val: boolean) => setLoading(val)
+    const listener = (val: LoadingState) => setLoadingState(val)
     listeners.add(listener)
 
     return () => {
@@ -26,5 +35,5 @@ export function useFullScreenLoading() {
     }
   }, [])
 
-  return { loading, showLoading, hideLoading }
+  return { loadingState, showLoading, hideLoading }
 }

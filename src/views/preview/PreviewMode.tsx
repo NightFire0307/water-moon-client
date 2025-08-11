@@ -16,8 +16,9 @@ const { Content, Header } = Layout
 export default function PreviewMode() {
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const { products } = useProductsStore()
-  const { productSelectedPhotos, selectionStage, setSelectionStage } = usePhotosStore()
+  const { getProductSelectedPhotos, selectionStage, setSelectionStage } = usePhotosStore()
   const navigate = useNavigate()
+  const productSelectedPhotos = getProductSelectedPhotos()
 
   /**
    * 生成产品组数据
@@ -32,7 +33,7 @@ export default function PreviewMode() {
         items: selectedPhotos.map(photo => ({
           id: photo.photoId,
           name: photo.name,
-          url: photo.thumbnail_url,
+          url: photo.thumbnailUrl,
           selectedProducts: photo.selectedProducts.map((productId) => {
             const productInfo = products.find(p => p.productId === productId)
             return {

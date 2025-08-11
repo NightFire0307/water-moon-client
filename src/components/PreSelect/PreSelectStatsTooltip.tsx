@@ -29,10 +29,10 @@ export function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsToolt
         duration: 0.3,
         ease: [0.4, 0, 0.2, 1],
       }}
-      className="absolute top-10 right-0 z-50"
+      className="absolute top-14 right-0 z-50"
       style={{ display: isProgressHovered ? 'block' : 'none' }}
     >
-      <div className="bg-darkBlueGray-800/95 backdrop-blur-lg rounded-xl border border-darkBlueGray-700/50 shadow-2xl p-4 min-w-[240px]">
+      <div className="bg-darkBlueGray-800/95 backdrop-blur-lg rounded-md border border-darkBlueGray-700/50 shadow-2xl p-4 min-w-[240px]">
         <div className="text-center pb-3 border-b border-darkBlueGray-700/30">
           <Text className="text-darkBlueGray-300 text-xs font-medium tracking-wide uppercase">
             筛选统计

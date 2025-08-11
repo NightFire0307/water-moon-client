@@ -58,35 +58,43 @@ export const useProductsStore = create<ProductState & ProductActions>()(
         productMenu: [],
         dirty: false,
         generateProducts: orderProducts => set((state) => {
-          const currentPhoto = usePhotosStore.getState().currentPhoto
+          const { currentPhoto, setProductSelectedPhotos, productSelectedPhotos } = usePhotosStore.getState()
 
-          // 如果有持久化的产品数据，则直接返回
-          if (state.products.length > 0) {
-            state.setDropdownMenuStatus(currentPhoto?.selectedProducts ?? [])
+          const products = orderProducts.map(product => ({
+            productId: product.id,
+            name: product.productName,
+            productType: product.productType,
+            photoLimit: product.photoLimit,
+            selectedPhotoIds: product.selectedPhotos.map(photo => photo.photoId),
+            allowOverLimit: product.photoLimit === 0,
+            remark: product.remark || '',
+          }))
 
-            return state
+          // 更新照片的选中状态
+          const updated = new Map([...productSelectedPhotos])
+          if (products.length > 0) {
+            products.forEach((product) => {
+              product.selectedPhotoIds.forEach((photoId) => {
+                const findProductSelectedPhoto = updated.get(photoId)
+
+                if (findProductSelectedPhoto) {
+                  updated.set(photoId, {
+                    ...findProductSelectedPhoto,
+                    selectedProducts: [...new Set([...findProductSelectedPhoto.selectedProducts, product.productId])], // 产品ID去重
+                  })
+                }
+              })
+            })
           }
-          else {
-            // 如果有持久化数据则直接返回
-            if (state.products.length > 0) {
-              return state
-            }
-            const products = orderProducts.map(product => ({
-              productId: product.id,
-              name: product.productName,
-              productType: product.productType,
-              photoLimit: product.photoLimit,
-              selectedPhotoIds: product.selectedPhotos.map(photo => photo.id),
-              allowOverLimit: product.photoLimit === 0,
-              remark: product.remark || '',
-            }))
 
-            // 生成下拉菜单项
-            state.generateDropdownItems(products)
+          setProductSelectedPhotos(updated)
+          console.log('产品数据已生成', updated)
 
-            return {
-              products: [...products],
-            }
+          // 生成下拉菜单项
+          state.generateDropdownItems(products)
+
+          return {
+            products: [...products],
           }
         }),
         generateDropdownItems: (products) => {

@@ -1,17 +1,16 @@
 import type { PaginationParams } from '@/types/common/pagination'
-import { cloneDeep } from 'lodash-es'
-import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
 import { getOrderPhotos } from '@/apis/order.ts'
 import { PreSelectStatus } from '@/types/selection/preSelection'
-import { useProductsStore } from './useProductsStore'
+import { create } from 'zustand'
+import { createJSONStorage, devtools, persist } from 'zustand/middleware'
+import { useOrderStore } from './useOrderStore'
 
 export interface Photo {
   photoId: number
   originalUrl: string // 原图链接
   thumbnailUrl: string // 缩略图链接
   mediumUrl: string // 中等大小图片链接
-  name: string
+  name: string // 照片名称
   remark: string // 照片备注
   isRecommend: boolean // 是否推荐: true表示推荐，false表示不推荐
   preSelectStatus: PreSelectStatus // 预选状态
@@ -20,12 +19,11 @@ export interface Photo {
 }
 
 interface UsePhotosState {
-  originalPhotos: Photo[] // 原始照片列表
-  preSelectedPhotos: Photo[] // 预选照片列表
-  productSelectedPhotos: Photo[] // 已选产品的照片列表
+  originalPhotos: Map<number, Omit<Photo, 'photoId'>> // 原始照片列表
+  preSelectedPhotos: Map<number, Omit<Photo, 'photoId'>> // 预选照片列表
+  productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>> // 已选产品的照片列表
   currentPhoto: Photo | null // 当前照片
   isLoading: boolean // 是否正在加载照片
-  selectionStage: 'preSelect' | 'productSelect' | 'preview' | 'submitted' // 当前选片阶段
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
 }
 
@@ -43,7 +41,6 @@ interface UsePhotosAction {
   setFilter: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void // 设置过滤条件
   setLoading: (isLoading: boolean) => void // 设置加载状态
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
-  setSelectionStage: (stage: 'preSelect' | 'productSelect' | 'preview' | 'submitted') => void // 设置当前模式
   setDirty: (dirty: boolean) => void // 设置是否有未保存的更改
   setAllPendingToExclude: () => void // 将所有待处理的照片状态设置为排除
   setAllPendingToSelected: () => void // 将所有待处理的照片状态设置为选中
@@ -51,20 +48,50 @@ interface UsePhotosAction {
   togglePreSelected: (preSelectStatus: PreSelectStatus) => void // 设置预选标记
   getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
-  setPreSelectedPhotos: (photos: Photo[]) => void // 设置预选照片列表
-  setProductSelectedPhotos: (photos: Photo[]) => void // 设置产品选片照片列表
+  getPreSelectedPhotos: () => Photo[] // 获取预选照片列表
+  getProductSelectedPhotos: () => Photo[] // 获取产品选片照片列表
+  setPreSelectedPhotos: (preSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置预选照片列表
+  setProductSelectedPhotos: (productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置产品选片照片列表
+}
+
+// 合并缓存预选照片
+function mergePhotosFromCache(
+  base: Map<number, Omit<Photo, 'photoId'>>,
+  cache?: Map<number, Omit<Photo, 'photoId'>>,
+) {
+  if (!cache || cache.size === 0)
+    return base // 如果没有缓存，直接返回
+
+  const mergedPhotos = new Map<number, Omit<Photo, 'photoId'>>()
+  for (const [id, baseVal] of base.entries()) {
+    const c = cache.get(id)
+
+    if (c) {
+      mergedPhotos.set(id, {
+        ...baseVal,
+        preSelectStatus: c.preSelectStatus || baseVal.preSelectStatus,
+        selectedProducts: c.selectedProducts || baseVal.selectedProducts,
+        remark: c.remark || baseVal.remark,
+        dirty: c.dirty || baseVal.dirty,
+      })
+    }
+    else {
+      mergedPhotos.set(id, baseVal)
+    }
+  }
+
+  return mergedPhotos
 }
 
 export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
   devtools(
     persist((set, get) => ({
-      originalPhotos: [],
-      preSelectedPhotos: [],
-      productSelectedPhotos: [],
+      originalPhotos: new Map([]),
+      preSelectedPhotos: new Map([]),
+      productSelectedPhotos: new Map([]),
       currentPhoto: null,
       isLoading: false,
       selectionStage: 'preSelect',
-      dirty: false,
       filter: {
         productId: undefined,
         filterType: FILTER_TYPE.ALL,
@@ -76,22 +103,38 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
         const loadBatch = async (params?: PaginationParams) => {
           const { data } = await getOrderPhotos(params)
 
-          set(state => ({
-            originalPhotos: [
-              ...data.list.map(photo => ({
-                photoId: photo.id,
+          set((state) => {
+            const newPhotos = new Map<number, Omit<Photo, 'photoId'>>()
+            data.list.forEach((photo) => {
+              newPhotos.set(photo.id, {
                 originalUrl: photo.originalUrl,
                 thumbnailUrl: photo.thumbnailUrl,
                 mediumUrl: photo.mediumUrl,
                 name: photo.fileName,
-                remark: '',
+                remark: state.originalPhotos.get(photo.id)?.remark || '',
                 isRecommend: photo.isRecommend,
-                preSelectStatus: PreSelectStatus.PENDING,
+                preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || photo.preSelectStatus,
                 selectedProducts: [],
                 dirty: false,
-              })),
-            ],
-          }))
+              })
+            })
+
+            const mergedPreSelected = mergePhotosFromCache(
+              newPhotos,
+              state.preSelectedPhotos,
+            )
+
+            const mergedProductSelected = mergePhotosFromCache(
+              newPhotos,
+              state.productSelectedPhotos,
+            )
+
+            return {
+              originalPhotos: newPhotos,
+              preSelectedPhotos: mergedPreSelected,
+              productSelectedPhotos: mergedProductSelected,
+            }
+          })
 
           return {
             hasMore: data.current * data.pageSize < data.total,
@@ -101,105 +144,103 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
 
         const { hasMore, page } = await loadBatch({ pageSize: 50, ...params })
 
-        set({ isLoading: false, preSelectedPhotos: cloneDeep(get().originalPhotos) })
+        set({ isLoading: false })
 
         return {
           hasMore,
           nextPage: () => loadBatch({ current: page }),
         }
       },
-      setPhotoSelectedProducts: (photoId, productIds) => {
+      setPhotoSelectedProducts: (photoId, productIds) => (
         set((state) => {
-          const photo = state.productSelectedPhotos.find(p => p.photoId === photoId)
+          /**
+           * 1. 根据照片ID查找对应的照片
+           * 2. 如果照片不存在，则直接返回
+           * 3. 更新照片的选中产品ID列表
+           * 4. 如果被修改的照片是currentPhoto, 则更新currentPhoto
+           * 5. 返回更新后的状态
+           */
 
-          if (!photo) {
-            console.error(`Photo with ID ${photoId} not found`)
+          const productSelectPhoto = state.productSelectedPhotos.get(photoId)
+
+          if (!productSelectPhoto)
             return state
+
+          return {
+            productSelectedPhotos: new Map(state.productSelectedPhotos).set(photoId, {
+              ...productSelectPhoto,
+              selectedProducts: productIds,
+              dirty: true,
+            }),
+            currentPhoto: state.currentPhoto?.photoId === photoId
+              ? { ...state.currentPhoto, selectedProducts: productIds }
+              : state.currentPhoto,
           }
-
-          photo.selectedProducts = productIds // 更新选中的产品ID
-          photo.dirty = true // 标记为已更改
-
-          // 如果当前照片是被选中的，更新currentPhoto
-          if (state.currentPhoto?.photoId === photoId) {
-            state.currentPhoto = { ...photo }
-          }
-
-          return { productSelectedPhotos: [...state.productSelectedPhotos] }
         })
-      },
-      setPhotoRemark: (remark: string) => {
-        const state = get()
-
-        if (!state.currentPhoto) {
+      ),
+      setPhotoRemark: (remark: string) => set((state) => {
+        if (!state.currentPhoto)
           return state
+
+        const productSelectPhoto = state.productSelectedPhotos.get(state.currentPhoto.photoId)
+        console.log(state.productSelectedPhotos)
+        console.log(state.currentPhoto)
+
+        if (!productSelectPhoto || productSelectPhoto.preSelectStatus !== PreSelectStatus.SELECTED)
+          return state
+
+        return {
+          productSelectedPhotos: new Map(state.productSelectedPhotos).set(state.currentPhoto.photoId, {
+            ...productSelectPhoto,
+            remark,
+            dirty: true,
+          }),
         }
-
-        // 更新当前照片的备注
-        const updatedPhoto = { ...state.currentPhoto, remark }
-
-        // 更新产品列表数据
-        const newFilteredPhotos = state.productSelectedPhotos.map((photo) => {
-          if (photo.photoId === state.currentPhoto?.photoId) {
-            return { ...photo, remark }
-          }
-          return photo
-        })
-
-        set({
-          currentPhoto: updatedPhoto,
-          productSelectedPhotos: newFilteredPhotos,
-        })
-      },
+      }),
       setLoading: (isLoading: boolean) => (
         set(() => {
           return { isLoading }
         })
       ),
-      togglePreSelected: (preSelectStatus: PreSelectStatus) => {
-        const state = get()
+      togglePreSelected: (preSelectStatus: PreSelectStatus) => set((state) => {
         if (!state.currentPhoto)
           return state
 
-        // 更新照片预选标记
-        set({
-          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
-            if (photo.photoId === state.currentPhoto?.photoId) {
-              return { ...photo, preSelectStatus, dirty: true }
-            }
-            return photo
-          }),
-        })
-      },
-      setCurrentPhoto: (currentPhoto) => {
-        const { setDropdownMenuStatus } = useProductsStore.getState()
-        set({ currentPhoto })
+        const preSelectPhoto = state.preSelectedPhotos.get(state.currentPhoto.photoId)
+        if (!preSelectPhoto)
+          return state
 
-        // 设置产品选片的下拉菜单状态
-        setDropdownMenuStatus(currentPhoto?.selectedProducts || [])
-      },
+        return {
+          preSelectedPhotos: new Map(state.preSelectedPhotos).set(state.currentPhoto.photoId, {
+            ...preSelectPhoto,
+            preSelectStatus,
+            dirty: true,
+          }),
+        }
+      }),
+      setCurrentPhoto: currentPhoto => set({ currentPhoto }),
       setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
-        const photoIndex = state.preSelectedPhotos.findIndex(photo => photo.photoId === photoId)
-        if (photoIndex === -1) {
+        const updatedPhoto = state.preSelectedPhotos.get(photoId)
+        if (!updatedPhoto) {
           console.error(`Photo with ID ${photoId} not found in preSelectedPhotos`)
           return state
         }
 
         return {
-          preSelectedPhotos: state.preSelectedPhotos.map((photo, index) => {
-            if (index === photoIndex) {
-              return { ...photo, preSelectStatus }
-            }
-            return photo
+          preSelectedPhotos: new Map(state.preSelectedPhotos).set(photoId, {
+            ...updatedPhoto,
+            preSelectStatus,
+            dirty: true,
           }),
         }
       }),
       // 获取产品选片的统计信息
       getProductSelectedStats: () => {
         const state = get()
-        const totalCount = state.productSelectedPhotos.length
-        const selectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length > 0).length
-        const unselectedCount = state.productSelectedPhotos.filter(photo => photo.selectedProducts.length === 0).length
+        const productSelectedPhotos = state.getProductSelectedPhotos()
+        const totalCount = productSelectedPhotos.length
+        const selectedCount = productSelectedPhotos.filter(photo => photo.selectedProducts.length > 0).length
+        const unselectedCount = productSelectedPhotos.filter(photo => photo.selectedProducts.length === 0).length
 
         return {
           selectedCount,
@@ -210,9 +251,25 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       // 获取预选照片的统计信息
       getPreSelectedStats: () => {
         const state = get()
-        const selectedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED).length
-        const excludedCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.EXCLUDE).length
-        const pendingCount = state.preSelectedPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.PENDING).length
+        let selectedCount = 0
+        let excludedCount = 0
+        let pendingCount = 0
+
+        if (state.preSelectedPhotos.size !== 0) {
+          for (const [_, photo] of state.preSelectedPhotos.entries()) {
+            switch (photo.preSelectStatus) {
+              case PreSelectStatus.SELECTED:
+                selectedCount++
+                break
+              case PreSelectStatus.EXCLUDE:
+                excludedCount++
+                break
+              case PreSelectStatus.PENDING:
+                pendingCount++
+                break
+            }
+          }
+        }
 
         return {
           selectedCount,
@@ -220,7 +277,6 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           pendingCount,
         }
       },
-      setSelectionStage: stage => set({ selectionStage: stage }),
       setFilter: filter => set({ filter }),
       setDirty: () => { },
       setAllPendingToExclude: () => set((state) => {
@@ -235,12 +291,13 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       }),
       setAllPendingToSelected: () => set((state) => {
         return {
-          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
-            if (photo.preSelectStatus === PreSelectStatus.PENDING) {
-              return { ...photo, preSelectStatus: PreSelectStatus.SELECTED }
-            }
-            return photo
-          }),
+          preSelectedPhotos: new Map([...state.preSelectedPhotos.entries()].map(([photoId, photo]) => (
+            [photoId, {
+              ...photo,
+              preSelectStatus: photo.preSelectStatus === PreSelectStatus.PENDING ? PreSelectStatus.SELECTED : photo.preSelectStatus,
+              dirty: true,
+            }]
+          ))),
         }
       }),
       setAllToPending: () => set((state) => {
@@ -250,20 +307,73 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           }),
         }
       }),
+      getPreSelectedPhotos: () => {
+        const state = get()
+        const preSelectPhotos: Photo[] = []
+
+        for (const [photoId, value] of state.preSelectedPhotos.entries()) {
+          preSelectPhotos.push({
+            photoId,
+            ...value,
+          })
+        }
+
+        return preSelectPhotos
+      },
+      getProductSelectedPhotos: () => {
+        const state = get()
+        const productSelectedPhotos: Photo[] = []
+
+        for (const [photoId, value] of state.productSelectedPhotos.entries()) {
+          productSelectedPhotos.push({
+            photoId,
+            ...value,
+          })
+        }
+
+        return productSelectedPhotos
+      },
       setPreSelectedPhotos: preSelectedPhotos => set({ preSelectedPhotos }),
       setProductSelectedPhotos: productSelectedPhotos => set({ productSelectedPhotos }),
     }), {
       name: 'photos-storage',
-      partialize: (state) => {
-        return {
-          originalPhotos: state.originalPhotos,
-          preSelectedPhotos: state.preSelectedPhotos,
-          productSelectedPhotos: state.productSelectedPhotos,
-        }
-      },
+      storage: createJSONStorage(() => localStorage, {
+        // 序列化和反序列化 Map 数据结构
+        replacer: (_key, value) => {
+          if (value instanceof Map) {
+            return {
+              __type: 'Map',
+              value: [...value],
+            }
+          }
+          return value
+        },
+        reviver: (_key, value: { __type: 'Map', value: any }) => {
+          if (value && value.__type === 'Map') {
+            return new Map(value.value)
+          }
+          return value
+        },
+      }),
+      // 只持久化部分状态
+      partialize: state => ({
+        originalPhotos: state.originalPhotos,
+        preSelectedPhotos: state.preSelectedPhotos,
+        productSelectedPhotos: state.productSelectedPhotos,
+      }),
     }),
     {
       name: 'photos-store',
+      // 序列化 MAP 数据结构
+      serialize: {
+        options: true,
+        replacer: (_, value: { __type: 'Map', value: any }) => {
+          if (value instanceof Map) {
+            return Array.from(value.entries()).map(([key, val]) => [key, val])
+          }
+          return value
+        },
+      },
     },
   ),
 )
