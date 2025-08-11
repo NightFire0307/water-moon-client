@@ -1,21 +1,19 @@
-import { ReloadOutlined } from '@ant-design/icons'
-import { ConfigProvider, FloatButton } from 'antd'
+import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Outlet } from 'react-router'
 import { getOrderInfo } from './apis/order'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
-import ResetSelectionModal from './components/ResetSelectionModal/ResetSelectionModal'
 import { useOrderStore } from './stores/useOrderStore'
 import { usePhotosStore } from './stores/usePhotosStore'
 import { useProductsStore } from './stores/useProductsStore'
 import './App.css'
 
 function App() {
-  const [resetModalOpen, setResetModalOpen] = useState(false)
-  const { selectionStage } = usePhotosStore()
   const { setOrderInfo } = useOrderStore()
   const { generateProducts } = useProductsStore()
+  const { fetchPhotos } = usePhotosStore()
+
   // 获取订单信息
   const fetchOrderInfo = async () => {
     const { data } = await getOrderInfo()
@@ -24,6 +22,7 @@ function App() {
   }
 
   useEffect(() => {
+    fetchPhotos()
     fetchOrderInfo()
   }, [])
 
@@ -71,22 +70,6 @@ function App() {
       <Outlet />
       <FullScreenLoading />
 
-      {
-        selectionStage !== 'submitted' && (
-          <>
-            <FloatButton
-              icon={<ReloadOutlined className=" rotate-180" />}
-              onClick={() => setResetModalOpen(true)}
-            />
-
-            {/* 选片结果重置确认模态框 */}
-            <ResetSelectionModal
-              open={resetModalOpen}
-              onCancel={() => setResetModalOpen(false)}
-            />
-          </>
-        )
-      }
     </ConfigProvider>
   )
 }

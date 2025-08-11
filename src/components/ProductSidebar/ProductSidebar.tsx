@@ -1,12 +1,12 @@
 import type { FC } from 'react'
+import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
-import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
-import { useProductsStore } from '@/stores/useProductsStore'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ProductSidebar: FC = () => {
@@ -53,6 +53,7 @@ const ProductSidebar: FC = () => {
     },
   ], [totalCount, selectedCount, unselectedCount])
 
+  // 固定选项点击处理函数
   const handleFixedOptionClick = (filterType: FILTER_TYPE) => {
     setActiveFilterType(filterType)
     setSelectedProductId(null)
@@ -61,6 +62,7 @@ const ProductSidebar: FC = () => {
     setCurrentIndex(0) // 重置当前索引
   }
 
+  // 产品点击处理函数
   const handleProductClick = (productId: number) => {
     setSelectedProductId(productId)
     setActiveFilterType(FILTER_TYPE.SELECTED)

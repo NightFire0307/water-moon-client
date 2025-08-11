@@ -3,14 +3,14 @@ import { getOrderPhotos } from '@/apis/order.ts'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { create } from 'zustand'
 import { createJSONStorage, devtools, persist } from 'zustand/middleware'
-import { useProductsStore } from './useProductsStore'
+import { useOrderStore } from './useOrderStore'
 
 export interface Photo {
   photoId: number
   originalUrl: string // 原图链接
   thumbnailUrl: string // 缩略图链接
   mediumUrl: string // 中等大小图片链接
-  name: string
+  name: string // 照片名称
   remark: string // 照片备注
   isRecommend: boolean // 是否推荐: true表示推荐，false表示不推荐
   preSelectStatus: PreSelectStatus // 预选状态
@@ -24,7 +24,6 @@ interface UsePhotosState {
   productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>> // 已选产品的照片列表
   currentPhoto: Photo | null // 当前照片
   isLoading: boolean // 是否正在加载照片
-  selectionStage: 'preSelect' | 'productSelect' | 'preview' | 'submitted' // 当前选片阶段
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
 }
 
@@ -42,7 +41,6 @@ interface UsePhotosAction {
   setFilter: (filter: { productId?: number, filterType?: FILTER_TYPE }) => void // 设置过滤条件
   setLoading: (isLoading: boolean) => void // 设置加载状态
   setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => void // 设置预选照片状态
-  setSelectionStage: (stage: 'preSelect' | 'productSelect' | 'preview' | 'submitted') => void // 设置当前模式
   setDirty: (dirty: boolean) => void // 设置是否有未保存的更改
   setAllPendingToExclude: () => void // 将所有待处理的照片状态设置为排除
   setAllPendingToSelected: () => void // 将所有待处理的照片状态设置为选中
@@ -57,7 +55,7 @@ interface UsePhotosAction {
 }
 
 // 合并缓存预选照片
-function mergePreSelectedPhotosFromCache(
+function mergePhotosFromCache(
   base: Map<number, Omit<Photo, 'photoId'>>,
   cache?: Map<number, Omit<Photo, 'photoId'>>,
 ) {
@@ -72,6 +70,7 @@ function mergePreSelectedPhotosFromCache(
       mergedPhotos.set(id, {
         ...baseVal,
         preSelectStatus: c.preSelectStatus || baseVal.preSelectStatus,
+        selectedProducts: c.selectedProducts || baseVal.selectedProducts,
         remark: c.remark || baseVal.remark,
         dirty: c.dirty || baseVal.dirty,
       })
@@ -120,14 +119,20 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
               })
             })
 
-            const mergedPreSelected = mergePreSelectedPhotosFromCache(
+            const mergedPreSelected = mergePhotosFromCache(
               newPhotos,
               state.preSelectedPhotos,
+            )
+
+            const mergedProductSelected = mergePhotosFromCache(
+              newPhotos,
+              state.productSelectedPhotos,
             )
 
             return {
               originalPhotos: newPhotos,
               preSelectedPhotos: mergedPreSelected,
+              productSelectedPhotos: mergedProductSelected,
             }
           })
 
@@ -213,13 +218,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           }),
         }
       }),
-      setCurrentPhoto: (currentPhoto) => {
-        const { setDropdownMenuStatus } = useProductsStore.getState()
-        set({ currentPhoto })
-
-        // 设置产品选片的下拉菜单状态
-        setDropdownMenuStatus(currentPhoto?.selectedProducts || [])
-      },
+      setCurrentPhoto: currentPhoto => set({ currentPhoto }),
       setPreSelectedPhotoStatus: (photoId: number, preSelectStatus: PreSelectStatus) => set((state) => {
         const updatedPhoto = state.preSelectedPhotos.get(photoId)
         if (!updatedPhoto) {
@@ -278,7 +277,6 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           pendingCount,
         }
       },
-      setSelectionStage: stage => set({ selectionStage: stage }),
       setFilter: filter => set({ filter }),
       setDirty: () => { },
       setAllPendingToExclude: () => set((state) => {

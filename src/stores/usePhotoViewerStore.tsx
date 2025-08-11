@@ -34,7 +34,7 @@ export const usePhotoViewerStore = create<PhotoViewerState & PhotoViewerActions>
       resetZoom: () => set({ scale: 1 }),
       rotateLeft: () => set(state => ({ rotate: state.rotate - 90 })),
       rotateRight: () => set(state => ({ rotate: state.rotate + 90 })),
-      setCurrentIndex: index => set({ currentIndex: index }),
+      setCurrentIndex: currentIndex => set({ currentIndex }),
     }),
     { name: 'PhotoViewerStore' },
   ),

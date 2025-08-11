@@ -73,8 +73,11 @@ function ProductSelectPage() {
   // 监听过滤后的照片变化，自动设置当前第一张照片
   useEffect(() => {
     if (filteredPhotos.length === 0) {
-      setCurrentPhoto(null)
-      setCurrentIndex(0)
+      if (currentPhoto !== null) {
+        setCurrentPhoto(null)
+        setCurrentIndex(0)
+      }
+      return
     }
 
     // 如果当前照片不在过滤后的列表中，自动切换到第一张
@@ -84,7 +87,7 @@ function ProductSelectPage() {
       setCurrentPhoto(filteredPhotos[0] || null)
       setCurrentIndex(0)
     }
-  }, [filteredPhotos])
+  }, [filteredPhotos, currentPhoto])
 
   // 控制提示信息显示
   // 例如：当切换到最后一张照片时，显示提示信息
