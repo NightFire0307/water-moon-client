@@ -54,7 +54,12 @@ interface UsePhotosAction {
   setProductSelectedPhotos: (productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置产品选片照片列表
 }
 
-// 合并缓存预选照片
+/**
+ * 合并缓存预选照片
+ * @param base 基础照片列表
+ * @param cache 缓存的照片列表
+ * @returns
+ */
 function mergePhotosFromCache(
   base: Map<number, Omit<Photo, 'photoId'>>,
   cache?: Map<number, Omit<Photo, 'photoId'>>,
@@ -106,17 +111,19 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           set((state) => {
             const newPhotos = new Map<number, Omit<Photo, 'photoId'>>()
             data.list.forEach((photo) => {
-              newPhotos.set(photo.id, {
-                originalUrl: photo.originalUrl,
-                thumbnailUrl: photo.thumbnailUrl,
-                mediumUrl: photo.mediumUrl,
-                name: photo.fileName,
-                remark: state.originalPhotos.get(photo.id)?.remark || '',
-                isRecommend: photo.isRecommend,
-                preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || photo.preSelectStatus,
-                selectedProducts: [],
-                dirty: false,
-              })
+              if (photo.preSelectStatus !== PreSelectStatus.EXCLUDE) {
+                newPhotos.set(photo.id, {
+                  originalUrl: photo.originalUrl,
+                  thumbnailUrl: photo.thumbnailUrl,
+                  mediumUrl: photo.mediumUrl,
+                  name: photo.fileName,
+                  remark: state.originalPhotos.get(photo.id)?.remark || '',
+                  isRecommend: photo.isRecommend,
+                  preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || photo.preSelectStatus,
+                  selectedProducts: [],
+                  dirty: false,
+                })
+              }
             })
 
             const mergedPreSelected = mergePhotosFromCache(

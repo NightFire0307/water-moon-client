@@ -1,9 +1,11 @@
 import type { FC } from 'react'
+import { updateOrderStatus } from '@/apis/order'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncPreSelectedPhotos } from '@/services/photoSyncService'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
+import { OrderStatus } from '@/types/user/order'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
@@ -26,7 +28,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setSelectionStage, setProductSelectedPhotos } = usePhotosStore()
+  const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setProductSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
@@ -63,14 +65,21 @@ export const PreSelect: FC<PreSelectProps> = () => {
     // 重置当前索引
     setCurrentIndex(0)
 
-    // 设置当前模式为产品选择
-    setSelectionStage('productSelect')
+    try {
+      // 立即同步预选照片
+      await syncNow()
+      // 修改订单状态
+      await updateOrderStatus(OrderStatus.PRODUCT_SELECT)
 
-    // 立即同步预选照片
-    await syncNow()
-    hideLoading()
-    // 跳转到产品选择页面
-    navigate('/product-select')
+      // 跳转到产品选择页面
+      navigate('/product-select')
+    }
+    catch (err) {
+      console.error(err)
+    }
+    finally {
+      hideLoading()
+    }
   }
 
   // 监听全屏状态变化

@@ -1,7 +1,10 @@
+import { getOrderInfo, updateOrderStatus } from '@/apis/order'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
+import { useOrderStore } from '@/stores/useOrderStore'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { OrderStatus } from '@/types/user/order'
 import { CheckOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout } from 'antd'
 import { motion } from 'framer-motion'
@@ -16,7 +19,8 @@ const { Content, Header } = Layout
 export default function PreviewMode() {
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const { products } = useProductsStore()
-  const { getProductSelectedPhotos, selectionStage, setSelectionStage } = usePhotosStore()
+  const { getProductSelectedPhotos } = usePhotosStore()
+  const { orderInfo, setOrderInfo } = useOrderStore()
   const navigate = useNavigate()
   const productSelectedPhotos = getProductSelectedPhotos()
 
@@ -47,6 +51,14 @@ export default function PreviewMode() {
     })
   }, [products, productSelectedPhotos])
 
+  // 处理提交选片结果
+  const handleConfirmSubmit = async () => {
+    await updateOrderStatus(OrderStatus.SUBMITTED)
+    const { data } = await getOrderInfo()
+    setOrderInfo(data)
+    setShowSubmitModal(false)
+  }
+
   return (
     <Layout className="h-screen bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950">
       {/* 顶部标题栏 */}
@@ -63,14 +75,14 @@ export default function PreviewMode() {
               icon={<LeftOutlined />}
               size="large"
               onClick={() => navigate('/product-select')} // 返回产品选择页面
-              disabled={selectionStage === 'submitted'}
+              disabled={orderInfo?.status === 'submitted'}
             />
             <StepHeader stepNumber={4} stepTitle="选片结果预览" stepDesc="Selection Result Preview" />
           </div>
 
           {/* 中间的成功提示区域 */}
           <div className="flex-1 flex justify-center">
-            {selectionStage === 'submitted' && (
+            {orderInfo?.status === 'submitted' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -101,9 +113,9 @@ export default function PreviewMode() {
               type="primary"
               onClick={() => setShowSubmitModal(true)}
               className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800 font-medium text-white"
-              disabled={selectionStage === 'submitted'}
+              disabled={orderInfo?.status === 'submitted'}
             >
-              { selectionStage === 'submitted' ? '已提交' : '下一步：提交选片结果' }
+              { orderInfo?.status === 'submitted' ? '已提交' : '下一步：提交选片结果' }
               <RightOutlined />
             </Button>
           </motion.div>
@@ -139,10 +151,7 @@ export default function PreviewMode() {
       {/* 最终提交确认弹窗 */}
       <ConfirmSelResModal
         open={showSubmitModal}
-        onConfirm={() => {
-          setShowSubmitModal(false)
-          setSelectionStage('submitted')
-        }}
+        onConfirm={handleConfirmSubmit}
         onCancel={() => setShowSubmitModal(false)}
       />
 

@@ -1,4 +1,5 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import { updateOrderStatus } from '@/apis/order'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
@@ -13,6 +14,7 @@ import { syncProductPhotos } from '@/services/photoSyncService'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { OrderStatus } from '@/types/user/order'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout } from 'antd'
 import { Header } from 'antd/es/layout/layout'
@@ -86,6 +88,7 @@ function ProductSelectPage() {
     if (!inList) {
       setCurrentPhoto(filteredPhotos[0] || null)
       setCurrentIndex(0)
+      setDropdownMenuStatus(filteredPhotos[0]?.selectedProducts || [])
     }
   }, [filteredPhotos, currentPhoto])
 

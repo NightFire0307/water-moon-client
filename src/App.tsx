@@ -1,18 +1,23 @@
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { useEffect } from 'react'
-import { Outlet } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 import { getOrderInfo } from './apis/order'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
+import { useFullScreenLoading } from './components/FullScreenLoading/useFullScreenLoading'
 import { useOrderStore } from './stores/useOrderStore'
 import { usePhotosStore } from './stores/usePhotosStore'
 import { useProductsStore } from './stores/useProductsStore'
+import { OrderStatus } from './types/user/order'
 import './App.css'
 
 function App() {
   const { setOrderInfo } = useOrderStore()
   const { generateProducts } = useProductsStore()
   const { fetchPhotos } = usePhotosStore()
+  const navigate = useNavigate()
+  const orderInfo = useOrderStore(state => state.orderInfo)
+  const { showLoading, hideLoading } = useFullScreenLoading()
 
   // 获取订单信息
   const fetchOrderInfo = async () => {
@@ -25,6 +30,18 @@ function App() {
     fetchPhotos()
     fetchOrderInfo()
   }, [])
+
+  // 判断当前订单状态是否为预选,如果不是则跳转到相应页面
+  useEffect(() => {
+    showLoading()
+    if (OrderStatus.PRODUCT_SELECT === orderInfo?.status) {
+      setTimeout(() => {
+        hideLoading()
+        navigate('/product-select')
+      }, 500)
+    }
+    hideLoading()
+  }, [orderInfo])
 
   return (
     <ConfigProvider
