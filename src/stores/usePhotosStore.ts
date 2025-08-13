@@ -111,28 +111,29 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           set((state) => {
             const newPhotos = new Map<number, Omit<Photo, 'photoId'>>()
             data.list.forEach((photo) => {
-              if (photo.preSelectStatus !== PreSelectStatus.EXCLUDE) {
-                newPhotos.set(photo.id, {
-                  originalUrl: photo.originalUrl,
-                  thumbnailUrl: photo.thumbnailUrl,
-                  mediumUrl: photo.mediumUrl,
-                  name: photo.fileName,
-                  remark: state.originalPhotos.get(photo.id)?.remark || '',
-                  isRecommend: photo.isRecommend,
-                  preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || photo.preSelectStatus,
-                  selectedProducts: [],
-                  dirty: false,
-                })
-              }
+              newPhotos.set(photo.id, {
+                originalUrl: photo.originalUrl,
+                thumbnailUrl: photo.thumbnailUrl,
+                mediumUrl: photo.mediumUrl,
+                name: photo.fileName,
+                remark: state.originalPhotos.get(photo.id)?.remark || '',
+                isRecommend: photo.isRecommend,
+                preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || photo.preSelectStatus,
+                selectedProducts: [],
+                dirty: false,
+              })
             })
 
+            // 合并预选照片
             const mergedPreSelected = mergePhotosFromCache(
               newPhotos,
               state.preSelectedPhotos,
             )
 
+            // 合并产品选片照片
+            // 只合并那些已经被预选的照片
             const mergedProductSelected = mergePhotosFromCache(
-              newPhotos,
+              new Map([...mergedPreSelected].filter(([_, photo]) => photo.preSelectStatus === PreSelectStatus.SELECTED)),
               state.productSelectedPhotos,
             )
 

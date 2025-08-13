@@ -22,7 +22,7 @@ createRoot(document.getElementById('root')!).render(
         <Route index element={<Login />} />
       </Route>
 
-      <Route path="/" element={createElement(withOrderStatusGuard(App))}>
+      <Route path="/" element={createElement(withOrderStatusGuard(App, ['/preview', '/order-info']))}>
         <Route path="order-info" element={<OrderInfoPage />} />
         <Route path="pre-select" element={<PreSelectPage />} />
         <Route path="product-select" element={<ProductSelectPage />} />

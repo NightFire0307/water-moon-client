@@ -1,5 +1,5 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { updateOrderStatus } from '@/apis/order'
+import { getOrderInfo, updateOrderStatus } from '@/apis/order'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
@@ -11,6 +11,7 @@ import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncProductPhotos } from '@/services/photoSyncService'
+import { useOrderStore } from '@/stores/useOrderStore'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
@@ -37,6 +38,7 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
+  const { setOrderInfo } = useOrderStore()
   const { getProductSelectedPhotos, filter, setCurrentPhoto, currentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
@@ -155,12 +157,10 @@ function ProductSelectPage() {
 
   // 处理提交事件
   const handleConfirm = async () => {
-    showLoading('正在同步产品选片结果...')
+    showLoading('正在同步产品选片...')
     await syncNow()
-    setTimeout(() => {
-      hideLoading()
-      navigate('/preview')
-    }, 1500)
+    navigate('/preview')
+    hideLoading()
   }
 
   // 全局按键事件

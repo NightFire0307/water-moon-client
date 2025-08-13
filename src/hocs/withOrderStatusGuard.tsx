@@ -8,14 +8,17 @@ import { useLocation, useNavigate } from 'react-router'
  * @param WrappedComponent
  * @returns
  */
-function withOrderStatusGuard<T extends object>(WrappedComponent: ComponentType<T>) {
+function withOrderStatusGuard<T extends object>(
+  WrappedComponent: ComponentType<T>,
+  whiteList: string[] = [],
+) {
   const ComponentWithGuard = (props: T) => {
     const orderInfo = useOrderStore(state => state.orderInfo)
     const navigate = useNavigate()
     const location = useLocation()
 
     useEffect(() => {
-      if (!orderInfo)
+      if (!orderInfo || whiteList.includes(location.pathname))
         return
 
       switch (orderInfo.status) {

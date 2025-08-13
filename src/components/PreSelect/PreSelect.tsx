@@ -1,7 +1,8 @@
 import type { FC } from 'react'
-import { updateOrderStatus } from '@/apis/order'
+import { getOrderInfo, updateOrderStatus } from '@/apis/order'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncPreSelectedPhotos } from '@/services/photoSyncService'
+import { useOrderStore } from '@/stores/useOrderStore'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
@@ -30,6 +31,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
   const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setProductSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
+  const { setOrderInfo } = useOrderStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
@@ -49,7 +51,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
   // 处理预选确认
   const handlePreSelectConfirm = async () => {
-    showLoading()
+    showLoading('正在同步预选照片...')
 
     // 将预选照片所有选中的复制到产品选片
     setProductSelectedPhotos(
@@ -66,13 +68,16 @@ export const PreSelect: FC<PreSelectProps> = () => {
     setCurrentIndex(0)
 
     try {
-      // 立即同步预选照片
-      await syncNow()
-      // 修改订单状态
-      await updateOrderStatus(OrderStatus.PRODUCT_SELECT)
+      await Promise.all([
+        // 同步预选照片
+        syncNow(),
+        // 更新订单状态
+        updateOrderStatus(OrderStatus.PRODUCT_SELECT),
+      ])
 
-      // 跳转到产品选择页面
-      navigate('/product-select')
+      // 重新获取订单状态
+      const { data } = await getOrderInfo()
+      setOrderInfo(data)
     }
     catch (err) {
       console.error(err)
