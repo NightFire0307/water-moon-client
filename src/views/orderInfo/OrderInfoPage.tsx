@@ -1,7 +1,8 @@
-import type { IOrderProduct } from '@/types/user/order'
 import type { FC } from 'react'
+import { updateOrderStatus } from '@/apis/order'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { useOrderStore } from '@/stores/useOrderStore'
+import { type IOrderProduct, OrderStatus } from '@/types/user/order'
 import {
   ArrowRightOutlined,
   CalendarOutlined,
@@ -104,6 +105,10 @@ const OrderInfoPage: FC = () => {
   }
 
   const statusInfo = getSelectionStatusInfo(SelectionStatus.PENDING)
+
+  const handleNextStep = () => {
+    navigate('/pre-select')
+  }
 
   return (
 
@@ -415,7 +420,7 @@ const OrderInfoPage: FC = () => {
                 size="large"
                 icon={<ArrowRightOutlined />}
                 iconPosition="end"
-                onClick={() => navigate('/pre-select')}
+                onClick={handleNextStep}
                 className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 border-blue-500 hover:border-blue-600 active:border-blue-700 transition-all duration-200"
               >
                 开始挑选美照

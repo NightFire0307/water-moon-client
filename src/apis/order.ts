@@ -3,7 +3,7 @@ import type { PaginationParams } from '@/types/common/pagination'
 import type { IPhotoResponse } from '@/types/photos.ts'
 import type { UpdatePreselectRequest } from '@/types/selection/preSelection'
 import type { UpdateProductSelectRequest } from '@/types/selection/productSelection'
-import type { IOrderResponse } from '@/types/user/order'
+import type { IOrderResponse, OrderStatus } from '@/types/user/order'
 import request from '@/utils/request.ts'
 
 // 获取订单信息
@@ -46,5 +46,14 @@ export function updateProductPhotos(data: UpdateProductSelectRequest) {
     url: '/selection/product-photos',
     method: 'POST',
     data,
+  })
+}
+
+// 更新订单状态
+export function updateOrderStatus(status: OrderStatus) {
+  return request({
+    url: '/selection/order/status',
+    method: 'PATCH',
+    data: { status },
   })
 }

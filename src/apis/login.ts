@@ -2,9 +2,9 @@ import type { IRefreshTokenResponse } from '@/types/user/login'
 import request from '@/utils/request.ts'
 
 interface LoginData {
-  login_type: 'link' | 'order'
-  short_url?: string
-  order_number?: string
+  loginType: 'link' | 'order'
+  shortUrl?: string
+  orderNumber?: string
   credential: string
 }
 

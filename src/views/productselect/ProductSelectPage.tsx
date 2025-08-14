@@ -153,11 +153,12 @@ function ProductSelectPage() {
   // 处理提交事件
   const handleConfirm = async () => {
     showLoading('正在同步产品选片结果...')
+
     await syncNow()
     setTimeout(() => {
       hideLoading()
       navigate('/preview')
-    }, 1500)
+    }, 500)
   }
 
   // 全局按键事件

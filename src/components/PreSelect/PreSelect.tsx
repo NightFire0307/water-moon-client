@@ -1,9 +1,12 @@
 import type { FC } from 'react'
+import { getOrderInfo, updateOrderStatus } from '@/apis/order'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncPreSelectedPhotos } from '@/services/photoSyncService'
+import { useOrderStore } from '@/stores/useOrderStore'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
+import { OrderStatus } from '@/types/user/order'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
@@ -26,9 +29,10 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setSelectionStage, setProductSelectedPhotos } = usePhotosStore()
+  const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setProductSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
+  const { setOrderInfo } = useOrderStore()
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
   const preSelectPhotos = getPreSelectedPhotos()
@@ -47,7 +51,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
   // 处理预选确认
   const handlePreSelectConfirm = async () => {
-    showLoading()
+    showLoading('正在同步预选照片...')
 
     // 将预选照片所有选中的复制到产品选片
     setProductSelectedPhotos(
@@ -63,14 +67,24 @@ export const PreSelect: FC<PreSelectProps> = () => {
     // 重置当前索引
     setCurrentIndex(0)
 
-    // 设置当前模式为产品选择
-    setSelectionStage('productSelect')
+    try {
+      await Promise.all([
+        // 同步预选照片
+        syncNow(),
+        // 更新订单状态
+        updateOrderStatus(OrderStatus.PRODUCT_SELECT),
+      ])
 
-    // 立即同步预选照片
-    await syncNow()
-    hideLoading()
-    // 跳转到产品选择页面
-    navigate('/product-select')
+      // 重新获取订单状态
+      const { data } = await getOrderInfo()
+      setOrderInfo(data)
+    }
+    catch (err) {
+      console.error(err)
+    }
+    finally {
+      hideLoading()
+    }
   }
 
   // 监听全屏状态变化
