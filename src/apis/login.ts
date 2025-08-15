@@ -2,9 +2,9 @@ import type { IRefreshTokenResponse } from '@/types/user/login'
 import request from '@/utils/request.ts'
 
 interface LoginData {
-  login_type: 'link' | 'order'
-  short_url?: string
-  order_number?: string
+  loginType: 'link' | 'order'
+  shortUrl?: string
+  orderNumber?: string
   credential: string
 }
 
@@ -24,10 +24,18 @@ export function verifyShortUrl(shortUrl: string) {
   })
 }
 
-// 刷新access_token
+// 刷新 access_token
 export function refreshToken(): IRefreshTokenResponse {
   return request({
     url: `/selection/auth/refresh`,
     method: 'POST',
+  })
+}
+
+// 验证 access_token
+export function validateToken() {
+  return request({
+    url: '/selection/auth/validate',
+    method: 'GET',
   })
 }

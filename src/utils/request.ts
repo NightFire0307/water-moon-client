@@ -15,9 +15,9 @@ interface ErrorResponse {
 }
 
 // 定义是否需要刷新 Access_token 的标志
-let isRefreshing = false
+const isRefreshing = false
 // 缓存请求队列
-let failedQueue: (() => void)[] = []
+const failedQueue: (() => void)[] = []
 
 // create an axios instance
 const service = axios.create({
@@ -60,46 +60,46 @@ service.interceptors.response.use(
           return Promise.reject(error)
         case 401:
 
-          if (originalRequest && !originalRequest._retry) {
-            originalRequest._retry = true
-            if (!isRefreshing) {
-              isRefreshing = true
-              try {
-                // 尝试刷新 Access_token
-                const { data } = await refreshToken()
-                // 更新 Access_token
-                useAuthStore.getState().setAccessToken(data.accessToken)
+          // if (originalRequest && !originalRequest._retry) {
+          //   originalRequest._retry = true
+          //   if (!isRefreshing) {
+          //     isRefreshing = true
+          //     try {
+          //       // 尝试刷新 Access_token
+          //       const { data } = await refreshToken()
+          //       // 更新 Access_token
+          //       useAuthStore.getState().setAccessToken(data.accessToken)
 
-                // 重发失败请求
-                failedQueue.forEach(cb => cb())
-                failedQueue = []
+          //       // 重发失败请求
+          //       failedQueue.forEach(cb => cb())
+          //       failedQueue = []
 
-                return service(originalRequest)
-              }
-              catch (err) {
-                failedQueue.forEach(cb => cb())
-                failedQueue = []
+          //       return service(originalRequest)
+          //     }
+          //     catch (err) {
+          //       failedQueue.forEach(cb => cb())
+          //       failedQueue = []
 
-                return Promise.reject(err)
-              }
-              finally {
-                isRefreshing = false
-              }
-            }
+          //       return Promise.reject(err)
+          //     }
+          //     finally {
+          //       isRefreshing = false
+          //     }
+          //   }
 
-            // 如果正在刷新 Access_token，将请求添加到队列中
-            return new Promise((resolve) => {
-              // 将请求队列添加到缓存中
-              failedQueue.push(() => {
-                if (originalRequest && originalRequest.headers) {
-                  originalRequest.headers.Authorization = `Bearer ${useAuthStore.getState().access_token}`
-                }
-                if (originalRequest) {
-                  resolve(service(originalRequest))
-                }
-              })
-            })
-          }
+          //   // 如果正在刷新 Access_token，将请求添加到队列中
+          //   return new Promise((resolve) => {
+          //     // 将请求队列添加到缓存中
+          //     failedQueue.push(() => {
+          //       if (originalRequest && originalRequest.headers) {
+          //         originalRequest.headers.Authorization = `Bearer ${useAuthStore.getState().access_token}`
+          //       }
+          //       if (originalRequest) {
+          //         resolve(service(originalRequest))
+          //       }
+          //     })
+          //   })
+          // }
 
           return Promise.reject(error)
         case (400):

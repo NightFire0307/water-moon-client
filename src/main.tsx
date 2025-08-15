@@ -5,7 +5,7 @@ import Login from '@/views/login/login.tsx'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
-import withOrderStatusGuard from './hocs/withOrderStatusGuard'
+import { EnhancedComponent } from './hocs'
 import OrderInfoPage from './views/orderInfo'
 import PreSelectPage from './views/preselect/PreSelectPage'
 import PreviewMode from './views/preview/PreviewMode'
@@ -22,7 +22,7 @@ createRoot(document.getElementById('root')!).render(
         <Route index element={<Login />} />
       </Route>
 
-      <Route path="/" element={createElement(withOrderStatusGuard(App, ['/preview', '/order-info']))}>
+      <Route path="/" element={createElement(EnhancedComponent(App))}>
         <Route path="order-info" element={<OrderInfoPage />} />
         <Route path="pre-select" element={<PreSelectPage />} />
         <Route path="product-select" element={<ProductSelectPage />} />

@@ -144,8 +144,8 @@ function Login() {
       await form.validateFields()
       const values = form.getFieldsValue()
       const { data } = await login({
-        login_type: loginType,
-        short_url: surl || '',
+        loginType,
+        shortUrl: surl || '',
         ...values,
       })
       setAccessToken(data.accessToken)
@@ -212,7 +212,7 @@ function Login() {
                 transition={{ duration: 0.3 }}
               >
                 <Form.Item
-                  name="order_number"
+                  name="orderNumber"
                   label={<Text className="text-darkBlueGray-200 font-semibold text-base">订单号</Text>}
                   rules={[{ required: true, message: '请输入您的订单号' }]}
                 >

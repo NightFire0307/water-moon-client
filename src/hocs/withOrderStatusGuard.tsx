@@ -8,9 +8,10 @@ import { useLocation, useNavigate } from 'react-router'
  * @param WrappedComponent
  * @returns
  */
+const whiteList = ['/preview', '/order-info']
+
 function withOrderStatusGuard<T extends object>(
   WrappedComponent: ComponentType<T>,
-  whiteList: string[] = [],
 ) {
   const ComponentWithGuard = (props: T) => {
     const orderInfo = useOrderStore(state => state.orderInfo)

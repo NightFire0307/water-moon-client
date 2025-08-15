@@ -5,6 +5,7 @@ import { Outlet, useNavigate } from 'react-router'
 import { getOrderInfo } from './apis/order'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 import { useFullScreenLoading } from './components/FullScreenLoading/useFullScreenLoading'
+import { useAuthStore } from './stores/useAuthStore'
 import { useOrderStore } from './stores/useOrderStore'
 import { usePhotosStore } from './stores/usePhotosStore'
 import { useProductsStore } from './stores/useProductsStore'
@@ -18,6 +19,7 @@ function App() {
   const navigate = useNavigate()
   const orderInfo = useOrderStore(state => state.orderInfo)
   const { showLoading, hideLoading } = useFullScreenLoading()
+  const { accessToken } = useAuthStore()
 
   // 获取订单信息
   const fetchOrderInfo = async () => {
@@ -27,9 +29,12 @@ function App() {
   }
 
   useEffect(() => {
+    if (!accessToken)
+      return
+
     fetchPhotos()
     fetchOrderInfo()
-  }, [])
+  }, [accessToken])
 
   // 判断当前订单状态是否为预选,如果不是则跳转到相应页面
   useEffect(() => {
