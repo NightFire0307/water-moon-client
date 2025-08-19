@@ -1,7 +1,7 @@
 import type { IOrderProduct } from '@/types/user/order'
-import type { FC } from 'react'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { useOrderStore } from '@/stores/useOrderStore'
+import { OrderStatus } from '@/types/user/order'
 import {
   ArrowRightOutlined,
   CalendarOutlined,
@@ -12,47 +12,40 @@ import {
 } from '@ant-design/icons'
 import { Button, Layout, Progress } from 'antd'
 import { motion } from 'framer-motion'
+import { type FC, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 
 const { Content } = Layout
-
-// 选片状态枚举
-enum SelectionStatus {
-  PENDING = 'pending', // 待开始
-  PRE_SELECTING = 'pre_selecting', // 预选完成
-  PRODUCT_SELECTING = 'product_selecting', // 产品选择完成
-  SUBMITTED = 'submitted', // 已提交
-}
 
 const OrderInfoPage: FC = () => {
   const navigate = useNavigate()
   const { orderInfo } = useOrderStore()
 
   // 获取选片状态显示信息
-  const getSelectionStatusInfo = (status: SelectionStatus) => {
+  const getSelectionStatusInfo = (status: OrderStatus) => {
     switch (status) {
-      case SelectionStatus.PENDING:
+      case OrderStatus.PENDING:
         return {
           text: '待开始',
           icon: <FlagOutlined />,
           iconColor: 'text-yellow-400',
           textColor: 'text-yellow-300',
         }
-      case SelectionStatus.PRE_SELECTING:
+      case OrderStatus.PRE_SELECT:
         return {
-          text: '预选完成',
+          text: '预选阶段',
           icon: <CheckCircleOutlined />,
           iconColor: 'text-blue-400',
           textColor: 'text-blue-300',
         }
-      case SelectionStatus.PRODUCT_SELECTING:
+      case OrderStatus.PRODUCT_SELECT:
         return {
-          text: '产品选择完成',
+          text: '产品分片阶段',
           icon: <CheckCircleOutlined />,
           iconColor: 'text-green-400',
           textColor: 'text-green-300',
         }
-      case SelectionStatus.SUBMITTED:
+      case OrderStatus.SUBMITTED:
         return {
           text: '已提交',
           icon: <CheckCircleOutlined />,
@@ -68,6 +61,10 @@ const OrderInfoPage: FC = () => {
         }
     }
   }
+
+  const statusInfo = useMemo(() => {
+    return getSelectionStatusInfo(orderInfo?.status)
+  }, [orderInfo?.status])
 
   // 获取产品选择状态
   const getProductSelectionStatus = (orderProduct: IOrderProduct) => {
@@ -102,8 +99,6 @@ const OrderInfoPage: FC = () => {
       }
     }
   }
-
-  const statusInfo = getSelectionStatusInfo(SelectionStatus.PENDING)
 
   return (
 

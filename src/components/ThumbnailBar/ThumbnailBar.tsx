@@ -1,10 +1,10 @@
 import type { Photo } from '@/stores/usePhotosStore'
+import useMouseOver from '@/hooks/useMouseOver'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { motion } from 'framer-motion'
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, type ListChildComponentProps } from 'react-window'
-import useMouseOver from '@/hooks/useMouseOver'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { Thumbnail } from './Thumbnail'
 import 'simplebar-react/dist/simplebar.min.css'
 
@@ -49,7 +49,7 @@ function Column({ index, style, data }: ListChildComponentProps<Omit<ThumbnailBa
   )
 }
 
-export function ThumbnailBar({ photos, visible, extra, onClickThumbnail }: ThumbnailBarProps) {
+export const ThumbnailBar = forwardRef<HTMLDivElement, ThumbnailBarProps>(({ photos, visible, extra, onClickThumbnail }, ref) => {
   const { isHover, handleMouseEnter, handleMouseLeave } = useMouseOver({ delay: 150 })
   const listRef = useRef<FixedSizeList | null>(null)
   const scrollOffset = useRef(0)
@@ -89,6 +89,7 @@ export function ThumbnailBar({ photos, visible, extra, onClickThumbnail }: Thumb
       className="absolute bottom-0 left-0 right-0 h-20 shadow-md"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      ref={ref}
     >
       <motion.div
         key="thumbnail-bar"
@@ -97,6 +98,7 @@ export function ThumbnailBar({ photos, visible, extra, onClickThumbnail }: Thumb
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className="px-4 h-full bg-darkBlueGray-900/80 backdrop-blur-md border-t border-darkBlueGray-700/30"
         style={{ pointerEvents: thumbnailVisible ? 'auto' : 'none' }}
+
       >
         {photos.length > 0
           ? (
@@ -126,4 +128,4 @@ export function ThumbnailBar({ photos, visible, extra, onClickThumbnail }: Thumb
       </motion.div>
     </div>
   )
-}
+})

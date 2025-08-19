@@ -7,10 +7,11 @@ import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { OrderStatus } from '@/types/user/order'
+import { getPreSelectTourSteps } from '@/views/preselect/tourSteps'
 import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout, Typography } from 'antd'
+import { Button, Layout, Tour, Typography } from 'antd'
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '../ProgressDots/ProgressDots'
@@ -36,6 +37,21 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
   const preSelectPhotos = getPreSelectedPhotos()
+  const [thumbnailVisible, setThumbnailVisible] = useState<boolean | undefined>(undefined)
+
+  // 引用 Tour 步骤
+  const [tourOpen, setTourOpen] = useState(false)
+  const nextStepRef = useRef<HTMLDivElement>(null)
+  const statusRef = useRef<HTMLDivElement>(null)
+  const progressRef = useRef<HTMLDivElement>(null)
+  const thumbnailsRef = useRef<HTMLDivElement>(null)
+
+  const tourSteps = getPreSelectTourSteps({
+    nextStepRef,
+    statusRef,
+    progressRef,
+    thumbnailsRef,
+  })
 
   // 全屏切换处理
   const toggleFullscreen = () => {
@@ -87,7 +103,15 @@ export const PreSelect: FC<PreSelectProps> = () => {
     }
   }
 
-  // 监听全屏状态变化
+  const handleTourOpen = () => {
+    // 获取 localStorage 中的 tour 状态
+    const tourShowed = window.localStorage.getItem('tour_show_preselect_v1')
+    if (tourShowed === null) {
+      setTourOpen(true)
+      setThumbnailVisible(true)
+    }
+  }
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement)
@@ -95,7 +119,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
     document.addEventListener('fullscreenchange', handleFullscreenChange)
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+  }, [tourOpen])
 
   // 键盘快捷键
   const handleKeyPress = (e: KeyboardEvent) => {
@@ -212,14 +236,6 @@ export const PreSelect: FC<PreSelectProps> = () => {
           {/* 全屏和进度显示 */}
           <div className="flex items-center gap-4">
             <ProgressDots currentStep={2} totalSteps={4} />
-            {/* 全屏按钮 */}
-            {/* <Button
-              type="text"
-              icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-              onClick={toggleFullscreen}
-              className="text-darkBlueGray-300 hover:text-white"
-              title={isFullscreen ? '退出全屏 (F11)' : '进入全屏 (F11)'}
-            /> */}
 
             {/* 下一步选产品 */}
             <Button
@@ -227,6 +243,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
               onClick={() => setPreSelectConfirmModalOpen(true)}
               className=" bg-blue-500 hover:bg-blue-600 active:bg-blue-800 text-white font-medium border-none shadow-md   hover:shadow-lg transition-all duration-200"
               style={{ boxShadow: '0 2px 8px 0 rgba(37,99,235,0.15)' }}
+              ref={nextStepRef}
             >
               下一步：选择产品
               <RightOutlined />
@@ -234,28 +251,6 @@ export const PreSelect: FC<PreSelectProps> = () => {
           </div>
         </div>
       </motion.div>
-
-      {/* 全屏模式下的浮动控制栏 */}
-      {isFullscreen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="absolute top-4 right-4 z-50 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center gap-4"
-        >
-          <Text className="text-white text-sm">
-            <span className="text-blue-400 font-semibold">3</span>
-            <span className="text-darkBlueGray-300 mx-1">/</span>
-            <span className="text-white font-semibold">{preSelectPhotos.length}</span>
-          </Text>
-          <Button
-            type="text"
-            size="small"
-            icon={<FullscreenExitOutlined />}
-            onClick={toggleFullscreen}
-            className="text-white hover:text-blue-400"
-          />
-        </motion.div>
-      )}
 
       {/* 主视图区域 */}
       <Content className={`relative flex-1 ${isFullscreen ? 'pt-0 pb-0 px-0' : 'pt-20 pb-4 px-4'}`}>
@@ -290,6 +285,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
               {/* 进度显示和状态标识 - 右上角区域 */}
               <div className="absolute top-4 right-4 flex flex-col items-end gap-3 select-none">
+
                 {/* 状态标识 */}
                 {currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED && (
                   <motion.div
@@ -297,6 +293,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                     className="bg-green-600/90 backdrop-blur-sm rounded-md px-4 py-2 flex items-center gap-2 shadow-lg border border-green-500/30"
+                    onAnimationComplete={handleTourOpen}
+                    ref={statusRef}
                   >
                     <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
                     <Text className="text-white text-sm font-semibold">已选择</Text>
@@ -309,6 +307,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                     className="bg-red-600/90 backdrop-blur-sm rounded-md px-4 py-2 flex items-center gap-2 shadow-lg border border-red-500/30"
+                    onAnimationComplete={handleTourOpen}
+                    ref={statusRef}
                   >
                     <div className="w-3 h-3 rounded-full bg-red-400 shadow-lg shadow-red-400/50"></div>
                     <Text className="text-white text-sm font-semibold">已排除</Text>
@@ -321,6 +321,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                     className="bg-yellow-600/90 backdrop-blur-sm rounded-md px-4 py-2 flex items-center gap-2 shadow-lg border border-yellow-500/30"
+                    onAnimationComplete={handleTourOpen}
+                    ref={statusRef}
                   >
                     <div className="w-3 h-3 rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/50 animate-pulse"></div>
                     <Text className="text-white text-sm font-semibold">待处理</Text>
@@ -332,6 +334,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
                   className="relative w-24 bg-darkBlueGray-800/70 backdrop-blur-sm rounded-md px-3 py-2 border border-white/5 shadow-md opacity-80 hover:opacity-100 transition-opacity duration-200"
                   onMouseEnter={() => setIsProgressHovered(true)}
                   onMouseLeave={() => setIsProgressHovered(false)}
+                  ref={progressRef}
                 >
                   <div className="flex items-center gap-2">
                     <div className="text-center">
@@ -389,33 +392,9 @@ export const PreSelect: FC<PreSelectProps> = () => {
         </div>
       </Content>
 
-      {/* 全屏模式下的浮动操作提示 */}
-      {isFullscreen && (
-        <motion.div
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-black/60 backdrop-blur-sm rounded-lg px-6 py-3"
-        >
-          <div className="flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-green-700/50 border border-green-600/50 rounded text-xs text-green-300 font-mono">Enter</kbd>
-              <Text className="text-green-300 font-medium">要这张</Text>
-            </div>
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-red-700/50 border border-red-600/50 rounded text-xs text-red-300 font-mono">Del</kbd>
-              <Text className="text-red-300 font-medium">不要这张</Text>
-            </div>
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-darkBlueGray-700 border border-darkBlueGray-600 rounded text-xs text-darkBlueGray-200 font-mono">F11</kbd>
-              <Text className="text-darkBlueGray-300 font-medium">退出全屏</Text>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
       {/* 缩略图栏 */}
       <ThumbnailBar
+        visible={thumbnailVisible}
         photos={preSelectPhotos}
         extra={item => (
           <>
@@ -439,12 +418,23 @@ export const PreSelect: FC<PreSelectProps> = () => {
           setCurrentIndex(index)
           setCurrentPhoto(item)
         }}
+        ref={thumbnailsRef}
       />
 
       <PreSelectionConfirmModal
         open={preSelectConfirmModalOpen}
         onConfirm={() => handlePreSelectConfirm()}
         onCancel={() => setPreSelectConfirmModalOpen(false)}
+      />
+
+      <Tour
+        open={tourOpen}
+        steps={tourSteps}
+        onClose={() => {
+          setTourOpen(false)
+          setThumbnailVisible(undefined)
+          window.localStorage.setItem('tour_show_preselect_v1', 'true')
+        }}
       />
     </Layout>
   )

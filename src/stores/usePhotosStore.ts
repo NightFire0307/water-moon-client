@@ -191,9 +191,8 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           return state
 
         const productSelectPhoto = state.productSelectedPhotos.get(state.currentPhoto.photoId)
-        console.log(state.productSelectedPhotos)
-        console.log(state.currentPhoto)
 
+        // 只有当前照片被选中时才能设置备注
         if (!productSelectPhoto || productSelectPhoto.preSelectStatus !== PreSelectStatus.SELECTED)
           return state
 
