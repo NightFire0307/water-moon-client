@@ -1,20 +1,32 @@
-import type { FC } from 'react'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 
-const ProductSidebar: FC = () => {
+interface ProductSidebarRef {
+  photoFilterBarRef: HTMLDivElement | null
+  productBarRef: HTMLDivElement | null
+}
+
+const ProductSidebar = forwardRef<ProductSidebarRef>((_, ref) => {
   const { setFilter, getProductSelectedStats } = usePhotosStore()
   const { products } = useProductsStore()
   const { setCurrentIndex } = usePhotoViewerStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [activeFilterType, setActiveFilterType] = useState<FILTER_TYPE>(FILTER_TYPE.ALL)
+  const photoFilterBarRef = useRef<HTMLDivElement>(null)
+  const productBarRef = useRef<HTMLDivElement>(null)
+
+  // 暴露 refs 给父组件
+  useImperativeHandle(ref, () => ({
+    photoFilterBarRef: photoFilterBarRef.current,
+    productBarRef: productBarRef.current,
+  }))
 
   // 统一的选中状态，用于判断当前选中的是固定选项还是产品
   const [selectedType, setSelectedType] = useState<'filter' | 'product'>('filter')
@@ -97,60 +109,62 @@ const ProductSidebar: FC = () => {
         <SimpleBar style={{ height: '100%' }}>
           <div className="space-y-3">
             {/* 筛选按钮组 */}
-            {fixedOptions.map((option, index) => (
-              <motion.div
-                key={option.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.2 }}
-              >
-                <Button
-                  type={activeFilterType === option.filterType && selectedType === 'filter' ? 'primary' : 'default'}
-                  size="large"
-                  className={`w-full !h-auto !p-0 !text-left !border-0 rounded-xl transition-all duration-300 overflow-hidden ${
-                    activeFilterType === option.filterType && selectedType === 'filter'
-                      ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25'
-                      : 'bg-darkBlueGray-800/60 hover:bg-darkBlueGray-700/80 text-darkBlueGray-200 hover:border-darkBlueGray-600/50'
-                  }`}
-                  onClick={() => handleFixedOptionClick(option.filterType)}
+            <div ref={photoFilterBarRef} className="flex flex-col gap-3">
+              {fixedOptions.map((option, index) => (
+                <motion.div
+                  key={option.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.2 }}
                 >
-                  <div className="w-full p-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          activeFilterType === option.filterType && selectedType === 'filter'
-                            ? 'bg-white/20'
-                            : 'bg-darkBlueGray-600/50'
-                        }`}
-                      >
-                        {option.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm truncate">{option.name}</div>
+                  <Button
+                    type={activeFilterType === option.filterType && selectedType === 'filter' ? 'primary' : 'default'}
+                    size="large"
+                    className={`w-full !h-auto !p-0 !text-left !border-0 rounded-xl transition-all duration-300 overflow-hidden ${
+                      activeFilterType === option.filterType && selectedType === 'filter'
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25'
+                        : 'bg-darkBlueGray-800/60 hover:bg-darkBlueGray-700/80 text-darkBlueGray-200 hover:border-darkBlueGray-600/50'
+                    }`}
+                    onClick={() => handleFixedOptionClick(option.filterType)}
+                  >
+                    <div className="w-full p-4">
+                      <div className="flex items-center gap-3">
                         <div
-                          className={`text-xs mt-1 truncate ${
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                             activeFilterType === option.filterType && selectedType === 'filter'
-                              ? 'text-blue-100'
-                              : 'text-darkBlueGray-400'
+                              ? 'bg-white/20'
+                              : 'bg-darkBlueGray-600/50'
                           }`}
                         >
-                          {option.description}
+                          {option.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm truncate">{option.name}</div>
+                          <div
+                            className={`text-xs mt-1 truncate ${
+                              activeFilterType === option.filterType && selectedType === 'filter'
+                                ? 'text-blue-100'
+                                : 'text-darkBlueGray-400'
+                            }`}
+                          >
+                            {option.description}
+                          </div>
+                        </div>
+                        <div
+                          className={`px-2 py-1 rounded-lg text-xs font-bold min-w-[2rem] text-center ml-2 ${
+                            activeFilterType === option.filterType && selectedType === 'filter'
+                              ? 'bg-white/20 text-white'
+                              : 'bg-darkBlueGray-600/50 text-darkBlueGray-300'
+                          }`}
+                        >
+                          {option.photoCount}
                         </div>
                       </div>
-                      <div
-                        className={`px-2 py-1 rounded-lg text-xs font-bold min-w-[2rem] text-center ml-2 ${
-                          activeFilterType === option.filterType && selectedType === 'filter'
-                            ? 'bg-white/20 text-white'
-                            : 'bg-darkBlueGray-600/50 text-darkBlueGray-300'
-                        }`}
-                      >
-                        {option.photoCount}
-                      </div>
                     </div>
-                  </div>
-                </Button>
-              </motion.div>
-            ))}
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
 
             {/* 分隔线 */}
             <div className="flex items-center gap-3 my-6">
@@ -160,110 +174,112 @@ const ProductSidebar: FC = () => {
             </div>
 
             {/* 产品按钮列表 */}
-            <AnimatePresence mode="popLayout">
-              {products.map((product, index) => (
-                <motion.div
-                  key={product.productId}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ delay: (fixedOptions.length + index) * 0.1, duration: 0.2 }}
-                >
-                  <Button
-                    type={selectedProductId === product.productId && selectedType === 'product' ? 'primary' : 'default'}
-                    size="large"
-                    className={`w-full !h-auto !p-0 !text-left !border-0 rounded-xl transition-all duration-300 overflow-hidden ${
-                      selectedProductId === product.productId && selectedType === 'product'
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25'
-                        : 'bg-darkBlueGray-800/60 hover:bg-darkBlueGray-700/80 text-darkBlueGray-200 hover:border-darkBlueGray-600/50'
-                    }`}
-                    onClick={() => handleProductClick(product.productId)}
+            <div ref={productBarRef} className="flex flex-col gap-3">
+              <AnimatePresence mode="popLayout">
+                {products.map((product, index) => (
+                  <motion.div
+                    key={product.productId}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: (fixedOptions.length + index) * 0.1, duration: 0.2 }}
                   >
-                    <div className="w-full p-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            selectedProductId === product.productId && selectedType === 'product'
-                              ? 'bg-white/20'
-                              : 'bg-darkBlueGray-600/50'
-                          }`}
-                        >
+                    <Button
+                      type={selectedProductId === product.productId && selectedType === 'product' ? 'primary' : 'default'}
+                      size="large"
+                      className={`w-full !h-auto !p-0 !text-left !border-0 rounded-xl transition-all duration-300 overflow-hidden ${
+                        selectedProductId === product.productId && selectedType === 'product'
+                          ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25'
+                          : 'bg-darkBlueGray-800/60 hover:bg-darkBlueGray-700/80 text-darkBlueGray-200 hover:border-darkBlueGray-600/50'
+                      }`}
+                      onClick={() => handleProductClick(product.productId)}
+                    >
+                      <div className="w-full p-4">
+                        <div className="flex items-center gap-3">
                           <div
-                            className={`w-6 h-6 rounded-md ${
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                               selectedProductId === product.productId && selectedType === 'product'
-                                ? 'bg-white/30'
-                                : 'bg-darkBlueGray-500'
-                            } flex items-center justify-center`}
-                          >
-                            <span className="text-xs font-bold">{index + 1}</span>
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-sm truncate">{product.name}</div>
-                          <div
-                            className={`text-xs mt-1 truncate ${
-                              selectedProductId === product.productId && selectedType === 'product'
-                                ? 'text-blue-100'
-                                : 'text-darkBlueGray-400'
+                                ? 'bg-white/20'
+                                : 'bg-darkBlueGray-600/50'
                             }`}
                           >
-                            <span>{product.productType}</span>
-                            <span className="mx-1">•</span>
-                            <span>{product.selectedPhotoIds.length}</span>
-                            <span>/</span>
-                            <span>{product.photoLimit === 0 ? '∞' : product.photoLimit}</span>
-                          </div>
-                        </div>
-
-                        {/* 状态指示器 */}
-                        <div className="flex items-center gap-3 ml-2">
-                          {/* 简洁圆点样式 */}
-                          <div className="flex items-center gap-2">
-                            {/* 状态圆点 */}
-                            {product.selectedPhotoIds.length > 0 && (
-                              <div
-                                className={`w-2 h-2 rounded-full ${
-                                  product.selectedPhotoIds.length >= product.photoLimit && product.photoLimit > 0
-                                    ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50'
-                                    : 'bg-blue-400 animate-pulse shadow-sm shadow-blue-400/50'
-                                }`}
-                              />
-                            )}
-
-                            {/* 照片数量 */}
                             <div
-                              className={`px-2 py-0.5 rounded-full text-xs font-medium min-w-[1.5rem] text-center ${
+                              className={`w-6 h-6 rounded-md ${
                                 selectedProductId === product.productId && selectedType === 'product'
-                                  ? 'bg-white/15 text-white'
-                                  : 'bg-darkBlueGray-600/40 text-darkBlueGray-300'
-                              }`}
+                                  ? 'bg-white/30'
+                                  : 'bg-darkBlueGray-500'
+                              } flex items-center justify-center`}
                             >
-                              {product.selectedPhotoIds.length}
+                              <span className="text-xs font-bold">{index + 1}</span>
                             </div>
                           </div>
-                        </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-sm truncate">{product.name}</div>
+                            <div
+                              className={`text-xs mt-1 truncate ${
+                                selectedProductId === product.productId && selectedType === 'product'
+                                  ? 'text-blue-100'
+                                  : 'text-darkBlueGray-400'
+                              }`}
+                            >
+                              <span>{product.productType}</span>
+                              <span className="mx-1">•</span>
+                              <span>{product.selectedPhotoIds.length}</span>
+                              <span>/</span>
+                              <span>{product.photoLimit === 0 ? '∞' : product.photoLimit}</span>
+                            </div>
+                          </div>
 
-                        {/* 箭头指示器 */}
-                        <div
-                          className={`transition-transform duration-200 ml-2 ${
-                            selectedProductId === product.productId && selectedType === 'product' ? 'rotate-90' : ''
-                          }`}
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                          {/* 状态指示器 */}
+                          <div className="flex items-center gap-3 ml-2">
+                            {/* 简洁圆点样式 */}
+                            <div className="flex items-center gap-2">
+                              {/* 状态圆点 */}
+                              {product.selectedPhotoIds.length > 0 && (
+                                <div
+                                  className={`w-2 h-2 rounded-full ${
+                                    product.selectedPhotoIds.length >= product.photoLimit && product.photoLimit > 0
+                                      ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50'
+                                      : 'bg-blue-400 animate-pulse shadow-sm shadow-blue-400/50'
+                                  }`}
+                                />
+                              )}
+
+                              {/* 照片数量 */}
+                              <div
+                                className={`px-2 py-0.5 rounded-full text-xs font-medium min-w-[1.5rem] text-center ${
+                                  selectedProductId === product.productId && selectedType === 'product'
+                                    ? 'bg-white/15 text-white'
+                                    : 'bg-darkBlueGray-600/40 text-darkBlueGray-300'
+                                }`}
+                              >
+                                {product.selectedPhotoIds.length}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 箭头指示器 */}
+                          <div
+                            className={`transition-transform duration-200 ml-2 ${
+                              selectedProductId === product.productId && selectedType === 'product' ? 'rotate-90' : ''
+                            }`}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                    </Button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           </div>
         </SimpleBar>
       </div>
     </motion.div>
   )
-}
+})
 
 export default ProductSidebar

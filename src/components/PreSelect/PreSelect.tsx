@@ -37,7 +37,6 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
   const preSelectPhotos = useMemo(() => {
-    console.log('重新计算')
     return getPreSelectedPhotos()
   }, [getPreSelectedPhotos])
   const [thumbnailVisible, setThumbnailVisible] = useState<boolean | undefined>(undefined)

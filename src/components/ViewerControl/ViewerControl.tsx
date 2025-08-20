@@ -7,9 +7,14 @@ import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { type RefObject, useEffect, useMemo, useState } from 'react'
+import { forwardRef, type RefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { usePhotosStore } from '../../stores/usePhotosStore'
 
+interface ViewerControlRef {
+  actionBarRef: HTMLDivElement | null
+  addToProductRef: HTMLDivElement | null
+  remarkRef: HTMLDivElement | null
+}
 interface ViewerControlProps {
   next?: () => void // 用于翻到下一张照片
   previous?: () => void // 用于翻到上一张照片
@@ -17,7 +22,7 @@ interface ViewerControlProps {
   transformRef?: RefObject<ReactZoomPanPinchRef>
 }
 
-export function ViewerControl({ transformRef, next, previous }: ViewerControlProps) {
+export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({ transformRef, next, previous }, ref) => {
   const [open, setOpen] = useState(false)
   const [remarkModalVisible, setRemarkModalVisible] = useState(false)
   const { viewerControlVisible, setKeyboardDisabled } = usePhotoViewerContext()
@@ -25,6 +30,16 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
   const { productMenu, dropdownMenuClick } = useProductsStore()
   const { currentPhoto, setPhotoRemark } = usePhotosStore()
   const [form] = Form.useForm()
+  const actionBarRef = useRef<HTMLDivElement>(null)
+  const addToProductRef = useRef<HTMLDivElement>(null)
+  const remarkRef = useRef<HTMLDivElement>(null)
+
+  // 暴露 refs 给父组件
+  useImperativeHandle(ref, () => ({
+    actionBarRef: actionBarRef.current,
+    addToProductRef: addToProductRef.current,
+    remarkRef: remarkRef.current,
+  }))
 
   const handleOpenChange: DropdownProps['onOpenChange'] = (nextOpen, info) => {
     if (info.source === 'trigger' || nextOpen) {
@@ -81,7 +96,9 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
               animate={{ opacity: viewerControlVisible ? 1 : 0 }}
             >
               {/* 顶部控制栏 */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-3 p-2 bg-gradient-to-r from-slate-800/95 via-slate-900/95 to-slate-800/95 backdrop-blur-md border border-slate-600/30 rounded-2xl shadow-2xl z-50">
+              <div
+                className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-3 p-2 bg-gradient-to-r from-slate-800/95 via-slate-900/95 to-slate-800/95 backdrop-blur-md border border-slate-600/30 rounded-2xl shadow-2xl z-50"
+              >
 
                 {/* 产品选择按钮 */}
                 <ConfigProvider theme={{
@@ -109,6 +126,7 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
                   >
                     <Button
                       icon={<PlusOutlined />}
+                      ref={addToProductRef}
                     >
                       加入产品
                       <DownOutlined className="ml-1" />
@@ -143,6 +161,7 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
                       onClick={handleRemark}
                       className="shadow-md hover:shadow-lg transition-all duration-200"
                       title="添加备注"
+                      ref={remarkRef}
                     />
                   </ConfigProvider>
 
@@ -165,30 +184,32 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
                     },
                   }}
                   >
-                    <Button
-                      icon={<ZoomInOutlined />}
-                      onClick={zoomIn}
-                      className="shadow-md hover:shadow-lg transition-all duration-200"
-                      title="放大"
-                    />
-                    <Button
-                      icon={<ZoomOutOutlined />}
-                      onClick={zoomOut}
-                      className="shadow-md hover:shadow-lg transition-all duration-200"
-                      title="缩小"
-                    />
-                    <Button
-                      icon={<RotateLeftOutlined />}
-                      onClick={() => rotateLeft()}
-                      className="shadow-md hover:shadow-lg transition-all duration-200"
-                      title="逆时针旋转"
-                    />
-                    <Button
-                      icon={<RotateRightOutlined />}
-                      onClick={() => rotateRight()}
-                      className=" shadow-md hover:shadow-lg transition-all duration-200"
-                      title="顺时针旋转"
-                    />
+                    <div ref={actionBarRef} className="flex items-center gap-2">
+                      <Button
+                        icon={<ZoomInOutlined />}
+                        onClick={zoomIn}
+                        className="shadow-md hover:shadow-lg transition-all duration-200"
+                        title="放大"
+                      />
+                      <Button
+                        icon={<ZoomOutOutlined />}
+                        onClick={zoomOut}
+                        className="shadow-md hover:shadow-lg transition-all duration-200"
+                        title="缩小"
+                      />
+                      <Button
+                        icon={<RotateLeftOutlined />}
+                        onClick={() => rotateLeft()}
+                        className="shadow-md hover:shadow-lg transition-all duration-200"
+                        title="逆时针旋转"
+                      />
+                      <Button
+                        icon={<RotateRightOutlined />}
+                        onClick={() => rotateRight()}
+                        className=" shadow-md hover:shadow-lg transition-all duration-200"
+                        title="顺时针旋转"
+                      />
+                    </div>
                   </ConfigProvider>
                 </div>
               </div>
@@ -245,4 +266,4 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
       </CustomModal>
     </>
   )
-}
+})
