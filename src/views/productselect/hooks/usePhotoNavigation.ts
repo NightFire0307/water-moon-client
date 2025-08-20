@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from 'react'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
+import { useEffect, useMemo } from 'react'
 
 export function usePhotoNavigation() {
   const { productSelectedPhotos, filter, setCurrentPhoto } = usePhotosStore()

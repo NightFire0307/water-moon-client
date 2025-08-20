@@ -43,7 +43,7 @@ interface ProductState {
 
 interface ProductActions {
   generateProducts: (orderProducts: IOrderProduct[]) => void // 生成产品列表
-  generateDropdownItems: (products: IProduct[]) => void // 生成下拉菜单项
+  setProductMenu: (products: IProduct[]) => void // 生成下拉菜单项
   setSelectedPhotoIds: (productId: number, photoId: number) => void // 产品设置选中照片ID
   dropdownMenuClick: ({ key }: { key: string }) => void // 下拉菜单点击事件
   setDropdownMenuStatus: (selectedProducts: number[]) => void // 设置下拉菜单状态(当切换照片时需要调用一次)
@@ -88,16 +88,15 @@ export const useProductsStore = create<ProductState & ProductActions>()(
           }
 
           setProductSelectedPhotos(updated)
-          console.log('产品数据已生成', updated)
 
-          // 生成下拉菜单项
-          state.generateDropdownItems(products)
+          // 设置下拉菜单项
+          state.setProductMenu(products)
 
           return {
             products: [...products],
           }
         }),
-        generateDropdownItems: (products) => {
+        setProductMenu: (products) => {
           set({
             productMenu: products.map(product => ({
               key: product.productId.toString(),
@@ -134,6 +133,7 @@ export const useProductsStore = create<ProductState & ProductActions>()(
           usePhotosStore.getState().setPhotoSelectedProducts(currentPhoto.photoId, newSelectedProducts)
         },
         setDropdownMenuStatus: (selectedProducts) => {
+          console.log('设置下拉菜单状态', selectedProducts)
           const state = get()
 
           const newMenuItem = state.productMenu?.map((item) => {

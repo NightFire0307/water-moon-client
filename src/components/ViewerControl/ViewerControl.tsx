@@ -79,10 +79,9 @@ export function ViewerControl({ transformRef, next, previous }: ViewerControlPro
               key="viewer-control"
               initial={{ opacity: 0 }}
               animate={{ opacity: viewerControlVisible ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
             >
               {/* 顶部控制栏 */}
-              <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-3 p-2 bg-gradient-to-r from-slate-800/95 via-slate-900/95 to-slate-800/95 backdrop-blur-md border border-slate-600/30 rounded-2xl shadow-2xl z-50">
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-3 p-2 bg-gradient-to-r from-slate-800/95 via-slate-900/95 to-slate-800/95 backdrop-blur-md border border-slate-600/30 rounded-2xl shadow-2xl z-50">
 
                 {/* 产品选择按钮 */}
                 <ConfigProvider theme={{

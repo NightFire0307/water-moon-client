@@ -1,5 +1,4 @@
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
-import { getOrderInfo, updateOrderStatus } from '@/apis/order'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
@@ -11,11 +10,9 @@ import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncProductPhotos } from '@/services/photoSyncService'
-import { useOrderStore } from '@/stores/useOrderStore'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
-import { OrderStatus } from '@/types/user/order'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout } from 'antd'
 import { Header } from 'antd/es/layout/layout'
@@ -38,7 +35,6 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
-  const { setOrderInfo } = useOrderStore()
   const { getProductSelectedPhotos, filter, setCurrentPhoto, currentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setDropdownMenuStatus } = useProductsStore()
@@ -50,17 +46,14 @@ function ProductSelectPage() {
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
 
-    // 过滤指定产品的照片
-    if (filterType === FILTER_TYPE.SELECTED && productId !== undefined) {
+    if (filterType === FILTER_TYPE.SELECTED) {
+      if (productId === undefined) {
+        return productSelectedPhotos.filter((photo) => {
+          return photo.selectedProducts.length > 0
+        })
+      }
       return productSelectedPhotos.filter((photo) => {
         return photo.selectedProducts.includes(productId)
-      })
-    }
-
-    // 过滤已选的照片
-    if (filterType === FILTER_TYPE.SELECTED && productId === undefined) {
-      return productSelectedPhotos.filter((photo) => {
-        return photo.selectedProducts.length > 0
       })
     }
 
@@ -71,28 +64,23 @@ function ProductSelectPage() {
       })
     }
 
-    return productSelectedPhotos
+    return [...productSelectedPhotos]
   }, [filter, productSelectedPhotos])
 
-  // 监听过滤后的照片变化，自动设置当前第一张照片
   useEffect(() => {
     if (filteredPhotos.length === 0) {
-      if (currentPhoto !== null) {
-        setCurrentPhoto(null)
-        setCurrentIndex(0)
-      }
+      setCurrentPhoto(null)
+      setCurrentIndex(0)
       return
     }
 
-    // 如果当前照片不在过滤后的列表中，自动切换到第一张
-    const inList = filteredPhotos.find(photo => photo.photoId === currentPhoto?.photoId)
-
-    if (!inList) {
-      setCurrentPhoto(filteredPhotos[0] || null)
+    // 当前照片不在新列表里时，自动切换到第一张
+    const exist = filteredPhotos.find(photo => photo.photoId === currentPhoto?.photoId)
+    if (!exist) {
+      setCurrentPhoto({ ...filteredPhotos[0] })
       setCurrentIndex(0)
-      setDropdownMenuStatus(filteredPhotos[0]?.selectedProducts || [])
     }
-  }, [filteredPhotos, currentPhoto])
+  }, [filteredPhotos, currentPhoto, setCurrentPhoto, setCurrentIndex])
 
   // 控制提示信息显示
   // 例如：当切换到最后一张照片时，显示提示信息
@@ -139,7 +127,7 @@ function ProductSelectPage() {
         return
       }
 
-      switch (e.key) {
+      switch (e.code) {
         case 'ArrowLeft':
           e.preventDefault()
           handlePreviousPhoto()
@@ -237,7 +225,7 @@ function ProductSelectPage() {
           </Sider>
 
           {/* 主视图区域 */}
-          <Content className="relative p-4">
+          <Content className="relative">
             <ViewerControl transformRef={transformRef} next={handleNextPhoto} previous={handlePreviousPhoto} />
             <MainViewer transformRef={transformRef} />
             <ThumbnailBar

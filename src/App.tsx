@@ -14,7 +14,7 @@ import './App.css'
 
 function App() {
   const { setOrderInfo } = useOrderStore()
-  const { generateProducts } = useProductsStore()
+  const { generateProducts, products } = useProductsStore()
   const { fetchPhotos } = usePhotosStore()
   const navigate = useNavigate()
   const orderInfo = useOrderStore(state => state.orderInfo)
@@ -25,15 +25,18 @@ function App() {
   const fetchOrderInfo = async () => {
     const { data } = await getOrderInfo()
     setOrderInfo(data)
-    generateProducts(data.orderProducts)
+
+    if (products.length === 0) {
+      generateProducts(data.orderProducts)
+    }
   }
 
   useEffect(() => {
     if (!accessToken)
       return
 
-    fetchPhotos()
     fetchOrderInfo()
+    fetchPhotos()
   }, [accessToken])
 
   // 判断当前订单状态是否为预选,如果不是则跳转到相应页面

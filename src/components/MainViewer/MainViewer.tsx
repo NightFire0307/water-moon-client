@@ -56,7 +56,7 @@ export function MainViewer({ transformRef }: MainViewerProps) {
 
   return (
     <div
-      className="h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 select-none flex items-center justify-center rounded-xl"
+      className="h-full bg-gradient-to-br from-darkBlueGray-800 to-darkBlueGray-900 select-none flex items-center justify-center"
       onClick={() => setViewerControlVisible(!viewerControlVisible)}
     >
       {

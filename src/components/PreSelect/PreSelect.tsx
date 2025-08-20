@@ -3,15 +3,15 @@ import { getOrderInfo, updateOrderStatus } from '@/apis/order'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncPreSelectedPhotos } from '@/services/photoSyncService'
 import { useOrderStore } from '@/stores/useOrderStore'
-import { usePhotosStore } from '@/stores/usePhotosStore'
+import { type Photo, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { OrderStatus } from '@/types/user/order'
 import { getPreSelectTourSteps } from '@/views/preselect/tourSteps'
-import { CheckOutlined, CloseOutlined, FullscreenExitOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Tour, Typography } from 'antd'
 import { motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useFullScreenLoading } from '../FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '../ProgressDots/ProgressDots'
@@ -36,7 +36,10 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
-  const preSelectPhotos = getPreSelectedPhotos()
+  const preSelectPhotos = useMemo(() => {
+    console.log('重新计算')
+    return getPreSelectedPhotos()
+  }, [getPreSelectedPhotos])
   const [thumbnailVisible, setThumbnailVisible] = useState<boolean | undefined>(undefined)
 
   // 引用 Tour 步骤
@@ -71,9 +74,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
     // 将预选照片所有选中的复制到产品选片
     setProductSelectedPhotos(
-      new Map([...preSelectPhotos.entries()]
-        .filter(([_, photo]) => photo.preSelectStatus === PreSelectStatus.SELECTED)
-        .map(([_, { photoId, ...rest }]) => ([photoId, rest])),
+      new Map(preSelectPhotos.filter(photo => photo.preSelectStatus === PreSelectStatus.SELECTED)
+        .map(({ photoId, ...rest }) => [photoId, rest]),
       ),
     )
 
@@ -112,6 +114,25 @@ export const PreSelect: FC<PreSelectProps> = () => {
     }
   }
 
+  const renderExtra = useCallback((item: Photo) => (
+    <>
+      {
+        item.preSelectStatus === PreSelectStatus.SELECTED && (
+          <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
+            <CheckOutlined className="text-xs text-white" />
+          </div>
+        )
+      }
+      {
+        item.preSelectStatus === PreSelectStatus.EXCLUDE && (
+          <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
+            <CloseOutlined className="text-xs text-white" />
+          </div>
+        )
+      }
+    </>
+  ), [])
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement)
@@ -122,8 +143,8 @@ export const PreSelect: FC<PreSelectProps> = () => {
   }, [tourOpen])
 
   // 键盘快捷键
-  const handleKeyPress = (e: KeyboardEvent) => {
-    switch (e.key) {
+  const handleKeyPress = useCallback((e: KeyboardEvent) => {
+    switch (e.code) {
       case 'F11':
         e.preventDefault()
         toggleFullscreen()
@@ -155,7 +176,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
         }
 
         break
-      case ' ':
+      case 'Space':
         e.preventDefault()
         if (currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED) {
           togglePreSelected(PreSelectStatus.EXCLUDE)
@@ -177,18 +198,18 @@ export const PreSelect: FC<PreSelectProps> = () => {
       default:
         break
     }
-  }
+  }, [currentPhoto, currentIndex, next, previous, preSelectPhotos, setCurrentPhoto, togglePreSelected])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [currentPhoto, currentIndex])
+  }, [handleKeyPress])
 
   useEffect(() => {
     if (currentPhoto === null && preSelectPhotos.length > 0) {
       setCurrentPhoto(preSelectPhotos[0])
     }
-  }, [currentPhoto, preSelectPhotos])
+  }, [currentPhoto, preSelectPhotos, setCurrentPhoto])
 
   return (
     <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}>
@@ -396,24 +417,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
       <ThumbnailBar
         visible={thumbnailVisible}
         photos={preSelectPhotos}
-        extra={item => (
-          <>
-            {
-              item.preSelectStatus === PreSelectStatus.SELECTED && (
-                <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
-                  <CheckOutlined className="text-xs text-white" />
-                </div>
-              )
-            }
-            {
-              item.preSelectStatus === PreSelectStatus.EXCLUDE && (
-                <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
-                  <CloseOutlined className="text-xs text-white" />
-                </div>
-              )
-            }
-          </>
-        )}
+        extra={renderExtra}
         onClickThumbnail={(item, index) => {
           setCurrentIndex(index)
           setCurrentPhoto(item)
