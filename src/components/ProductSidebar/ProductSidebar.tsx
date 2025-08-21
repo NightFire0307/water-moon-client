@@ -14,7 +14,7 @@ interface ProductSidebarRef {
 }
 
 const ProductSidebar = forwardRef<ProductSidebarRef>((_, ref) => {
-  const { setFilter, getProductSelectedStats } = usePhotosStore()
+  const { setFilter, productSelectedPhotos } = usePhotosStore()
   const { products } = useProductsStore()
   const { setCurrentIndex } = usePhotoViewerStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
@@ -31,39 +31,52 @@ const ProductSidebar = forwardRef<ProductSidebarRef>((_, ref) => {
   // 统一的选中状态，用于判断当前选中的是固定选项还是产品
   const [selectedType, setSelectedType] = useState<'filter' | 'product'>('filter')
 
-  const { totalCount, selectedCount, unselectedCount } = getProductSelectedStats()
-
   // 固定选项数据
-  const fixedOptions = useMemo(() => [
-    {
-      id: 'all',
-      name: '所有照片',
-      description: '查看所有照片',
-      photoCount: totalCount,
-      filterType: FILTER_TYPE.ALL,
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-        </svg>
-      ),
-    },
-    {
-      id: 'selected',
-      name: '已选照片',
-      description: '已添加到产品的照片',
-      photoCount: selectedCount,
-      filterType: FILTER_TYPE.SELECTED,
-      icon: <CheckOutlined />,
-    },
-    {
-      id: 'unselected',
-      name: '未选照片',
-      description: '尚未添加到产品的照片',
-      photoCount: unselectedCount,
-      filterType: FILTER_TYPE.UNSELECTED,
-      icon: <CloseOutlined />,
-    },
-  ], [totalCount, selectedCount, unselectedCount])
+  const fixedOptions = useMemo(() => {
+    const { selectedCount, unSelectedCount } = Array.from(productSelectedPhotos).reduce(
+      (acc, [, photo]) => {
+        if (photo.selectedProducts.length > 0) {
+          acc.selectedCount += 1
+        }
+        else {
+          acc.unSelectedCount += 1
+        }
+        return acc
+      }
+      , { selectedCount: 0, unSelectedCount: 0 },
+    )
+
+    return [
+      {
+        id: 'all',
+        name: '所有照片',
+        description: '查看所有照片',
+        photoCount: productSelectedPhotos.size,
+        filterType: FILTER_TYPE.ALL,
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+        ),
+      },
+      {
+        id: 'selected',
+        name: '已选照片',
+        description: '已添加到产品的照片',
+        photoCount: selectedCount,
+        filterType: FILTER_TYPE.SELECTED,
+        icon: <CheckOutlined />,
+      },
+      {
+        id: 'unselected',
+        name: '未选照片',
+        description: '尚未添加到产品的照片',
+        photoCount: unSelectedCount,
+        filterType: FILTER_TYPE.UNSELECTED,
+        icon: <CloseOutlined />,
+      },
+    ]
+  }, [productSelectedPhotos])
 
   // 固定选项点击处理函数
   const handleFixedOptionClick = (filterType: FILTER_TYPE) => {

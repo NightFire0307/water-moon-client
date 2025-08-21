@@ -12,7 +12,6 @@ import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncProductPhotos } from '@/services/photoSyncService'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
-import { useProductsStore } from '@/stores/useProductsStore'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Tour } from 'antd'
 import { Header } from 'antd/es/layout/layout'
@@ -38,7 +37,6 @@ function ProductSelectPage() {
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
   const { getProductSelectedPhotos, filter, setCurrentPhoto, currentPhoto } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
-  const { setDropdownMenuStatus } = useProductsStore()
   const navigate = useNavigate()
   const productSelectedPhotos = getProductSelectedPhotos()
   const { showLoading, hideLoading } = useFullScreenLoading()
@@ -112,26 +110,24 @@ function ProductSelectPage() {
     if (currentIndex !== 0) {
       const previousPhoto = filteredPhotos[currentIndex - 1]
       setCurrentPhoto(previousPhoto)
-      setDropdownMenuStatus(previousPhoto.selectedProducts)
       previous()
     }
     else {
       showConditionTip('已经是第一张照片了')
     }
-  }, [currentIndex, filteredPhotos, previous, setCurrentPhoto, setDropdownMenuStatus, showConditionTip])
+  }, [currentIndex, filteredPhotos, previous, setCurrentPhoto, showConditionTip])
 
   // 下一张照片
   const handleNextPhoto = useCallback(() => {
     if (currentIndex < filteredPhotos.length - 1) {
       const nextPhoto = filteredPhotos[currentIndex + 1]
       setCurrentPhoto(nextPhoto)
-      setDropdownMenuStatus(nextPhoto.selectedProducts)
       next()
     }
     else {
       showConditionTip('已经是最后一张照片了')
     }
-  }, [currentIndex, filteredPhotos, next, setCurrentPhoto, setDropdownMenuStatus, showConditionTip])
+  }, [currentIndex, filteredPhotos, next, setCurrentPhoto, showConditionTip])
 
   const handleKeydown = useCallback(
     (e: KeyboardEvent) => {

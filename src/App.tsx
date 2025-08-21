@@ -5,6 +5,7 @@ import { Outlet, useNavigate } from 'react-router'
 import { getOrderInfo } from './apis/order'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 import { useFullScreenLoading } from './components/FullScreenLoading/useFullScreenLoading'
+import MessageHandle from './components/MessageHandle/MessageHandle'
 import { useAuthStore } from './stores/useAuthStore'
 import { useOrderStore } from './stores/useOrderStore'
 import { usePhotosStore } from './stores/usePhotosStore'
@@ -14,7 +15,7 @@ import './App.css'
 
 function App() {
   const { setOrderInfo } = useOrderStore()
-  const { generateProducts, products } = useProductsStore()
+  const { setProducts, products } = useProductsStore()
   const { fetchPhotos } = usePhotosStore()
   const navigate = useNavigate()
   const orderInfo = useOrderStore(state => state.orderInfo)
@@ -27,7 +28,7 @@ function App() {
     setOrderInfo(data)
 
     if (products.length === 0) {
-      generateProducts(data.orderProducts)
+      setProducts(data.orderProducts)
     }
   }
 
@@ -94,6 +95,7 @@ function App() {
     >
       <Outlet />
       <FullScreenLoading />
+      <MessageHandle />
 
     </ConfigProvider>
   )

@@ -5,7 +5,7 @@ import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps } from 'antd'
+import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps, message } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { forwardRef, type RefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { usePhotosStore } from '../../stores/usePhotosStore'
@@ -27,8 +27,9 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
   const [remarkModalVisible, setRemarkModalVisible] = useState(false)
   const { viewerControlVisible, setKeyboardDisabled } = usePhotoViewerContext()
   const { rotateLeft, rotateRight } = usePhotoViewerStore()
-  const { productMenu, dropdownMenuClick } = useProductsStore()
-  const { currentPhoto, setPhotoRemark } = usePhotosStore()
+  const { currentPhoto, setPhotoRemark, setSelectedProducts } = usePhotosStore()
+  const products = useProductsStore(state => state.products)
+  const setSelectedPhotoIds = useProductsStore(state => state.setSelectedPhotoIds)
   const [form] = Form.useForm()
   const actionBarRef = useRef<HTMLDivElement>(null)
   const addToProductRef = useRef<HTMLDivElement>(null)
@@ -48,13 +49,16 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
   }
 
   const menuItems: MenuProps['items'] = useMemo(() => {
-    return productMenu.map(item => ({
-      key: item.key,
-      label: item.label,
-      icon: item.isSelected ? <CheckOutlined /> : undefined, // 如果是选中状态，显示勾选图标
-      extra: item.extra,
+    if (currentPhoto === null)
+      return []
+
+    return products.map(product => ({
+      key: product.productId.toString(),
+      label: product.name,
+      icon: product.selectedPhotoIds.includes(currentPhoto?.photoId) ? <CheckOutlined className="text-green-500" /> : null,
+      extra: `${product.selectedPhotoIds.length} / ${product.photoLimit === 0 ? '∞' : product.photoLimit}`,
     }))
-  }, [productMenu])
+  }, [products, currentPhoto])
 
   // 处理备注按钮点击事件
   const handleRemark = () => {
@@ -73,6 +77,15 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
     setPhotoRemark(values)
     setRemarkModalVisible(false)
     setKeyboardDisabled(false)
+  }
+
+  // 处理下拉菜单点击事件
+  const handleMenuClick = ({ key }: { key: string }) => {
+    if (currentPhoto === null)
+      return
+
+    setSelectedPhotoIds(Number(key), currentPhoto.photoId)
+    setSelectedProducts(Number(key), currentPhoto.photoId)
   }
 
   const zoomIn = () => transformRef?.current?.zoomIn()
@@ -120,7 +133,7 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
                 >
                   <Dropdown
                     open={open}
-                    menu={{ items: menuItems, onClick: dropdownMenuClick }}
+                    menu={{ items: menuItems, onClick: handleMenuClick }}
                     onOpenChange={handleOpenChange}
                     disabled={currentPhoto === null}
                   >

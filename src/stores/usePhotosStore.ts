@@ -52,6 +52,7 @@ interface UsePhotosAction {
   getProductSelectedPhotos: () => Photo[] // 获取产品选片照片列表
   setPreSelectedPhotos: (preSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置预选照片列表
   setProductSelectedPhotos: (productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置产品选片照片列表
+  setSelectedProducts: (productId: number, photoId: number) => void // 为照片设置选中的产品ID
 }
 
 /**
@@ -342,6 +343,35 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       },
       setPreSelectedPhotos: preSelectedPhotos => set({ preSelectedPhotos }),
       setProductSelectedPhotos: productSelectedPhotos => set({ productSelectedPhotos }),
+      setSelectedProducts: (productId, photoId) => {
+        set((state) => {
+          const updatePhoto = state.productSelectedPhotos.get(photoId)
+
+          if (!updatePhoto) {
+            console.error(`Photo with ID ${photoId} not found in productSelectedPhotos`)
+            return state
+          }
+
+          if (updatePhoto.selectedProducts.includes(productId)) {
+            return {
+              productSelectedPhotos: new Map(state.productSelectedPhotos).set(photoId, {
+                ...updatePhoto,
+                selectedProducts: updatePhoto.selectedProducts.filter(id => id !== productId),
+                dirty: true,
+              }),
+            }
+          }
+          else {
+            return {
+              productSelectedPhotos: new Map(state.productSelectedPhotos).set(photoId, {
+                ...updatePhoto,
+                selectedProducts: [...updatePhoto.selectedProducts, productId],
+                dirty: true,
+              }),
+            }
+          }
+        })
+      },
     }), {
       name: 'photos-storage',
       storage: createJSONStorage(() => localStorage, {
