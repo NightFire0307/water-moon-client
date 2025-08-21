@@ -46,7 +46,6 @@ interface UsePhotosAction {
   setAllPendingToSelected: () => void // 将所有待处理的照片状态设置为选中
   setAllToPending: () => void // 将所有照片状态设置为待处理
   togglePreSelected: (preSelectStatus: PreSelectStatus) => void // 设置预选标记
-  getProductSelectedStats: () => { selectedCount: number, unselectedCount: number, totalCount: number } // 获取产品选片统计信息
   getPreSelectedStats: () => { selectedCount: number, excludedCount: number, pendingCount: number } // 获取预选照片统计信息
   getPreSelectedPhotos: () => Photo[] // 获取预选照片列表
   getProductSelectedPhotos: () => Photo[] // 获取产品选片照片列表
@@ -242,20 +241,6 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           }),
         }
       }),
-      // 获取产品选片的统计信息
-      getProductSelectedStats: () => {
-        const state = get()
-        const productSelectedPhotos = state.getProductSelectedPhotos()
-        const totalCount = productSelectedPhotos.length
-        const selectedCount = productSelectedPhotos.filter(photo => photo.selectedProducts.length > 0).length
-        const unselectedCount = productSelectedPhotos.filter(photo => photo.selectedProducts.length === 0).length
-
-        return {
-          selectedCount,
-          unselectedCount,
-          totalCount,
-        }
-      },
       // 获取预选照片的统计信息
       getPreSelectedStats: () => {
         const state = get()

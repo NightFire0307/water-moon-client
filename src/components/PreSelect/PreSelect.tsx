@@ -30,15 +30,24 @@ export const PreSelect: FC<PreSelectProps> = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
-  const { getPreSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setProductSelectedPhotos } = usePhotosStore()
+  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setProductSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setOrderInfo } = useOrderStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
   const preSelectPhotos = useMemo(() => {
-    return getPreSelectedPhotos()
-  }, [getPreSelectedPhotos])
+    const result = []
+
+    for (const [photoId, value] of preSelectedPhotos.entries()) {
+      result.push({
+        photoId,
+        ...value,
+      })
+    }
+
+    return result
+  }, [preSelectedPhotos])
   const [thumbnailVisible, setThumbnailVisible] = useState<boolean | undefined>(undefined)
 
   // 引用 Tour 步骤
@@ -113,24 +122,27 @@ export const PreSelect: FC<PreSelectProps> = () => {
     }
   }
 
-  const renderExtra = useCallback((item: Photo) => (
-    <>
-      {
-        item.preSelectStatus === PreSelectStatus.SELECTED && (
-          <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
-            <CheckOutlined className="text-xs text-white" />
-          </div>
-        )
-      }
-      {
-        item.preSelectStatus === PreSelectStatus.EXCLUDE && (
-          <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
-            <CloseOutlined className="text-xs text-white" />
-          </div>
-        )
-      }
-    </>
-  ), [])
+  // 渲染额外内容
+  const renderExtra = useCallback((item: Photo) => {
+    return (
+      <>
+        {
+          item.preSelectStatus === PreSelectStatus.SELECTED && (
+            <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
+              <CheckOutlined className="text-xs text-white" />
+            </div>
+          )
+        }
+        {
+          item.preSelectStatus === PreSelectStatus.EXCLUDE && (
+            <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
+              <CloseOutlined className="text-xs text-white" />
+            </div>
+          )
+        }
+      </>
+    )
+  }, [])
 
   useEffect(() => {
     const handleFullscreenChange = () => {
