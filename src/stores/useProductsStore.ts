@@ -39,15 +39,19 @@ interface ProductActions {
   setProducts: (orderProducts: IOrderProduct[]) => void // 生成产品列表
   setSelectedPhotoIds: (productId: number, photoId: number) => void // 产品设置选中照片ID
   setDirty: (dirty: boolean) => void // 设置是否有未提交的更改
+  resetProducts: () => void // 重置产品列表
+}
+
+const initialState: ProductState = {
+  products: [],
+  dirty: false,
 }
 
 export const useProductsStore = create<ProductState & ProductActions>()(
   persist(
     devtools(
       (set, get) => ({
-        products: [],
-        dirty: false,
-        error: null,
+        ...initialState,
         setProducts: orderProducts => set(() => {
           const { setProductSelectedPhotos, productSelectedPhotos } = usePhotosStore.getState()
 
@@ -107,6 +111,7 @@ export const useProductsStore = create<ProductState & ProductActions>()(
           set({ products: [...state.products] })
         },
         setDirty: dirty => set({ dirty }),
+        resetProducts: () => set({ ...initialState }),
       }),
       {
         name: 'products-store',

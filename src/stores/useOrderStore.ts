@@ -9,8 +9,8 @@ interface UseOrderState {
 
 interface UseOrderActions {
   setOrderInfo: (order: IOrder | null) => void
-  clearOrderInfo: () => void
   setLoading: (loading: boolean) => void
+  resetOrder: () => void
 }
 
 export const useOrderStore = create<UseOrderState & UseOrderActions>()(
@@ -19,5 +19,6 @@ export const useOrderStore = create<UseOrderState & UseOrderActions>()(
     isLoading: false,
     setOrderInfo: orderInfo => set({ orderInfo }),
     setLoading: isLoading => set({ isLoading }),
+    resetOrder: () => set({ orderInfo: null, isLoading: false }),
   }), { name: 'order-store' }),
 )

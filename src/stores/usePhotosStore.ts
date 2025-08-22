@@ -52,6 +52,7 @@ interface UsePhotosAction {
   setPreSelectedPhotos: (preSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置预选照片列表
   setProductSelectedPhotos: (productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置产品选片照片列表
   setSelectedProducts: (productId: number, photoId: number) => void // 为照片设置选中的产品ID
+  resetPhotos: () => void // 重置状态
 }
 
 /**
@@ -88,19 +89,22 @@ function mergePhotosFromCache(
   return mergedPhotos
 }
 
+const initialState: UsePhotosState = {
+  originalPhotos: new Map([]),
+  preSelectedPhotos: new Map([]),
+  productSelectedPhotos: new Map([]),
+  currentPhoto: null,
+  isLoading: false,
+  filter: {
+    productId: undefined,
+    filterType: FILTER_TYPE.ALL,
+  },
+}
+
 export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
   devtools(
     persist((set, get) => ({
-      originalPhotos: new Map([]),
-      preSelectedPhotos: new Map([]),
-      productSelectedPhotos: new Map([]),
-      currentPhoto: null,
-      isLoading: false,
-      selectionStage: 'preSelect',
-      filter: {
-        productId: undefined,
-        filterType: FILTER_TYPE.ALL,
-      },
+      ...initialState,
       fetchPhotos: async (params) => {
         // 设置加载状态
         set({ isLoading: true })
@@ -357,6 +361,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           }
         })
       },
+      resetPhotos: () => set({ ...initialState }),
     }), {
       name: 'photos-storage',
       storage: createJSONStorage(() => localStorage, {

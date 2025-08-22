@@ -59,48 +59,6 @@ service.interceptors.response.use(
           message.error('登录已过期，请重新登录')
           return Promise.reject(error)
         case 401:
-
-          // if (originalRequest && !originalRequest._retry) {
-          //   originalRequest._retry = true
-          //   if (!isRefreshing) {
-          //     isRefreshing = true
-          //     try {
-          //       // 尝试刷新 Access_token
-          //       const { data } = await refreshToken()
-          //       // 更新 Access_token
-          //       useAuthStore.getState().setAccessToken(data.accessToken)
-
-          //       // 重发失败请求
-          //       failedQueue.forEach(cb => cb())
-          //       failedQueue = []
-
-          //       return service(originalRequest)
-          //     }
-          //     catch (err) {
-          //       failedQueue.forEach(cb => cb())
-          //       failedQueue = []
-
-          //       return Promise.reject(err)
-          //     }
-          //     finally {
-          //       isRefreshing = false
-          //     }
-          //   }
-
-          //   // 如果正在刷新 Access_token，将请求添加到队列中
-          //   return new Promise((resolve) => {
-          //     // 将请求队列添加到缓存中
-          //     failedQueue.push(() => {
-          //       if (originalRequest && originalRequest.headers) {
-          //         originalRequest.headers.Authorization = `Bearer ${useAuthStore.getState().access_token}`
-          //       }
-          //       if (originalRequest) {
-          //         resolve(service(originalRequest))
-          //       }
-          //     })
-          //   })
-          // }
-
           return Promise.reject(error)
         case (400):
           message.error(error.response.data.msg || '请求错误，请稍后再试')

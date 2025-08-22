@@ -16,6 +16,13 @@ export function login(data: LoginData) {
   })
 }
 
+export function logout() {
+  return request({
+    url: '/selection/logout',
+    method: 'post',
+  })
+}
+
 // 校验短链和token
 export function verifyShortUrl(shortUrl: string) {
   return request({

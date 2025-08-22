@@ -1,7 +1,9 @@
-import { ConfigProvider } from 'antd'
+import { LogoutOutlined } from '@ant-design/icons'
+import { ConfigProvider, FloatButton, Modal } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router'
+import { logout } from './apis/login'
 import { getOrderInfo } from './apis/order'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 import { useFullScreenLoading } from './components/FullScreenLoading/useFullScreenLoading'
@@ -14,9 +16,10 @@ import { OrderStatus } from './types/user/order'
 import './App.css'
 
 function App() {
-  const { setOrderInfo } = useOrderStore()
-  const { setProducts, products } = useProductsStore()
-  const { fetchPhotos } = usePhotosStore()
+  const { clearAccessToken } = useAuthStore()
+  const { setOrderInfo, resetOrder } = useOrderStore()
+  const { setProducts, products, resetProducts } = useProductsStore()
+  const { fetchPhotos, resetPhotos } = usePhotosStore()
   const navigate = useNavigate()
   const orderInfo = useOrderStore(state => state.orderInfo)
   const { showLoading, hideLoading } = useFullScreenLoading()
@@ -30,6 +33,28 @@ function App() {
     if (products.length === 0) {
       setProducts(data.orderProducts)
     }
+  }
+
+  // 处理退出登录
+  const handleLogout = () => {
+    Modal.confirm({
+      title: '确认要退出选片系统吗？',
+      centered: true,
+
+      onOk: async () => {
+        await logout()
+        resetPhotos()
+        resetProducts()
+        resetOrder()
+        clearAccessToken()
+        window.localStorage.clear()
+        window.sessionStorage.clear()
+        navigate('/login')
+      },
+      onCancel: () => {
+        // 取消操作
+      },
+    })
   }
 
   useEffect(() => {
@@ -96,6 +121,13 @@ function App() {
       <Outlet />
       <FullScreenLoading />
       <MessageHandle />
+
+      {/* 浮动按钮 */}
+      <FloatButton
+        icon={<LogoutOutlined />}
+        className="right-8 bottom-24"
+        onClick={handleLogout}
+      />
 
     </ConfigProvider>
   )

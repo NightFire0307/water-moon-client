@@ -1,7 +1,7 @@
 import { refreshToken, validateToken } from '@/apis/login'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 
 function withAuthGuard<T extends object>(
   WrappedComponent: React.ComponentType<T>,
@@ -9,6 +9,7 @@ function withAuthGuard<T extends object>(
   return (props: T) => {
     const { setAccessToken } = useAuthStore()
     const navigate = useNavigate()
+    const location = useLocation()
     const [loading, setLoading] = useState(true)
 
     function isTokenExpired(token: string) {
@@ -24,6 +25,8 @@ function withAuthGuard<T extends object>(
 
     // 校验权限
     const checkAuth = async () => {
+      if (['/', '/login'].includes(location.pathname))
+        return false
       const accessToken = sessionStorage.getItem('access_token')
 
       // 如果没有 access_token，尝试刷新
@@ -71,7 +74,7 @@ function withAuthGuard<T extends object>(
             navigate('/login')
           }
         })
-    }, [navigate])
+    }, [])
 
     if (loading)
       return null
