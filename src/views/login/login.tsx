@@ -2,7 +2,7 @@ import { login } from '@/apis/login.ts'
 import Segmented from '@/components/Segmented/Segmented'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ArrowRightOutlined, MobileOutlined, NumberOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Form, Input, message, Typography } from 'antd'
+import { Button, ConfigProvider, Form, Input, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { useForm } from 'antd/es/form/Form'
 import { motion } from 'framer-motion'
@@ -149,7 +149,6 @@ function Login() {
         ...values,
       })
       setAccessToken(data.accessToken)
-      message.success('登录成功')
       navigate('/order-info')
     }
     catch (err) {
