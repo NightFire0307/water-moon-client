@@ -3,7 +3,6 @@ import { getOrderPhotos } from '@/apis/order.ts'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { create } from 'zustand'
 import { createJSONStorage, devtools, persist } from 'zustand/middleware'
-import { useOrderStore } from './useOrderStore'
 
 export interface Photo {
   photoId: number
@@ -278,12 +277,13 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       setDirty: () => { },
       setAllPendingToExclude: () => set((state) => {
         return {
-          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
-            if (photo.preSelectStatus === PreSelectStatus.PENDING) {
-              return { ...photo, preSelectStatus: PreSelectStatus.EXCLUDE }
-            }
-            return photo
-          }),
+          preSelectedPhotos: new Map([...state.preSelectedPhotos.entries()].map(([photoId, photo]) => (
+            [photoId, {
+              ...photo,
+              preSelectStatus: photo.preSelectStatus === PreSelectStatus.PENDING ? PreSelectStatus.EXCLUDE : photo.preSelectStatus,
+              dirty: true,
+            }]
+          ))),
         }
       }),
       setAllPendingToSelected: () => set((state) => {
@@ -299,9 +299,9 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       }),
       setAllToPending: () => set((state) => {
         return {
-          preSelectedPhotos: state.preSelectedPhotos.map((photo) => {
-            return { ...photo, preSelectStatus: PreSelectStatus.PENDING }
-          }),
+          preSelectedPhotos: new Map([...state.preSelectedPhotos.entries()].map(([photoId, photo]) => {
+            return [photoId, { ...photo, preSelectStatus: PreSelectStatus.PENDING, dirty: true }]
+          })),
         }
       }),
       getPreSelectedPhotos: () => {
@@ -375,9 +375,9 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           }
           return value
         },
-        reviver: (_key, value: { __type: 'Map', value: any }) => {
-          if (value && value.__type === 'Map') {
-            return new Map(value.value)
+        reviver: (_key: string, value: unknown) => {
+          if (value && typeof value === 'object' && (value as any).__type === 'Map') {
+            return new Map((value as any).value)
           }
           return value
         },
@@ -394,7 +394,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
       // 序列化 MAP 数据结构
       serialize: {
         options: true,
-        replacer: (_, value: { __type: 'Map', value: any }) => {
+        replacer: (_key: string, value: { __type: 'Map', value: any }) => {
           if (value instanceof Map) {
             return Array.from(value.entries()).map(([key, val]) => [key, val])
           }
