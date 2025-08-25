@@ -1,56 +1,25 @@
-import type { Response } from '@/types/common.ts'
-import type { IOrderProductSelectedPhotoResponse, IOrderResponse } from '@/types/order.ts'
+import type { Response } from '@/types/common/apiResponse'
+import type { PaginationParams } from '@/types/common/pagination'
 import type { IPhotoResponse } from '@/types/photos.ts'
+import type { UpdatePreselectRequest } from '@/types/selection/preSelection'
+import type { UpdateProductSelectRequest } from '@/types/selection/productSelection'
+import type { IOrderResponse, OrderStatus } from '@/types/user/order'
 import request from '@/utils/request.ts'
 
 // 获取订单信息
 export function getOrderInfo(): IOrderResponse {
   return request({
-    url: `/selection/order_info`,
+    url: `/selection/order`,
     method: 'GET',
   })
 }
 
 // 获取订单照片
-export function getOrderPhotos(): IPhotoResponse {
+export function getOrderPhotos(params?: PaginationParams): IPhotoResponse {
   return request({
     url: '/selection/photos',
     method: 'GET',
-    params: { pageSize: 200 },
-  })
-}
-
-// 更新照片选择
-export function updateOrderPhotos(data: { photoIds: number[], orderProductId: number }): IOrderProductSelectedPhotoResponse {
-  return request({
-    url: '/selection/photos',
-    method: 'PATCH',
-    data,
-  })
-}
-
-// 移除照片的所有产品选择
-export function removeAllTags(photoId: number) {
-  return request({
-    url: `/selection/photos/${photoId}/remove-all-tag`,
-    method: 'PATCH',
-  })
-}
-
-// 更新照片备注信息
-export function updatePhotoRemark(data: { photoId: number, remark: string }): Promise<Response<number>> {
-  return request({
-    url: '/selection/photos/remark',
-    method: 'PATCH',
-    data,
-  })
-}
-
-// 获取照片备注信息
-export function getPhotoRemarkById(photoId: number) {
-  return request({
-    url: `/selection/photos/${photoId}/remark`,
-    method: 'GET',
+    params,
   })
 }
 
@@ -59,5 +28,32 @@ export function submitSelection(orderId: number): Promise<Response<number>> {
   return request({
     url: `/selection/${orderId}`,
     method: 'POST',
+  })
+}
+
+// 更新订单状态
+export function updateOrderStatus(status: OrderStatus) {
+  return request({
+    url: '/selection/order/status',
+    method: 'PATCH',
+    data: { status },
+  })
+}
+
+// 更新预选状态
+export function updatePreSelectedPhotos(data: UpdatePreselectRequest) {
+  return request({
+    url: '/selection/preselected-photos',
+    method: 'PATCH',
+    data,
+  })
+}
+
+// 更新产品分片状态
+export function updateProductPhotos(data: UpdateProductSelectRequest) {
+  return request({
+    url: '/selection/product-photos',
+    method: 'POST',
+    data,
   })
 }

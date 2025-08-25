@@ -1,11 +1,14 @@
-import type { ResponsePromise } from '@/types/common.ts'
+import type { ResponsePromise } from '@/types/common/apiResponse'
+import type { PreSelectStatus } from './selection/preSelection'
 
 export interface IPhoto {
   id: number
-  file_name: string
-  thumbnail_url: string
-  original_url: string
-  is_recommend: boolean
+  fileName: string
+  thumbnailUrl: string
+  originalUrl: string
+  mediumUrl: string
+  isRecommend: boolean
+  preSelectStatus: PreSelectStatus
   remark?: string
 }
 

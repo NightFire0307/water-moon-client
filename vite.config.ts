@@ -28,11 +28,27 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return id.toString().split('node_modules/')[1].split('/')[0].toString()
-          }
-        },
+        // manualChunks(id) {
+        //   if (id.includes('/node_modules/')) {
+        //     const module = id.split('/node_modules/')[1].split('/')[1]
+        //     console.log('module: ', module)
+
+        //     const map: Record<string, string> = {
+        //       'react': 'vendor_react',
+        //       '@ant-design': 'vendor_antd',
+        //       '@ant-design/icons': 'vendor_antd_icons',
+        //       'lucide-react': 'vendor_lucide',
+        //       'framer-motion': 'vendor_framer_motion',
+        //       'lodash-es': 'vendor_utils',
+        //     }
+
+        //     for (const key of Object.keys(map)) {
+        //       if (module.startsWith(key)) {
+        //         return map[key]
+        //       }
+        //     }
+        //   }
+        // },
       },
     },
   },
