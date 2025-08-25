@@ -5,15 +5,15 @@ import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps, message } from 'antd'
+import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { forwardRef, type RefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { usePhotosStore } from '../../stores/usePhotosStore'
 
 interface ViewerControlRef {
   actionBarRef: HTMLDivElement | null
-  addToProductRef: HTMLDivElement | null
-  remarkRef: HTMLDivElement | null
+  addToProductRef: HTMLButtonElement | null
+  remarkRef: HTMLButtonElement | null
 }
 interface ViewerControlProps {
   next?: () => void // 用于翻到下一张照片
@@ -32,8 +32,8 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
   const setSelectedPhotoIds = useProductsStore(state => state.setSelectedPhotoIds)
   const [form] = Form.useForm()
   const actionBarRef = useRef<HTMLDivElement>(null)
-  const addToProductRef = useRef<HTMLDivElement>(null)
-  const remarkRef = useRef<HTMLDivElement>(null)
+  const addToProductRef = useRef<HTMLButtonElement>(null)
+  const remarkRef = useRef<HTMLButtonElement>(null)
 
   // 暴露 refs 给父组件
   useImperativeHandle(ref, () => ({

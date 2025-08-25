@@ -11,6 +11,7 @@ import {
   FlagOutlined,
 } from '@ant-design/icons'
 import { Button, Layout, Progress } from 'antd'
+import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
 import { type FC, useMemo } from 'react'
 import { useNavigate } from 'react-router'
@@ -63,7 +64,7 @@ const OrderInfoPage: FC = () => {
   }
 
   const statusInfo = useMemo(() => {
-    return getSelectionStatusInfo(orderInfo?.status)
+    return getSelectionStatusInfo(orderInfo?.status || OrderStatus.UNKNOWN)
   }, [orderInfo?.status])
 
   // 获取产品选择状态
@@ -194,12 +195,12 @@ const OrderInfoPage: FC = () => {
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                 <CalendarOutlined className="text-blue-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">创建日期</p>
-                <p className="text-blue-300 text-lg font-semibold">2025-07-26</p>
+                <p className="text-blue-300 text-lg font-semibold">{dayjs(orderInfo?.createdAt).format('YYYY-MM-DD')}</p>
               </div>
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                 <FieldTimeOutlined className="text-orange-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">截止日期</p>
-                <p className="text-orange-300 text-lg font-semibold">2025-08-26</p>
+                <p className="text-orange-300 text-lg font-semibold">{dayjs(orderInfo?.validUntil).format('YYYY-MM-DD')}</p>
               </div>
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                 {statusInfo.icon && <div className={`${statusInfo.iconColor} text-2xl mb-3 block mx-auto`}>{statusInfo.icon}</div>}

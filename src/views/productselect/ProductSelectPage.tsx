@@ -40,7 +40,13 @@ function ProductSelectPage() {
   const navigate = useNavigate()
   const productSelectedPhotos = getProductSelectedPhotos()
   const { showLoading, hideLoading } = useFullScreenLoading()
-  const tourRefs = useRef({})
+  const tourRefs = useRef<{
+    photoFilterBarRef: HTMLElement
+    productBarRef: HTMLElement
+    actionBarRef: HTMLElement
+    addToProductRef: HTMLElement
+    remarkRef: HTMLElement
+  }>({} as any)
   const [tourOpen, setTourOpen] = useState(false)
   const { syncNow } = useAutoSync(syncProductPhotos) // 启动产品照片同步
 
@@ -195,7 +201,7 @@ function ProductSelectPage() {
           >
             <div className="flex items-center justify-between px-4 py-2">
               <div className="flex items-end gap-4">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 bg-gree bg-te">
                   <Button
                     type="text"
                     icon={<LeftOutlined />}

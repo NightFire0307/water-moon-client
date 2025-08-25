@@ -7,6 +7,7 @@ export enum OrderStatus {
   SUBMITTED = 'submitted', // 已提交，订单锁定
   CANCEL = 'cancel', // 订单取消
   FINISHED = 'finished', // 订单完成
+  UNKNOWN = 'unknown', // 未知状态
 }
 
 export interface IOrder {
@@ -19,6 +20,8 @@ export interface IOrder {
   maxSelectPhotos: number
   extraPhotoPrice: number
   totalPhotos: number
+  validUntil: string
+  createdAt: string
 }
 
 export interface IOrderProduct {

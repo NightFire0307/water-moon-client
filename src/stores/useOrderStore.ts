@@ -14,7 +14,7 @@ interface UseOrderActions {
 }
 
 export const useOrderStore = create<UseOrderState & UseOrderActions>()(
-  devtools((set, get) => ({
+  devtools(set => ({
     orderInfo: null,
     isLoading: false,
     setOrderInfo: orderInfo => set({ orderInfo }),

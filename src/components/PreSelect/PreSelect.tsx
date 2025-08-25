@@ -52,7 +52,7 @@ export const PreSelect: FC<PreSelectProps> = () => {
 
   // 引用 Tour 步骤
   const [tourOpen, setTourOpen] = useState(false)
-  const nextStepRef = useRef<HTMLDivElement>(null)
+  const nextStepRef = useRef<HTMLButtonElement>(null)
   const statusRef = useRef<HTMLDivElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
   const thumbnailsRef = useRef<HTMLDivElement>(null)

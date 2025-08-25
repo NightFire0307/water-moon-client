@@ -21,7 +21,7 @@ interface PhotoViewerActions {
 
 export const usePhotoViewerStore = create<PhotoViewerState & PhotoViewerActions>()(
   devtools(
-    (set, get) => ({
+    set => ({
       currentIndex: 0,
       scale: 1,
       rotate: 0,

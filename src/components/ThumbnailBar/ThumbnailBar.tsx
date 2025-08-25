@@ -43,19 +43,14 @@ export const ThumbnailBar = forwardRef<HTMLDivElement, ThumbnailBarProps>(({ pho
     return extra ?? null
   }, [extra])
 
-  useEffect(() => {
+  const wheelHandler = (e: WheelEvent<HTMLDivElement>) => {
     const el = simpleBarRef.current
     if (!el)
       return
 
-    const wheelHandler = (e: WheelEvent<HTMLDivElement>) => {
-      el.scrollLeft += e.deltaY || e.deltaX
-      e.preventDefault()
-    }
-
-    el.addEventListener('wheel', wheelHandler, { passive: false })
-    return () => el.removeEventListener('wheel', wheelHandler)
-  }, [])
+    el.scrollLeft += e.deltaY || e.deltaX
+    e.preventDefault()
+  }
 
   useEffect(() => {
     setInitialVisible(isHover)
@@ -76,6 +71,7 @@ export const ThumbnailBar = forwardRef<HTMLDivElement, ThumbnailBarProps>(({ pho
         <SimpleBar
           scrollableNodeProps={{ ref: simpleBarRef }}
           style={{ overflowX: 'auto', overflowY: 'hidden', whiteSpace: 'nowrap' }}
+          onWheel={wheelHandler}
         >
           <div className="flex items-center gap-2 h-20">
             {photos.length > 0
