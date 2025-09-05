@@ -1,6 +1,6 @@
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { InfoCircleOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Tooltip, Typography } from 'antd'

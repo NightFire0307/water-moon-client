@@ -6,7 +6,6 @@ import { createJSONStorage, devtools, persist } from 'zustand/middleware'
 
 export interface Photo {
   photoId: number
-  originalUrl: string // 原图链接
   thumbnailUrl: string // 缩略图链接
   mediumUrl: string // 中等大小图片链接
   name: string // 照片名称
@@ -115,12 +114,11 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
             const newPhotos = new Map<number, Omit<Photo, 'photoId'>>()
             data.list.forEach((photo) => {
               newPhotos.set(photo.id, {
-                originalUrl: photo.originalUrl,
-                thumbnailUrl: photo.thumbnailUrl,
-                mediumUrl: photo.mediumUrl,
-                name: photo.fileName,
+                thumbnailUrl: photo.ossUrlThumbnail,
+                mediumUrl: photo.ossUrlMedium,
+                name: photo.name,
                 remark: state.originalPhotos.get(photo.id)?.remark || '',
-                isRecommend: photo.isRecommend,
+                isRecommend: false,
                 preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || photo.preSelectStatus,
                 selectedProducts: [],
                 dirty: false,

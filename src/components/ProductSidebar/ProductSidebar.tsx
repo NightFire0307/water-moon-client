@@ -1,5 +1,5 @@
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { Button } from 'antd'

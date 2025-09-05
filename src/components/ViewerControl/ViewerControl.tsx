@@ -2,13 +2,13 @@ import type { DropdownProps } from 'antd/lib'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { usePhotoViewerContext } from '@/contexts/PhotoViewerContext'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { usePhotosStore } from '@/stores/usePhotosStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { forwardRef, type RefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { usePhotosStore } from '../../stores/usePhotosStore'
 
 interface ViewerControlRef {
   actionBarRef: HTMLDivElement | null

@@ -3,12 +3,12 @@ import type { PreSelectStatus } from './selection/preSelection'
 
 export interface IPhoto {
   id: number
-  fileName: string
-  thumbnailUrl: string
-  originalUrl: string
-  mediumUrl: string
-  isRecommend: boolean
+  name: string
+  ossKey: string
+  ossUrlMedium: string
+  ossUrlThumbnail: string
   preSelectStatus: PreSelectStatus
+  expiresAt: number
   remark?: string
 }
 

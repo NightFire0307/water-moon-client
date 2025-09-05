@@ -1,4 +1,4 @@
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 
 import cs from 'classnames'
 

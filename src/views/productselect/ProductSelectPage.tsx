@@ -1,3 +1,4 @@
+import type { Photo } from '@/stores/usePhotosStore'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
@@ -35,10 +36,9 @@ function ProductSelectPage() {
     msg: '',
   })
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
-  const { getProductSelectedPhotos, filter, setCurrentPhoto, currentPhoto } = usePhotosStore()
+  const { filter, setCurrentPhoto, currentPhoto, productSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const navigate = useNavigate()
-  const productSelectedPhotos = getProductSelectedPhotos()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const tourRefs = useRef<{
     photoFilterBarRef: HTMLElement
@@ -62,29 +62,38 @@ function ProductSelectPage() {
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
+    const cachedPhotos: Photo[] = []
+
+    for (const [photoId, value] of productSelectedPhotos.entries()) {
+      cachedPhotos.push({
+        photoId,
+        ...value,
+      })
+    }
 
     if (filterType === FILTER_TYPE.SELECTED) {
       if (productId === undefined) {
-        return productSelectedPhotos.filter((photo) => {
+        return cachedPhotos.filter((photo) => {
           return photo.selectedProducts.length > 0
         })
       }
-      return productSelectedPhotos.filter((photo) => {
+      return cachedPhotos.filter((photo) => {
         return photo.selectedProducts.includes(productId)
       })
     }
 
     // 过滤未选的照片
     if (filterType === FILTER_TYPE.UNSELECTED && productId === undefined) {
-      return productSelectedPhotos.filter((photo) => {
+      return cachedPhotos.filter((photo) => {
         return photo.selectedProducts.length === 0
       })
     }
 
-    return [...productSelectedPhotos]
+    return [...cachedPhotos]
   }, [filter, productSelectedPhotos])
 
   useEffect(() => {
+    console.log(filteredPhotos)
     if (filteredPhotos.length === 0) {
       setCurrentPhoto(null)
       setCurrentIndex(0)
@@ -97,7 +106,7 @@ function ProductSelectPage() {
       setCurrentPhoto({ ...filteredPhotos[0] })
       setCurrentIndex(0)
     }
-  }, [filteredPhotos, currentPhoto, setCurrentPhoto, setCurrentIndex])
+  }, [filteredPhotos])
 
   // 控制提示信息显示
   // 例如：当切换到最后一张照片时，显示提示信息
@@ -188,7 +197,9 @@ function ProductSelectPage() {
         setKeyboardDisabled,
       }}
     >
-      <Layout className="relative h-screen overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950">
+      <Layout
+        className="relative h-screen overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950"
+      >
         <Header>
           <motion.div
             initial={{ opacity: 0, y: -30 }}
