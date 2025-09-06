@@ -84,8 +84,9 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
     if (currentPhoto === null)
       return
 
-    setSelectedPhotoIds(Number(key), currentPhoto.photoId)
-    setSelectedProducts(Number(key), currentPhoto.photoId)
+    // 只有成功更新照片的选中状态后，才更新产品的选中照片列表
+    const isSuccess = setSelectedPhotoIds(Number(key), currentPhoto.photoId)
+    isSuccess && setSelectedProducts(Number(key), currentPhoto.photoId)
   }
 
   const zoomIn = () => transformRef?.current?.zoomIn()

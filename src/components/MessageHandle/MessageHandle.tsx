@@ -7,16 +7,21 @@ import { useEffect } from 'react'
  * @returns
  */
 function MessageHandle() {
+  const [messageApi, contextHolder] = message.useMessage()
   const { messages, removeMessage } = useMessageStore()
 
   useEffect(() => {
     messages.forEach((msg) => {
-      message[msg.type](msg.content)
+      messageApi[msg.type](msg.content)
       removeMessage(msg.id)
     })
-  }, [messages])
+  }, [messageApi, messages, removeMessage])
 
-  return null
+  return (
+    <>
+      {contextHolder}
+    </>
+  )
 }
 
 export default MessageHandle

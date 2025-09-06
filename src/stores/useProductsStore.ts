@@ -1,6 +1,7 @@
 import type { IOrderProduct } from '@/types/user/order'
 import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
+import { immer } from 'zustand/middleware/immer'
 import { useMessageStore } from './useMessageStore'
 import { usePhotosStore } from './usePhotosStore'
 
@@ -37,7 +38,7 @@ interface ProductState {
 
 interface ProductActions {
   setProducts: (orderProducts: IOrderProduct[]) => void // 生成产品列表
-  setSelectedPhotoIds: (productId: number, photoId: number) => void // 产品设置选中照片ID
+  setSelectedPhotoIds: (productId: number, photoId: number) => boolean // 产品设置选中照片ID
   setDirty: (dirty: boolean) => void // 设置是否有未提交的更改
   resetProducts: () => void // 重置产品列表
 }
@@ -49,7 +50,7 @@ const initialState: ProductState = {
 
 export const useProductsStore = create<ProductState & ProductActions>()(
   persist(
-    devtools(
+    immer(
       (set, get) => ({
         ...initialState,
         setProducts: orderProducts => set(() => {
@@ -95,27 +96,37 @@ export const useProductsStore = create<ProductState & ProductActions>()(
 
           if (!product) {
             console.error(`未找到产品 ID 为 ${productId} 的产品`)
-            return state
+            return false
           }
 
-          // 处理超限选择
-          if (!product.allowOverLimit && product.selectedPhotoIds.length >= product.photoLimit) {
-            addMessage('error', `产品 "${product.name}" 的照片数量已达上限 (${product.photoLimit})，无法继续添加。`)
-            return state
+          /**
+           * 超限处理
+           * 1. 如果 allowOverLimit 为 true，则允许继续添加照片
+           * 2. 如果当前选中的照片数量小于 photoLimit，则允许添加照片
+           * 3. 如果当前选中的照片在列表中，则允许取消选择
+           */
+
+          // 判断要更新的照片是否已经选中
+          if (product.selectedPhotoIds.includes(photoId)) {
+            product.selectedPhotoIds = product.selectedPhotoIds.filter(id => id !== photoId)
+          }
+          else {
+            if (!product.allowOverLimit && product.selectedPhotoIds.length >= product.photoLimit) {
+              addMessage('error', `产品 "${product.name}" 的照片数量已达上限 ${product.photoLimit} 张 ，无法继续添加。`)
+              return false
+            }
+            else {
+              product.selectedPhotoIds = [...product.selectedPhotoIds, photoId]
+            }
           }
 
-          // 更新选中的照片ID
-          product.selectedPhotoIds = product.selectedPhotoIds.includes(photoId)
-            ? product.selectedPhotoIds.filter(id => id !== photoId)
-            : [...product.selectedPhotoIds, photoId]
           set({ products: [...state.products] })
+
+          return true
         },
         setDirty: dirty => set({ dirty }),
         resetProducts: () => set({ ...initialState }),
       }),
-      {
-        name: 'products-store',
-      },
     ),
     {
       name: 'products-storage',

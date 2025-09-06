@@ -1,3 +1,4 @@
+import MessageHandle from '@/components/MessageHandle/MessageHandle.tsx'
 import { LogoutOutlined } from '@ant-design/icons'
 import { ConfigProvider, FloatButton, Modal } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
@@ -7,7 +8,6 @@ import { logout } from './apis/login'
 import { getOrderInfo } from './apis/order'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 import { useFullScreenLoading } from './components/FullScreenLoading/useFullScreenLoading'
-import MessageHandle from './components/MessageHandle/MessageHandle'
 import { useAuthStore } from './stores/useAuthStore'
 import { useOrderStore } from './stores/useOrderStore'
 import { usePhotosStore } from './stores/usePhotosStore'
@@ -16,14 +16,12 @@ import { OrderStatus } from './types/user/order'
 import './App.css'
 
 function App() {
-  const { clearAccessToken } = useAuthStore()
-  const { setOrderInfo, resetOrder } = useOrderStore()
+  const { setOrderInfo, resetOrder, orderInfo } = useOrderStore()
   const { setProducts, products, resetProducts } = useProductsStore()
   const { fetchPhotos, resetPhotos } = usePhotosStore()
   const navigate = useNavigate()
-  const orderInfo = useOrderStore(state => state.orderInfo)
   const { showLoading, hideLoading } = useFullScreenLoading()
-  const { accessToken } = useAuthStore()
+  const { accessToken, clearAccessToken } = useAuthStore()
 
   // 获取订单信息
   const fetchOrderInfo = async () => {
