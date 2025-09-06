@@ -4,12 +4,20 @@ import { useOrderStore } from '@/stores/useOrderStore'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
-import { CheckCircleOutlined, GroupOutlined, InfoCircleOutlined, LoadingOutlined, LockOutlined, PictureOutlined } from '@ant-design/icons'
+import {
+  CheckCircleOutlined,
+  GroupOutlined,
+  InfoCircleOutlined,
+  LoadingOutlined,
+  LockOutlined,
+  PictureOutlined,
+  WarningOutlined,
+} from '@ant-design/icons'
 import { useMemo, useState } from 'react'
 
 interface ConfirmSelResModalProps {
   open: boolean
-  onConfirm?: () => void
+  onConfirm?: () => Promise<void>
   onCancel?: () => void
 }
 
@@ -31,14 +39,10 @@ function ConfirmSelResModal({ open, onConfirm, onCancel }: ConfirmSelResModalPro
     return Math.max(0, selectedCount - (orderInfo?.maxSelectPhotos || 0))
   }, [orderInfo, selectedCount])
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setIsSubmitting(true)
-    // 这里可以添加实际的提交逻辑
-    setTimeout(() => {
-      // 提交完成后的处理
-      setIsSubmitting(false)
-      onConfirm?.()
-    }, 2000)
+    await onConfirm?.()
+    setIsSubmitting(false)
   }
 
   return (
@@ -180,9 +184,7 @@ function ConfirmSelResModal({ open, onConfirm, onCancel }: ConfirmSelResModalPro
         {/* 最终确认提示 */}
         <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
+            <WarningOutlined className="text-amber-300" />
             <div>
               <p className="text-xs text-amber-300 font-medium">最终确认</p>
               <p className="text-xs text-amber-200/80 mt-1">

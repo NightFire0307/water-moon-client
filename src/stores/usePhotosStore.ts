@@ -203,6 +203,10 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
             remark,
             dirty: true,
           }),
+          currentPhoto: {
+            ...state.currentPhoto,
+            remark,
+          },
         }
       }),
       setLoading: (isLoading: boolean) => (

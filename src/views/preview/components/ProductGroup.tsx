@@ -1,4 +1,4 @@
-import { PictureOutlined, ShareAltOutlined, UpOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, PictureOutlined, ShareAltOutlined, UpOutlined } from '@ant-design/icons'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import SimpleBar from 'simplebar-react'
@@ -7,6 +7,7 @@ interface ProductItem {
   id: number
   name: string
   url: string
+  remark?: string
   selectedProducts: {
     productId: number
     name: string
@@ -151,6 +152,27 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
                                   </div>
                                   {/* 小箭头 */}
                                   <div className="absolute -top-1 left-3 h-2 w-2 rotate-45 transform border-l border-t border-darkBlueGray-600/50 bg-darkBlueGray-800" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 备注标记 */}
+                          {photo.remark && (
+                            <div className="absolute right-2 top-2">
+                              <div className="group/remark relative">
+                                {/* 备注图标 */}
+                                <div className="flex h-6 w-6 cursor-help items-center justify-center rounded-full border border-blue-400/40 bg-gradient-to-br from-blue-500/80 to-blue-600/90 shadow-md backdrop-blur-sm transition-all duration-200 hover:border-blue-300/60 hover:shadow-blue-400/20 hover:shadow-lg hover:scale-105">
+                                  <InfoCircleOutlined className="text-xs text-white drop-shadow-sm" />
+                                </div>
+
+                                {/* 悬浮提示框 */}
+                                <div className="invisible absolute right-0 top-8 z-50 w-48 rounded-lg border border-darkBlueGray-600/50 bg-gradient-to-br from-darkBlueGray-800/95 to-darkBlueGray-900/95 p-3 opacity-0 shadow-xl backdrop-blur-sm transition-all duration-300 group-hover/remark:visible group-hover/remark:translate-y-1 group-hover/remark:opacity-100">
+                                  <div className="text-xs leading-relaxed text-darkBlueGray-300">
+                                    {photo.remark}
+                                  </div>
+                                  {/* 小箭头 */}
+                                  <div className="absolute -top-1 right-3 h-2 w-2 rotate-45 transform border-l border-t border-darkBlueGray-600/50 bg-gradient-to-br from-darkBlueGray-800 to-darkBlueGray-900" />
                                 </div>
                               </div>
                             </div>

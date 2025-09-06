@@ -38,6 +38,7 @@ export default function PreviewMode() {
           id: photo.photoId,
           name: photo.name,
           url: photo.thumbnailUrl,
+          remark: photo.remark,
           selectedProducts: photo.selectedProducts.map((productId) => {
             const productInfo = products.find(p => p.productId === productId)
             return {
