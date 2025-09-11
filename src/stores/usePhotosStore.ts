@@ -57,7 +57,6 @@ interface UsePhotosAction {
  * 合并缓存预选照片
  * @param base 基础照片列表
  * @param cache 缓存的照片列表
- * @returns
  */
 function mergePhotosFromCache(
   base: Map<number, Omit<Photo, 'photoId'>>,

@@ -14,11 +14,6 @@ import { usePhotosStore } from './usePhotosStore'
  * 1. 用户可能断网或刷新页面
  */
 
-export interface IType {
-  id: number
-  name: string
-}
-
 export interface IProduct {
   productId: number // 产品ID
   name: string // 产品名称
