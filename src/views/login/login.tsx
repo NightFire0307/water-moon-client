@@ -178,7 +178,7 @@ function Login() {
         {/* 登录类型切换 */}
         <div className="flex justify-center mb-8">
           <Segmented
-            options={[{ label: '订单登录', value: 'order' }, { label: '动态密码', value: 'link' }]}
+            options={[{ label: '订单登录', value: 'order' }]}
             onChange={value => setLoginType(value as 'order' | 'link')}
           />
         </div>

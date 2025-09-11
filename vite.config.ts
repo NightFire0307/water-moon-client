@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { compression } from 'vite-plugin-compression2'
 import svgr from 'vite-plugin-svgr'
 
 // https://vite.dev/config/
@@ -8,7 +9,7 @@ export default defineConfig({
     svgrOptions: {
       icon: true,
     },
-  })],
+  }), compression()],
   resolve: {
     alias: {
       '@': '/src',
@@ -28,6 +29,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        chunkFileNames: 'js/[name]-[hash].js',
+        entryFileNames: 'js/[name]-[hash].js',
+        assetFileNames: '[ext]/[name]-[hash].[ext]',
         // manualChunks(id) {
         //   if (id.includes('/node_modules/')) {
         //     const module = id.split('/node_modules/')[1].split('/')[1]
