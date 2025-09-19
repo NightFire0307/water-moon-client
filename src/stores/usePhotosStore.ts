@@ -3,6 +3,7 @@ import { getOrderPhotos } from '@/apis/order.ts'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { create } from 'zustand'
 import { createJSONStorage, devtools, persist } from 'zustand/middleware'
+import { useOrderStore } from './useOrderStore'
 
 export interface Photo {
   photoId: number
@@ -103,6 +104,23 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
     persist((set, get) => ({
       ...initialState,
       fetchPhotos: async (params) => {
+        const orderInfo = useOrderStore.getState().orderInfo
+        const photoToOrderProducts = new Map<number, number[]>()
+
+        //  按照照片ID建立和产品ID的映射关系
+        if (orderInfo) {
+          for (const orderProduct of orderInfo.orderProducts) {
+            orderProduct.selectedPhotos.forEach(({ photoId }) => {
+              if (photoToOrderProducts.has(photoId)) {
+                photoToOrderProducts.get(photoId)?.push(orderProduct.id)
+              }
+              else {
+                photoToOrderProducts.set(photoId, [orderProduct.id])
+              }
+            })
+          }
+        }
+
         // 设置加载状态
         set({ isLoading: true })
 
@@ -119,7 +137,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
                 remark: state.originalPhotos.get(photo.id)?.remark || '',
                 isRecommend: false,
                 preSelectStatus: state.originalPhotos.get(photo.id)?.preSelectStatus || photo.preSelectStatus,
-                selectedProducts: [],
+                selectedProducts: photoToOrderProducts.get(photo.id) || [],
                 dirty: false,
               })
             })

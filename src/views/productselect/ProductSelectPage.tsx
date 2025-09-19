@@ -48,7 +48,7 @@ function ProductSelectPage() {
     remarkRef: HTMLElement
   }>({} as any)
   const [tourOpen, setTourOpen] = useState(false)
-  const { syncNow } = useAutoSync(syncProductPhotos) // 启动产品照片同步
+  const { syncNow, syncDate } = useAutoSync(syncProductPhotos, { delay: 30 }) // 启动产品照片同步
 
   // 生成产品选片的引导步骤
   const tourSteps = getProductSelectTourSteps(tourRefs.current)
@@ -221,10 +221,14 @@ function ProductSelectPage() {
                   />
                   <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
                 </div>
-                <div className="mb-0.5 flex flex-col text-xs text-darkBlueGray-400">
-                  <span>最近保存时间</span>
-                  <span>2025-07-29 16:27:16</span>
-                </div>
+                {
+                  syncDate && (
+                    <div className="mb-0.5 flex flex-col text-xs text-darkBlueGray-400">
+                      <span>最近保存时间</span>
+                      <span>{syncDate}</span>
+                    </div>
+                  )
+                }
               </div>
 
               <div className="flex gap-4">

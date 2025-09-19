@@ -21,6 +21,7 @@ export interface IOrder {
   extraPhotoPrice: number
   totalPhotos: number
   validUntil: string
+  isExpired: boolean
   createdAt: string
 }
 

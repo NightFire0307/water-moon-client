@@ -10,10 +10,10 @@ import {
   FieldTimeOutlined,
   FlagOutlined,
 } from '@ant-design/icons'
-import { Button, Layout, Progress } from 'antd'
+import { Alert, Button, Layout, Progress } from 'antd'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
-import { type FC, useMemo } from 'react'
+import { type FC, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 
 const { Content } = Layout
@@ -102,7 +102,6 @@ const OrderInfoPage: FC = () => {
   }
 
   return (
-
     <Layout className="min-h-screen bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 flex flex-col text-base md:text-lg">
       {/* 顶部导航栏 - 与流程对应 */}
       <motion.header
@@ -141,17 +140,6 @@ const OrderInfoPage: FC = () => {
               </div>
             </div>
           </div>
-
-          {/* 移动端进度条 */}
-          <div className="md:hidden mt-4 pt-4 border-t border-darkBlueGray-700/50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-darkBlueGray-400 text-sm">选片进度</span>
-              <span className="text-darkBlueGray-300 text-sm font-medium">第 1 步，共 4 步</span>
-            </div>
-            <div className="w-full bg-darkBlueGray-800 rounded-full h-2">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500 w-1/4"></div>
-            </div>
-          </div>
         </div>
       </motion.header>
 
@@ -168,7 +156,7 @@ const OrderInfoPage: FC = () => {
             <div className="mb-8">
               <p className="text-darkBlueGray-300 mb-3 font-medium tracking-wide">订单编号</p>
               <div className="inline-block px-8 py-4 bg-gradient-to-r from-darkBlueGray-800 to-darkBlueGray-700 rounded-2xl border border-darkBlueGray-600 shadow-2xl">
-                <span className="text-white font-mono text-3xl md:text-4xl font-black tracking-[0.2em] drop-shadow-sm ml-[0.2em]">
+                <span className="text-white text-3xl md:text-4xl font-bold tracking-[0.2em] drop-shadow-sm ml-[0.2em]">
                   {orderInfo?.orderNumber ?? '加载中...'}
                 </span>
               </div>
@@ -184,7 +172,7 @@ const OrderInfoPage: FC = () => {
               </div>
               <div className="text-center">
                 <p className="text-darkBlueGray-400 text-xs mb-2 uppercase tracking-wider">客户手机</p>
-                <span className="text-blue-300 text-xl md:text-2xl font-mono font-semibold tracking-wider">
+                <span className="text-blue-300 text-xl md:text-2xl font-semibold tracking-wider">
                   {orderInfo?.customerPhone ?? '加载中...'}
                 </span>
               </div>
@@ -200,7 +188,11 @@ const OrderInfoPage: FC = () => {
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                 <FieldTimeOutlined className="text-orange-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">截止日期</p>
-                <p className="text-orange-300 text-lg font-semibold">{dayjs(orderInfo?.validUntil).format('YYYY-MM-DD')}</p>
+                <p className="text-orange-300 text-lg font-semibold">
+                  {
+                    orderInfo?.isExpired ? '已过期' : dayjs(orderInfo?.validUntil).format('YYYY-MM-DD')
+                  }
+                </p>
               </div>
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                 {statusInfo.icon && <div className={`${statusInfo.iconColor} text-2xl mb-3 block mx-auto`}>{statusInfo.icon}</div>}
@@ -235,7 +227,7 @@ const OrderInfoPage: FC = () => {
                   if (progressPercent >= 100) {
                     return { from: '#10b981', to: '#059669' } // 绿色
                   }
-                  return { from: '#3b82f6', to: '#1d4ed8' } // 蓝色统一：blue-500 to blue-700
+                  return { from: '#3b82f6', to: '#1d4ed8' } // 蓝色
                 }
 
                 return (
@@ -412,7 +404,7 @@ const OrderInfoPage: FC = () => {
                 icon={<ArrowRightOutlined />}
                 iconPosition="end"
                 onClick={() => navigate('/pre-select')}
-                className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 border-blue-500 hover:border-blue-600 active:border-blue-700 transition-all duration-200"
+                disabled={orderInfo?.isExpired}
               >
                 开始挑选美照
               </Button>

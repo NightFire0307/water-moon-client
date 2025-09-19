@@ -82,7 +82,9 @@ export default function PreviewMode() {
           </div>
 
           {/* 中间的成功提示区域 */}
-          <div className="flex-1 flex justify-center">
+          <div
+            className="flex-1 flex justify-center"
+          >
             {orderInfo?.status === 'submitted' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -96,7 +98,7 @@ export default function PreviewMode() {
                     <CheckOutlined className="text-green-400 text-xs" />
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium text-white">选片结果已提交成功</span>
+                    <span className="font-medium text-white">选片结果已提交，当前为预览模式</span>
                   </div>
                 </div>
               </motion.div>

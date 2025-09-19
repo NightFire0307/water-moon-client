@@ -16,7 +16,7 @@ interface ILoginForm {
   credential: string
 }
 
-export const useStyle = createStyles(({ prefixCls, css }) => ({
+const useStyle = createStyles(({ prefixCls, css }) => ({
   loginContainer: css`
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     backdrop-filter: blur(20px);
@@ -125,7 +125,7 @@ export const useStyle = createStyles(({ prefixCls, css }) => ({
   `,
 }))
 
-function Login() {
+export function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const [loginType, setLoginType] = useState<'link' | 'order'>('order')
   const [form] = useForm<ILoginForm>()
