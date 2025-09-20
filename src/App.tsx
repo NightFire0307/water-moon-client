@@ -10,6 +10,7 @@ import { getOrderInfo } from './apis/order'
 import { WarningIcon } from './assets/icon'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 import { useFullScreenLoading } from './components/FullScreenLoading/useFullScreenLoading'
+import GuideManager from './components/Guide/GuideManager'
 import { useAuthStore } from './stores/useAuthStore'
 import { useOrderStore } from './stores/useOrderStore'
 import { usePhotosStore } from './stores/usePhotosStore'
@@ -21,7 +22,7 @@ import './App.css'
 function App() {
   const [logOutModalOpen, setLogOutModalOpen] = useState(false)
   const { setOrderInfo, resetOrder, orderInfo } = useOrderStore()
-  const { setProducts, products, resetProducts } = useProductsStore()
+  const { setProducts, resetProducts } = useProductsStore()
   const { fetchPhotos, resetPhotos } = usePhotosStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const { accessToken, clearAccessToken } = useAuthStore()
@@ -97,6 +98,9 @@ function App() {
         className="right-8 bottom-24"
         onClick={() => setLogOutModalOpen(true)}
       />
+
+      {/* 引导组件 */}
+      <GuideManager />
 
     </ConfigProvider>
   )

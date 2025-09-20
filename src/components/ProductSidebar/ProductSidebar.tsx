@@ -4,29 +4,16 @@ import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 
-interface ProductSidebarRef {
-  photoFilterBarRef: HTMLDivElement | null
-  productBarRef: HTMLDivElement | null
-}
-
-const ProductSidebar = forwardRef<ProductSidebarRef>((_, ref) => {
+function ProductSidebar() {
   const { setFilter, productSelectedPhotos } = usePhotosStore()
   const { products } = useProductsStore()
   const { setCurrentIndex } = usePhotoViewerStore()
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [activeFilterType, setActiveFilterType] = useState<FILTER_TYPE>(FILTER_TYPE.ALL)
-  const photoFilterBarRef = useRef<HTMLDivElement>(null)
-  const productBarRef = useRef<HTMLDivElement>(null)
-
-  // 暴露 refs 给父组件
-  useImperativeHandle(ref, () => ({
-    photoFilterBarRef: photoFilterBarRef.current,
-    productBarRef: productBarRef.current,
-  }))
 
   // 统一的选中状态，用于判断当前选中的是固定选项还是产品
   const [selectedType, setSelectedType] = useState<'filter' | 'product'>('filter')
@@ -122,7 +109,7 @@ const ProductSidebar = forwardRef<ProductSidebarRef>((_, ref) => {
         <SimpleBar style={{ height: '100%' }}>
           <div className="space-y-3">
             {/* 筛选按钮组 */}
-            <div ref={photoFilterBarRef} className="flex flex-col gap-3">
+            <div id="photo-filter-bar" className="flex flex-col gap-3">
               {fixedOptions.map((option, index) => (
                 <motion.div
                   key={option.id}
@@ -187,7 +174,7 @@ const ProductSidebar = forwardRef<ProductSidebarRef>((_, ref) => {
             </div>
 
             {/* 产品按钮列表 */}
-            <div ref={productBarRef} className="flex flex-col gap-3">
+            <div id="product-bar" className="flex flex-col gap-3">
               <AnimatePresence mode="popLayout">
                 {products.map((product, index) => (
                   <motion.div
@@ -293,6 +280,6 @@ const ProductSidebar = forwardRef<ProductSidebarRef>((_, ref) => {
       </div>
     </motion.div>
   )
-})
+}
 
 export default ProductSidebar

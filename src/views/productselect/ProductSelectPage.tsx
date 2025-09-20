@@ -14,14 +14,13 @@ import { syncProductPhotos } from '@/services/photoSyncService'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout, Tour } from 'antd'
+import { Button, Layout } from 'antd'
 import { Header } from 'antd/es/layout/layout'
 import Sider from 'antd/es/layout/Sider'
 import { motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
-import { getProductSelectTourSteps } from './tourSteps'
 
 const { Content } = Layout
 
@@ -40,25 +39,7 @@ function ProductSelectPage() {
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const navigate = useNavigate()
   const { showLoading, hideLoading } = useFullScreenLoading()
-  const tourRefs = useRef<{
-    photoFilterBarRef: HTMLElement
-    productBarRef: HTMLElement
-    actionBarRef: HTMLElement
-    addToProductRef: HTMLElement
-    remarkRef: HTMLElement
-  }>({} as any)
-  const [tourOpen, setTourOpen] = useState(false)
   const { syncNow, syncDate } = useAutoSync(syncProductPhotos, { delay: 30 }) // 启动产品照片同步
-
-  // 生成产品选片的引导步骤
-  const tourSteps = getProductSelectTourSteps(tourRefs.current)
-
-  useEffect(() => {
-    const showTour = window.localStorage.getItem('tour_show_product_select_v1') !== 'true'
-    if (showTour) {
-      setTourOpen(true)
-    }
-  }, [])
 
   const filteredPhotos = useMemo(() => {
     const { productId, filterType } = filter
@@ -251,15 +232,7 @@ function ProductSelectPage() {
         <Layout className="bg-darkBlueGray-900">
           <Sider width={320} className="bg-darkBlueGray-900">
             {/* 产品侧边栏 */}
-            <ProductSidebar ref={(el) => {
-              if (el) {
-                Object.assign(tourRefs.current, {
-                  photoFilterBarRef: el.photoFilterBarRef,
-                  productBarRef: el.productBarRef,
-                })
-              }
-            }}
-            />
+            <ProductSidebar />
           </Sider>
 
           {/* 主视图区域 */}
@@ -268,15 +241,6 @@ function ProductSelectPage() {
               transformRef={transformRef}
               next={handleNextPhoto}
               previous={handlePreviousPhoto}
-              ref={(el) => {
-                if (el) {
-                  Object.assign(tourRefs.current, {
-                    actionBarRef: el.actionBarRef,
-                    addToProductRef: el.addToProductRef,
-                    remarkRef: el.remarkRef,
-                  })
-                }
-              }}
             />
             <MainViewer transformRef={transformRef} />
             <ThumbnailBar
@@ -299,14 +263,6 @@ function ProductSelectPage() {
         onCancel={() => setConfirmModalOpen(false)}
       />
 
-      <Tour
-        open={tourOpen}
-        steps={tourSteps}
-        onClose={() => {
-          setTourOpen(false)
-          window.localStorage.setItem('tour_show_product_select_v1', 'true')
-        }}
-      />
     </PhotoViewerContext.Provider>
   )
 }

@@ -8,13 +8,8 @@ import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { forwardRef, type RefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { type FC, type RefObject, useEffect, useMemo, useState } from 'react'
 
-interface ViewerControlRef {
-  actionBarRef: HTMLDivElement | null
-  addToProductRef: HTMLButtonElement | null
-  remarkRef: HTMLButtonElement | null
-}
 interface ViewerControlProps {
   next?: () => void // 用于翻到下一张照片
   previous?: () => void // 用于翻到上一张照片
@@ -22,7 +17,7 @@ interface ViewerControlProps {
   transformRef?: RefObject<ReactZoomPanPinchRef>
 }
 
-export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({ transformRef, next, previous }, ref) => {
+export const ViewerControl: FC<ViewerControlProps> = ({ transformRef, next, previous }) => {
   const [open, setOpen] = useState(false)
   const [remarkModalVisible, setRemarkModalVisible] = useState(false)
   const { viewerControlVisible, setKeyboardDisabled } = usePhotoViewerContext()
@@ -31,16 +26,6 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
   const products = useProductsStore(state => state.products)
   const setSelectedPhotoIds = useProductsStore(state => state.setSelectedPhotoIds)
   const [form] = Form.useForm()
-  const actionBarRef = useRef<HTMLDivElement>(null)
-  const addToProductRef = useRef<HTMLButtonElement>(null)
-  const remarkRef = useRef<HTMLButtonElement>(null)
-
-  // 暴露 refs 给父组件
-  useImperativeHandle(ref, () => ({
-    actionBarRef: actionBarRef.current,
-    addToProductRef: addToProductRef.current,
-    remarkRef: remarkRef.current,
-  }))
 
   const handleOpenChange: DropdownProps['onOpenChange'] = (nextOpen, info) => {
     if (info.source === 'trigger' || nextOpen) {
@@ -139,8 +124,8 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
                     disabled={currentPhoto === null}
                   >
                     <Button
+                      id="add-to-product-button"
                       icon={<PlusOutlined />}
-                      ref={addToProductRef}
                     >
                       加入产品
                       <DownOutlined className="ml-1" />
@@ -173,9 +158,8 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
                     <Button
                       icon={<MessageOutlined />}
                       onClick={handleRemark}
-                      className="shadow-md hover:shadow-lg transition-all duration-200"
                       title="添加备注"
-                      ref={remarkRef}
+                      id="remark-button"
                     />
                   </ConfigProvider>
 
@@ -198,7 +182,7 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
                     },
                   }}
                   >
-                    <div ref={actionBarRef} className="flex items-center gap-2">
+                    <div id="action-bar" className="flex items-center gap-2">
                       <Button
                         icon={<ZoomInOutlined />}
                         onClick={zoomIn}
@@ -280,4 +264,4 @@ export const ViewerControl = forwardRef<ViewerControlRef, ViewerControlProps>(({
       </CustomModal>
     </>
   )
-})
+}

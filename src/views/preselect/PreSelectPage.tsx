@@ -11,15 +11,14 @@ import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { OrderStatus } from '@/types/user/order'
 import { CheckOutlined, CloseOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout, Tour, Typography } from 'antd'
+import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
-import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { PreSelectCentralIndicator } from './components/PreSelectCentralIndicator'
 import PreSelectionConfirmModal from './components/PreSelectConfirmModal'
 import { PreSelectStatsTooltip } from './components/PreSelectStatsTooltip'
 import { PreSelectStatusBadge } from './components/PreSelectStatusBadge'
-import { getPreSelectTourSteps } from './tourSteps'
 
 const { Content } = Layout
 const { Text } = Typography
@@ -47,21 +46,6 @@ const PreSelectPage: FC = () => {
 
     return result
   }, [preSelectedPhotos])
-  const [thumbnailVisible, setThumbnailVisible] = useState<boolean | undefined>(undefined)
-
-  // 引用 Tour 步骤
-  const [tourOpen, setTourOpen] = useState(false)
-  const nextStepRef = useRef<HTMLButtonElement>(null)
-  const statusRef = useRef<HTMLDivElement>(null)
-  const progressRef = useRef<HTMLDivElement>(null)
-  const thumbnailsRef = useRef<HTMLDivElement>(null)
-
-  const tourSteps = getPreSelectTourSteps({
-    nextStepRef,
-    statusRef,
-    progressRef,
-    thumbnailsRef,
-  })
 
   // 全屏切换处理
   const toggleFullscreen = () => {
@@ -142,15 +126,6 @@ const PreSelectPage: FC = () => {
       </>
     )
   }, [])
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [tourOpen])
 
   // 键盘快捷键
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
@@ -270,11 +245,9 @@ const PreSelectPage: FC = () => {
 
             {/* 下一步选产品 */}
             <Button
+              id="preselect-next-step-button"
               type="primary"
               onClick={() => setPreSelectConfirmModalOpen(true)}
-              className=" bg-blue-500 hover:bg-blue-600 active:bg-blue-800 text-white font-medium border-none shadow-md   hover:shadow-lg transition-all duration-200"
-              style={{ boxShadow: '0 2px 8px 0 rgba(37,99,235,0.15)' }}
-              ref={nextStepRef}
             >
               下一步：选择产品
               <RightOutlined />
@@ -322,10 +295,10 @@ const PreSelectPage: FC = () => {
 
                 {/* 进度统计 */}
                 <div
+                  id="preselect-progress-status"
                   className="relative w-24 bg-darkBlueGray-800/70 backdrop-blur-sm rounded-md px-3 py-2 border border-white/5 shadow-md opacity-80 hover:opacity-100 transition-opacity duration-200"
                   onMouseEnter={() => setIsProgressHovered(true)}
                   onMouseLeave={() => setIsProgressHovered(false)}
-                  ref={progressRef}
                 >
                   <div className="flex items-center gap-2">
                     <div className="text-center">
@@ -358,31 +331,21 @@ const PreSelectPage: FC = () => {
 
       {/* 缩略图栏 */}
       <ThumbnailBar
-        visible={thumbnailVisible}
         photos={preSelectPhotos}
         extra={renderExtra}
         onClickThumbnail={(item, index) => {
           setCurrentIndex(index)
           setCurrentPhoto(item)
         }}
-        ref={thumbnailsRef}
       />
 
+      {/* 预选确认弹窗 */}
       <PreSelectionConfirmModal
         open={preSelectConfirmModalOpen}
         onConfirm={() => handlePreSelectConfirm()}
         onCancel={() => setPreSelectConfirmModalOpen(false)}
       />
 
-      <Tour
-        open={tourOpen}
-        steps={tourSteps}
-        onClose={() => {
-          setTourOpen(false)
-          setThumbnailVisible(undefined)
-          window.localStorage.setItem('tour_show_preselect_v1', 'true')
-        }}
-      />
     </Layout>
   )
 }
