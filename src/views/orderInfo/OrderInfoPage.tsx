@@ -10,10 +10,10 @@ import {
   FieldTimeOutlined,
   FlagOutlined,
 } from '@ant-design/icons'
-import { Alert, Button, Layout, Progress } from 'antd'
+import { Button, Layout, Progress } from 'antd'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
-import { type FC, useEffect, useMemo } from 'react'
+import { type FC, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 
 const { Content } = Layout

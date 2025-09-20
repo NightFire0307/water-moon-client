@@ -276,7 +276,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
               case PreSelectStatus.SELECTED:
                 selectedCount++
                 break
-              case PreSelectStatus.EXCLUDE:
+              case PreSelectStatus.EXCLUDED:
                 excludedCount++
                 break
               case PreSelectStatus.PENDING:
@@ -299,7 +299,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           preSelectedPhotos: new Map([...state.preSelectedPhotos.entries()].map(([photoId, photo]) => (
             [photoId, {
               ...photo,
-              preSelectStatus: photo.preSelectStatus === PreSelectStatus.PENDING ? PreSelectStatus.EXCLUDE : photo.preSelectStatus,
+              preSelectStatus: photo.preSelectStatus === PreSelectStatus.PENDING ? PreSelectStatus.EXCLUDED : photo.preSelectStatus,
               dirty: true,
             }]
           ))),
