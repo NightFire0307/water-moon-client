@@ -47,7 +47,7 @@ const AuthLayout: FC = () => {
               <CameraOutlined />
             </div>
             <div className="text-3xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-              在线选片系统
+              水月在线选片系统
             </div>
           </motion.div>
 
@@ -58,7 +58,7 @@ const AuthLayout: FC = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-4xl font-bold bg-gradient-to-r from-blue-200 via-white to-cyan-200 bg-clip-text text-transparent leading-tight"
           >
-            精选照片，美好回忆
+            轻松选片，定格美好瞬间
           </motion.div>
 
           {/* 描述文字 */}
@@ -68,7 +68,7 @@ const AuthLayout: FC = () => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="text-darkBlueGray-300 leading-relaxed text-lg"
           >
-            每一张照片都是珍贵的记忆片段。在这里，您可以轻松浏览、筛选和收藏您最钟爱的瞬间，让美好时光永远定格。
+            专为影楼设计的在线选片平台，提供高清预览、智能筛选和便捷管理。
           </motion.span>
 
           {/* 特性列表 */}
@@ -81,20 +81,20 @@ const AuthLayout: FC = () => {
             {[
               {
                 icon: <PictureOutlined />,
-                title: '高清画质预览',
-                desc: '专业级图像处理，完美还原每个细节与色彩',
+                title: '高效便捷',
+                desc: '通过订单号+手机号快速登录',
                 delay: 0.1,
               },
               {
                 icon: <CheckCircleOutlined />,
-                title: '智能选片助手',
-                desc: '批量操作、快速筛选，让选片变得简单高效',
+                title: '智能管理',
+                desc: '支持产品标记，数量限制，备注说明与后台订单同步',
                 delay: 0.2,
               },
               {
                 icon: <ClockCircleOutlined />,
-                title: '云端同步保存',
-                desc: '多设备无缝切换，选片进度实时同步，随时随地继续',
+                title: '极致体验',
+                desc: '采用现代化UI设计，解决传统选片系统的复杂与繁琐',
                 delay: 0.3,
               },
             ].map(feature => (
@@ -124,7 +124,7 @@ const AuthLayout: FC = () => {
           transition={{ duration: 0.6, delay: 1.5 }}
           className="relative z-10 text-darkBlueGray-400 text-sm"
         >
-          © 2025 繁花工作室 · 用心记录每一个美好瞬间
+          © 2025 繁花工作室 · 版权所有
         </motion.p>
       </div>
 
@@ -171,7 +171,7 @@ const AuthLayout: FC = () => {
                 <h2 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent mb-2">
                   欢迎回来
                 </h2>
-                <p className="text-darkBlueGray-300 text-base font-medium">登录您的选片账户</p>
+                <p className="text-darkBlueGray-300 text-base font-medium">输入您的登录信息，即刻开始选片</p>
               </motion.div>
 
               {/* 登录表单插槽 */}
