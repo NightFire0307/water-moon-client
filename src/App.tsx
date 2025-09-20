@@ -9,7 +9,6 @@ import { logout } from './apis/login'
 import { getOrderInfo } from './apis/order'
 import { WarningIcon } from './assets/icon'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
-import { useFullScreenLoading } from './components/FullScreenLoading/useFullScreenLoading'
 import GuideManager from './components/Guide/GuideManager'
 import { useAuthStore } from './stores/useAuthStore'
 import { useOrderStore } from './stores/useOrderStore'
@@ -24,7 +23,6 @@ function App() {
   const { setOrderInfo, resetOrder, orderInfo } = useOrderStore()
   const { setProducts, resetProducts } = useProductsStore()
   const { fetchPhotos, resetPhotos } = usePhotosStore()
-  const { showLoading, hideLoading } = useFullScreenLoading()
   const { accessToken, clearAccessToken } = useAuthStore()
   const navigate = useNavigate()
 
@@ -55,6 +53,26 @@ function App() {
 
     fetchOrderInfo()
   }, [accessToken])
+
+  useEffect(() => {
+    if (!orderInfo)
+      return
+
+    switch (orderInfo.status) {
+      case OrderStatus.PRE_SELECT:
+        navigate('/pre-select')
+        break
+      case OrderStatus.PRODUCT_SELECT:
+        navigate('/product-select')
+        break
+      case OrderStatus.SUBMITTED:
+        navigate('/preview')
+        break
+      default:
+        navigate('/order-info')
+        break
+    }
+  }, [orderInfo, navigate])
 
   return (
     <ConfigProvider
