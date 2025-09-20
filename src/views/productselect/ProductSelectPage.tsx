@@ -1,6 +1,8 @@
 import type { Photo } from '@/stores/usePhotosStore'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import { updateOrderStatus } from '@/apis/order'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
+import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
 import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
@@ -13,6 +15,7 @@ import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncProductPhotos } from '@/services/photoSyncService'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
+import { OrderStatus } from '@/types/user/order'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout } from 'antd'
 import { Header } from 'antd/es/layout/layout'
@@ -34,6 +37,7 @@ function ProductSelectPage() {
     visible: false,
     msg: '',
   })
+  const [preSelectConfirmOpen, setPreSelectConfirmOpen] = useState(false) // 返回预选确认框
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
   const { filter, setCurrentPhoto, currentPhoto, productSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
@@ -198,7 +202,7 @@ function ProductSelectPage() {
                     type="text"
                     icon={<LeftOutlined />}
                     size="large"
-                    onClick={() => navigate('/pre-select')} // 返回产品选择页面
+                    onClick={() => setPreSelectConfirmOpen(true)} // 返回产品选择页面
                   />
                   <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
                 </div>
@@ -219,7 +223,6 @@ function ProductSelectPage() {
                 <Button
                   type="primary"
                   onClick={() => setConfirmModalOpen(true)}
-                  className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800"
                 >
                   下一步：最终预览
                   <RightOutlined />
@@ -255,6 +258,19 @@ function ProductSelectPage() {
           </Content>
         </Layout>
       </Layout>
+
+      {/* 返回预选确认框 */}
+      <CustomModal
+        title="确认返回预选页面吗？"
+        desc="注：返回预选页面后，当前产品选片的修改将会被保存。"
+        onOk={async () => {
+          await updateOrderStatus(OrderStatus.PRE_SELECT)
+          navigate('/pre-select')
+        }}
+        onCancel={() => setPreSelectConfirmOpen(false)}
+        open={preSelectConfirmOpen}
+        centered
+      />
 
       {/* 提交选片结果Modal */}
       <ProductSelectConfirmModal

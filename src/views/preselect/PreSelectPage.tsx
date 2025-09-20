@@ -84,9 +84,11 @@ const PreSelectPage: FC = () => {
         updateOrderStatus(OrderStatus.PRODUCT_SELECT),
       ])
 
-      // 重新获取订单状态
+      // 获取最新订单信息
       const { data } = await getOrderInfo()
       setOrderInfo(data)
+
+      navigate('/product-select')
     }
     catch (err) {
       console.error(err)
@@ -95,15 +97,6 @@ const PreSelectPage: FC = () => {
       hideLoading()
     }
   }
-
-  // const handleTourOpen = () => {
-  //   // 获取 localStorage 中的 tour 状态
-  //   const tourShowed = window.localStorage.getItem('tour_show_preselect_v1')
-  //   if (tourShowed === null) {
-  //     setTourOpen(true)
-  //     setThumbnailVisible(true)
-  //   }
-  // }
 
   // 渲染额外内容
   const renderExtra = useCallback((item: Photo) => {
@@ -342,7 +335,7 @@ const PreSelectPage: FC = () => {
       {/* 预选确认弹窗 */}
       <PreSelectionConfirmModal
         open={preSelectConfirmModalOpen}
-        onConfirm={() => handlePreSelectConfirm()}
+        onConfirm={handlePreSelectConfirm}
         onCancel={() => setPreSelectConfirmModalOpen(false)}
       />
 

@@ -56,18 +56,6 @@ function App() {
     fetchOrderInfo()
   }, [accessToken])
 
-  // 判断当前订单状态是否为预选,如果不是则跳转到相应页面
-  useEffect(() => {
-    showLoading()
-    if (OrderStatus.PRODUCT_SELECT === orderInfo?.status) {
-      setTimeout(() => {
-        hideLoading()
-        navigate('/product-select')
-      }, 500)
-    }
-    hideLoading()
-  }, [orderInfo])
-
   return (
     <ConfigProvider
       locale={zhCN}

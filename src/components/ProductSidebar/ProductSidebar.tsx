@@ -84,10 +84,7 @@ function ProductSidebar() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+    <div
       className="p-6 h-full border-r border-darkBlueGray-700/30 flex flex-col"
     >
       {/* 标题区域 */}
@@ -106,7 +103,7 @@ function ProductSidebar() {
 
       {/* 滚动内容区域 */}
       <div className="flex-1 overflow-hidden">
-        <SimpleBar style={{ height: '100%' }}>
+        <SimpleBar style={{ maxHeight: '100%', height: '500px' }}>
           <div className="space-y-3">
             {/* 筛选按钮组 */}
             <div id="photo-filter-bar" className="flex flex-col gap-3">
@@ -278,7 +275,7 @@ function ProductSidebar() {
           </div>
         </SimpleBar>
       </div>
-    </motion.div>
+    </div>
   )
 }
 

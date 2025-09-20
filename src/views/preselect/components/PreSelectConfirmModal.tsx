@@ -11,22 +11,6 @@ interface PreSelectionConfirmModalProps {
   onConfirm?: () => void
 }
 
-// Modal 不同状态的配置
-const modalMap = {
-  underSelected: {
-    actionText: '仍然确认',
-  },
-  exactSelected: {
-    actionText: '继续选择产品',
-  },
-  exactSelectedWithPending: {
-    actionText: '继续选择产品',
-  },
-  overSelected: {
-    actionText: '确认选择',
-  },
-}
-
 function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionConfirmModalProps) {
   const { getPreSelectedStats, setAllPendingToSelected } = usePhotosStore()
   const { orderInfo } = useOrderStore()
@@ -81,8 +65,6 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
     }
   }, [orderInfo, selectedCount])
 
-  const currentConfig = modalMap[selectionStatus]
-
   // 计算套餐精修进度
   const packageProgress = useMemo(() => {
     if (!orderInfo)
@@ -103,7 +85,7 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
       }
       centered
       width={520}
-      okText={currentConfig.actionText}
+      okText="确认"
       disabledOk={selectedCount === 0}
       onCancel={onCancel}
       onOk={handleConfirm}

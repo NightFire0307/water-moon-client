@@ -70,6 +70,7 @@ export const ThumbnailBar = forwardRef<HTMLDivElement, ThumbnailBarProps>(({ pho
       >
         <SimpleBar
           scrollableNodeProps={{ ref: simpleBarRef }}
+          className="h-full"
           style={{ overflowX: 'auto', overflowY: 'hidden', whiteSpace: 'nowrap' }}
           onWheel={wheelHandler}
         >
