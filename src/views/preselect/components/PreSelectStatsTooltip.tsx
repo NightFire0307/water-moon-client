@@ -1,7 +1,7 @@
 import { useOrderStore } from '@/stores/useOrderStore'
 import { usePhotosStore } from '@/stores/usePhotosStore'
 import { Progress, Typography } from 'antd'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo } from 'react'
 
 const { Text } = Typography
@@ -35,94 +35,94 @@ export function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsToolt
   }, [orderInfo, selectedCount])
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{
-        opacity: isProgressHovered ? 1 : 0,
-        scale: isProgressHovered ? 1 : 0.8,
-      }}
-      transition={{
-        duration: 0.3,
-        ease: [0.4, 0, 0.2, 1],
-      }}
-      className="absolute top-14 right-0 z-50"
-      style={{ display: isProgressHovered ? 'block' : 'none' }}
-    >
-      <div className="bg-darkBlueGray-800/95 backdrop-blur-lg rounded-md border border-darkBlueGray-700/50 shadow-2xl p-4 min-w-[240px]">
-        <div className="text-center pb-3 border-b border-darkBlueGray-700/50">
-          <Text className="text-darkBlueGray-300 text-xs font-medium tracking-wide uppercase">
-            筛选统计
-          </Text>
-        </div>
+    <AnimatePresence>
+      {
+        isProgressHovered && (
+          <motion.div
+            key="preselect-stats-tooltip"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute top-14 right-0 z-50"
+          >
+            <div className="bg-darkBlueGray-800/95 backdrop-blur-lg rounded-md border border-darkBlueGray-700/50 shadow-2xl p-4 min-w-[240px]">
+              <div className="text-center pb-3 border-b border-darkBlueGray-700/50">
+                <Text className="text-darkBlueGray-300 text-xs font-medium tracking-wide uppercase">
+                  筛选统计
+                </Text>
+              </div>
 
-        <div className="space-y-3 mt-3">
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/30"></div>
-              <Text className="text-darkBlueGray-300 text-sm font-medium">已选择</Text>
+              <div className="space-y-3 mt-3">
+                <div className="flex items-center justify-between gap-6">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/30"></div>
+                    <Text className="text-darkBlueGray-300 text-sm font-medium">已选择</Text>
+                  </div>
+                  <div className="px-3 py-1 bg-green-600/20 border border-green-600/30 rounded-lg">
+                    <Text className="text-green-400 font-bold text-sm">{selectedCount}</Text>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-6">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/30"></div>
+                    <Text className="text-darkBlueGray-300 text-sm font-medium">已排除</Text>
+                  </div>
+                  <div className="px-3 py-1 bg-red-600/20 border border-red-600/30 rounded-lg">
+                    <Text className="text-red-400 font-bold text-sm">{excludedCount}</Text>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-6">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-darkBlueGray-500 shadow-lg shadow-darkBlueGray-500/30"></div>
+                    <Text className="text-darkBlueGray-300 text-sm font-medium">待处理</Text>
+                  </div>
+                  <div className="px-3 py-1 bg-darkBlueGray-600/20 border border-darkBlueGray-600/30 rounded-lg">
+                    <Text className="text-darkBlueGray-400 font-bold text-sm">{pendingCount}</Text>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-3 mt-3 border-t border-darkBlueGray-700/50" />
+
+              <div className="flex items-center justify-between mb-2">
+                <Text className="text-darkBlueGray-400 text-xs">
+                  总进度
+                </Text>
+                <Text className="text-white text-xs font-semibold">
+                  {percent}
+                  %
+                </Text>
+              </div>
+              <Progress percent={percent} strokeColor={{ from: '#22c55e', to: '#4ade80' }} showInfo={false} />
+
+              <div className="pt-3 mt-3 border-t border-darkBlueGray-700/50" />
+
+              {/* 加片信息 */}
+              <div className="flex items-center justify-between mt-2">
+                <Text className="text-darkBlueGray-400 text-xs">加片张数</Text>
+                <Text className="text-amber-500 text-sm font-bold">
+                  {extraInfo.extraCount}
+                  张
+                </Text>
+              </div>
+
+              <div className="flex items-center justify-between mt-2">
+                <Text className="text-darkBlueGray-400 text-xs">加片金额</Text>
+                <Text className="text-amber-500 text-sm font-bold">
+                  {
+                    extraInfo.extraAmount > 0
+                      ? `¥${extraInfo.extraAmount}元`
+                      : '无需加片费'
+                  }
+                </Text>
+              </div>
+
             </div>
-            <div className="px-3 py-1 bg-green-600/20 border border-green-600/30 rounded-lg">
-              <Text className="text-green-400 font-bold text-sm">{selectedCount}</Text>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/30"></div>
-              <Text className="text-darkBlueGray-300 text-sm font-medium">已排除</Text>
-            </div>
-            <div className="px-3 py-1 bg-red-600/20 border border-red-600/30 rounded-lg">
-              <Text className="text-red-400 font-bold text-sm">{excludedCount}</Text>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-darkBlueGray-500 shadow-lg shadow-darkBlueGray-500/30"></div>
-              <Text className="text-darkBlueGray-300 text-sm font-medium">待处理</Text>
-            </div>
-            <div className="px-3 py-1 bg-darkBlueGray-600/20 border border-darkBlueGray-600/30 rounded-lg">
-              <Text className="text-darkBlueGray-400 font-bold text-sm">{pendingCount}</Text>
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-3 mt-3 border-t border-darkBlueGray-700/50" />
-
-        <div className="flex items-center justify-between mb-2">
-          <Text className="text-darkBlueGray-400 text-xs">
-            总进度
-          </Text>
-          <Text className="text-white text-xs font-semibold">
-            {percent}
-            %
-          </Text>
-        </div>
-        <Progress percent={percent} strokeColor={{ from: '#22c55e', to: '#4ade80' }} showInfo={false} />
-
-        <div className="pt-3 mt-3 border-t border-darkBlueGray-700/50" />
-
-        {/* 加片信息 */}
-        <div className="flex items-center justify-between mt-2">
-          <Text className="text-darkBlueGray-400 text-xs">加片张数</Text>
-          <Text className="text-amber-500 text-sm font-bold">
-            {extraInfo.extraCount}
-            张
-          </Text>
-        </div>
-
-        <div className="flex items-center justify-between mt-2">
-          <Text className="text-darkBlueGray-400 text-xs">加片金额</Text>
-          <Text className="text-amber-500 text-sm font-bold">
-            {
-              extraInfo.extraAmount > 0
-                ? `¥${extraInfo.extraAmount}元`
-                : '无需加片费'
-            }
-          </Text>
-        </div>
-
-      </div>
-    </motion.div>
+          </motion.div>
+        )
+      }
+    </AnimatePresence>
   )
 }

@@ -10,15 +10,16 @@ import { type Photo, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { OrderStatus } from '@/types/user/order'
-import { CheckOutlined, CloseOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, LeftOutlined, ReloadOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
-import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { ImageIcon, LayoutIcon } from 'lucide-react'
+import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { PreSelectCentralIndicator } from './components/PreSelectCentralIndicator'
 import PreSelectionConfirmModal from './components/PreSelectConfirmModal'
+import PreSelectSideBar from './components/PreSelectSideBar'
 import { PreSelectStatsTooltip } from './components/PreSelectStatsTooltip'
-import { PreSelectStatusBadge } from './components/PreSelectStatusBadge'
 
 const { Content } = Layout
 const { Text } = Typography
@@ -28,12 +29,14 @@ const PreSelectPage: FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
+
   const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setProductSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setOrderInfo } = useOrderStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const preSelectPhotos = useMemo(() => {
     const result = []
 
@@ -236,6 +239,14 @@ const PreSelectPage: FC = () => {
           <div className="flex items-center gap-4">
             <ProgressDots currentStep={2} totalSteps={4} />
 
+            {/* 重置按钮 */}
+            <Button
+
+              icon={<ReloadOutlined />}
+            >
+              重置预选
+            </Button>
+
             {/* 下一步选产品 */}
             <Button
               id="preselect-next-step-button"
@@ -276,22 +287,48 @@ const PreSelectPage: FC = () => {
               </div>
 
               {/* 照片信息覆盖层 - 左上角 */}
-              <div className="absolute top-4 left-4 bg-darkBlueGray-800/80 backdrop-blur-md rounded-lg px-4 py-2 select-none border border-darkBlueGray-600/50 shadow-lg">
+              <div className="absolute top-4 left-4 bg-darkBlueGray-800/80 backdrop-blur-md rounded-md px-4 py-2 select-none border border-darkBlueGray-600/50 shadow-lg">
                 <Text className="text-white text-sm font-medium">{currentPhoto?.name ?? '暂无照片'}</Text>
               </div>
+
+              {/* 左侧浮动工具栏 */}
+              <PreSelectSideBar
+                actions={[
+                  {
+                    key: 'single',
+                    icon: <ImageIcon size={18} />,
+                    tooltip: '单图浏览模式',
+                  },
+                  {
+                    key: 'compare',
+                    icon: <LayoutIcon size={18} />,
+                    tooltip: '多图对比模式',
+                  },
+                ]}
+                direction="vertical"
+                activeKey="single"
+              />
 
               {/* 进度显示和状态标识 - 右上角区域 */}
               <div className="absolute top-4 right-4 flex flex-col items-end gap-3 select-none">
 
-                {/* 状态标识 */}
-                <PreSelectStatusBadge status={currentPhoto?.preSelectStatus ?? PreSelectStatus.PENDING} />
-
                 {/* 进度统计 */}
                 <div
                   id="preselect-progress-status"
-                  className="relative w-24 bg-darkBlueGray-800/70 backdrop-blur-sm rounded-md px-3 py-2 border border-white/5 shadow-md opacity-80 hover:opacity-100 transition-opacity duration-200"
-                  onMouseEnter={() => setIsProgressHovered(true)}
-                  onMouseLeave={() => setIsProgressHovered(false)}
+                  className="relative w-24 bg-darkBlueGray-800/70 backdrop-blur-sm rounded-md px-3 py-2 border border-white/5 shadow-md opacity-80"
+                  onMouseEnter={() => {
+                    if (hoverTimeoutRef.current) {
+                      clearTimeout(hoverTimeoutRef.current)
+                      hoverTimeoutRef.current = null
+                    }
+                    setIsProgressHovered(true)
+                  }}
+                  onMouseLeave={() => {
+                    hoverTimeoutRef.current = setTimeout(() => {
+                      setIsProgressHovered(false)
+                      hoverTimeoutRef.current = null
+                    }, 200)
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <div className="text-center">

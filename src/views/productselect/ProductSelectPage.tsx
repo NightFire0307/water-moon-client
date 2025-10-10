@@ -78,7 +78,6 @@ function ProductSelectPage() {
   }, [filter, productSelectedPhotos])
 
   useEffect(() => {
-    console.log(filteredPhotos)
     if (filteredPhotos.length === 0) {
       setCurrentPhoto(null)
       setCurrentIndex(0)
@@ -169,19 +168,28 @@ function ProductSelectPage() {
     }
   }, [handleKeydown])
 
+  const photoViewerContextValue = useMemo(() => ({
+    thumbnailVisible,
+    setThumbnailVisible,
+    viewerControlVisible,
+    setViewerControlVisible,
+    productSidebarVisible,
+    setProductSidebarVisible,
+    keyboardDisabled,
+    setKeyboardDisabled,
+  }), [
+    thumbnailVisible,
+    viewerControlVisible,
+    productSidebarVisible,
+    keyboardDisabled,
+    setThumbnailVisible,
+    setViewerControlVisible,
+    setProductSidebarVisible,
+    setKeyboardDisabled,
+  ])
+
   return (
-    <PhotoViewerContext.Provider
-      value={{
-        thumbnailVisible,
-        setThumbnailVisible,
-        viewerControlVisible,
-        setViewerControlVisible,
-        productSidebarVisible,
-        setProductSidebarVisible,
-        keyboardDisabled,
-        setKeyboardDisabled,
-      }}
-    >
+    <PhotoViewerContext.Provider value={photoViewerContextValue}>
       <Layout
         className="relative h-screen overflow-hidden bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950"
       >
