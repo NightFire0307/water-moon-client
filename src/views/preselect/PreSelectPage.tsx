@@ -10,16 +10,16 @@ import { type Photo, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { OrderStatus } from '@/types/user/order'
-import { CheckOutlined, CloseOutlined, LeftOutlined, ReloadOutlined, RightOutlined } from '@ant-design/icons'
+import { LeftOutlined, ReloadOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout, Typography } from 'antd'
 import { motion } from 'framer-motion'
-import { ImageIcon, LayoutIcon } from 'lucide-react'
+import { CheckIcon, ImageIcon, LayoutIcon, XIcon } from 'lucide-react'
 import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { PreSelectCentralIndicator } from './components/PreSelectCentralIndicator'
 import PreSelectionConfirmModal from './components/PreSelectConfirmModal'
 import PreSelectSideBar from './components/PreSelectSideBar'
-import { PreSelectStatsTooltip } from './components/PreSelectStatsTooltip'
+import PreSelectStatsTooltip from './components/PreSelectStatsTooltip'
 
 const { Content } = Layout
 const { Text } = Typography
@@ -108,14 +108,14 @@ const PreSelectPage: FC = () => {
         {
           item.preSelectStatus === PreSelectStatus.SELECTED && (
             <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
-              <CheckOutlined className="text-xs text-white" />
+              <CheckIcon className="text-xs text-white" />
             </div>
           )
         }
         {
           item.preSelectStatus === PreSelectStatus.EXCLUDED && (
             <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
-              <CloseOutlined className="text-xs text-white" />
+              <XIcon className="text-xs text-white" />
             </div>
           )
         }
@@ -296,17 +296,49 @@ const PreSelectPage: FC = () => {
                 actions={[
                   {
                     key: 'single',
+                    type: 'button',
                     icon: <ImageIcon size={18} />,
                     tooltip: '单图浏览模式',
+                    onClick: () => console.log('单图模式'),
                   },
                   {
                     key: 'compare',
+                    type: 'button',
                     icon: <LayoutIcon size={18} />,
                     tooltip: '多图对比模式',
+                    onClick: () => console.log('多图对比模式'),
+                  },
+                  {
+                    key: 'divider-1',
+                    type: 'divider',
+                  },
+                  {
+                    key: '',
+                    type: 'button',
+                    icon: <CheckIcon size={18} />,
+                    tooltip: '标记为选中',
+                    activeClassName: 'bg-green-500 text-white shadow-lg shadow-green-500/25',
+                    className: `flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-200 group ${
+                      currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED
+                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
+                        : 'text-darkBlueGray-400 hover:text-white hover:bg-green-500/20 hover:shadow-md active:bg-green-500/40'
+                    }`,
+                    independent: true,
+                  },
+                  {
+                    key: 'exclude',
+                    type: 'button',
+                    icon: <XIcon size={18} />,
+                    tooltip: '标记为排除',
+                    activeClassName: 'bg-red-500 text-white shadow-lg shadow-red-500/25',
+                    className: `flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-200 group ${
+                      currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDED
+                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
+                        : 'text-darkBlueGray-400 hover:text-white hover:bg-red-500/20 hover:shadow-md active:bg-red-500/40'
+                    }`,
+                    independent: true,
                   },
                 ]}
-                direction="vertical"
-                activeKey="single"
               />
 
               {/* 进度显示和状态标识 - 右上角区域 */}
