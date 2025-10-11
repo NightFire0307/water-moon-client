@@ -10,7 +10,7 @@ interface PreSelectStatsTooltipProps {
   isProgressHovered: boolean
 }
 
-export function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps) {
+function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps) {
   const { getPreSelectedStats } = usePhotosStore()
   const { orderInfo } = useOrderStore()
   const { selectedCount, excludedCount, pendingCount } = getPreSelectedStats()
@@ -126,3 +126,5 @@ export function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsToolt
     </AnimatePresence>
   )
 }
+
+export default PreSelectStatsTooltip
