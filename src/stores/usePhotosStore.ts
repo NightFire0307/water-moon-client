@@ -18,10 +18,12 @@ export interface Photo {
 }
 
 interface UsePhotosState {
+  viewMode: 'single' | 'compare' // 视图模式
   originalPhotos: Map<number, Omit<Photo, 'photoId'>> // 原始照片列表
   preSelectedPhotos: Map<number, Omit<Photo, 'photoId'>> // 预选照片列表
   productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>> // 已选产品的照片列表
   currentPhoto: Photo | null // 当前照片
+  comparePhotos: Photo[] // 对比模式下勾选的照片
   isLoading: boolean // 是否正在加载照片
   filter: { productId?: number, filterType?: FILTER_TYPE } // 过滤条件
 }
@@ -52,6 +54,8 @@ interface UsePhotosAction {
   setProductSelectedPhotos: (productSelectedPhotos: Map<number, Omit<Photo, 'photoId'>>) => void // 设置产品选片照片列表
   setSelectedProducts: (productId: number, photoId: number) => void // 为照片设置选中的产品ID
   resetPhotos: () => void // 重置状态
+  setViewMode: (mode: 'single' | 'compare') => void // 设置视图模式
+  setComparePhotos: (photos: Photo[]) => void // 设置对比照片列表
 }
 
 /**
@@ -88,10 +92,12 @@ function mergePhotosFromCache(
 }
 
 const initialState: UsePhotosState = {
+  viewMode: 'single',
   originalPhotos: new Map([]),
   preSelectedPhotos: new Map([]),
   productSelectedPhotos: new Map([]),
   currentPhoto: null,
+  comparePhotos: [],
   isLoading: false,
   filter: {
     productId: undefined,
@@ -381,6 +387,8 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
         })
       },
       resetPhotos: () => set({ ...initialState }),
+      setViewMode: (mode: 'single' | 'compare') => set({ viewMode: mode }),
+      setComparePhotos: (photos: Photo[]) => set({ comparePhotos: photos }),
     }), {
       name: 'photos-storage',
       storage: createJSONStorage(() => localStorage, {

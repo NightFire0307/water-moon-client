@@ -11,17 +11,16 @@ import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { OrderStatus } from '@/types/user/order'
 import { LeftOutlined, ReloadOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout, Typography } from 'antd'
+import { Button, Checkbox, Divider, Layout, message, Space, Tooltip, Typography } from 'antd'
 import { motion } from 'framer-motion'
-import { CheckIcon, ImageIcon, LayoutIcon, XIcon } from 'lucide-react'
+import { CheckIcon, GalleryThumbnailsIcon, ImageIcon, SquareSplitHorizontalIcon, XIcon } from 'lucide-react'
 import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { PreSelectCentralIndicator } from './components/PreSelectCentralIndicator'
 import PreSelectionConfirmModal from './components/PreSelectConfirmModal'
-import PreSelectSideBar from './components/PreSelectSideBar'
 import PreSelectStatsTooltip from './components/PreSelectStatsTooltip'
 
-const { Content } = Layout
+const { Content, Footer } = Layout
 const { Text } = Typography
 
 const PreSelectPage: FC = () => {
@@ -29,8 +28,19 @@ const PreSelectPage: FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
+  const [isThumbnailBarVisible, setIsThumbnailBarVisible] = useState(false)
 
-  const { preSelectedPhotos, currentPhoto, togglePreSelected, setCurrentPhoto, setProductSelectedPhotos } = usePhotosStore()
+  const {
+    preSelectedPhotos,
+    currentPhoto,
+    togglePreSelected,
+    setCurrentPhoto,
+    setProductSelectedPhotos,
+    viewMode,
+    setViewMode,
+    setComparePhotos,
+    comparePhotos,
+  } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const { setOrderInfo } = useOrderStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
@@ -103,25 +113,52 @@ const PreSelectPage: FC = () => {
 
   // 渲染额外内容
   const renderExtra = useCallback((item: Photo) => {
-    return (
-      <>
-        {
-          item.preSelectStatus === PreSelectStatus.SELECTED && (
-            <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
-              <CheckIcon className="text-xs text-white" />
-            </div>
-          )
-        }
-        {
-          item.preSelectStatus === PreSelectStatus.EXCLUDED && (
-            <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
-              <XIcon className="text-xs text-white" />
-            </div>
-          )
-        }
-      </>
-    )
-  }, [])
+    // 单图模式下的额外内容
+    if (viewMode === 'single') {
+      return (
+        <>
+          {
+            item.preSelectStatus === PreSelectStatus.SELECTED && (
+              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
+                <CheckIcon className="text-xs text-white" />
+              </div>
+            )
+          }
+          {
+            item.preSelectStatus === PreSelectStatus.EXCLUDED && (
+              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
+                <XIcon className="text-xs text-white" />
+              </div>
+            )
+          }
+        </>
+      )
+    }
+
+    // 比较模式下的额外内容
+    if (viewMode === 'compare') {
+      return (
+        <Checkbox
+          checked={comparePhotos.some(photo => photo.photoId === item.photoId)}
+          className="-mt-1"
+          onChange={() => {
+            if (comparePhotos.some(photo => photo.photoId === item.photoId)) {
+              setComparePhotos(comparePhotos.filter(photo => photo.photoId !== item.photoId))
+            }
+            else {
+              if (comparePhotos.length >= 4) {
+                message.warning('最多只能同时比较4张照片')
+                return
+              }
+              setComparePhotos([...comparePhotos, structuredClone(item)])
+            }
+          }}
+        />
+      )
+    }
+
+    return null
+  }, [viewMode, comparePhotos, setComparePhotos])
 
   // 键盘快捷键
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
@@ -261,8 +298,7 @@ const PreSelectPage: FC = () => {
       </motion.div>
 
       {/* 主视图区域 */}
-      <Content className={`relative flex-1 ${isFullscreen ? 'pt-0 pb-0 px-0' : 'pt-20 pb-4 px-4'}`}>
-
+      <Content className="relative flex-1 mt-16">
         <div className="h-full flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8, rotateY: 10 }}
@@ -270,136 +306,150 @@ const PreSelectPage: FC = () => {
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="relative w-full h-full"
           >
-            {/* 照片容器 */}
-            <div className="relative bg-darkBlueGray-800 rounded-md shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
-              <div className="w-full h-full bg-gradient-to-br from-darkBlueGray-700 to-darkBlueGray-800 flex items-center justify-center">
-                {
-                  currentPhoto?.mediumUrl
-                    ? (
-                        <img
-                          src={currentPhoto.mediumUrl}
-                          alt={currentPhoto.name}
-                          className="object-container max-h-full max-w-full"
-                        />
-                      )
-                    : (<Text className="text-darkBlueGray-400 text-lg">照片预览区域</Text>)
-                }
-              </div>
 
-              {/* 照片信息覆盖层 - 左上角 */}
-              <div className="absolute top-4 left-4 bg-darkBlueGray-800/80 backdrop-blur-md rounded-md px-4 py-2 select-none border border-darkBlueGray-600/50 shadow-lg">
-                <Text className="text-white text-sm font-medium">{currentPhoto?.name ?? '暂无照片'}</Text>
-              </div>
-
-              {/* 左侧浮动工具栏 */}
-              <PreSelectSideBar
-                actions={[
-                  {
-                    key: 'single',
-                    type: 'button',
-                    icon: <ImageIcon size={18} />,
-                    tooltip: '单图浏览模式',
-                    onClick: () => console.log('单图模式'),
-                  },
-                  {
-                    key: 'compare',
-                    type: 'button',
-                    icon: <LayoutIcon size={18} />,
-                    tooltip: '多图对比模式',
-                    onClick: () => console.log('多图对比模式'),
-                  },
-                  {
-                    key: 'divider-1',
-                    type: 'divider',
-                  },
-                  {
-                    key: '',
-                    type: 'button',
-                    icon: <CheckIcon size={18} />,
-                    tooltip: '标记为选中',
-                    activeClassName: 'bg-green-500 text-white shadow-lg shadow-green-500/25',
-                    className: `flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-200 group ${
-                      currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED
-                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
-                        : 'text-darkBlueGray-400 hover:text-white hover:bg-green-500/20 hover:shadow-md active:bg-green-500/40'
-                    }`,
-                    independent: true,
-                  },
-                  {
-                    key: 'exclude',
-                    type: 'button',
-                    icon: <XIcon size={18} />,
-                    tooltip: '标记为排除',
-                    activeClassName: 'bg-red-500 text-white shadow-lg shadow-red-500/25',
-                    className: `flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-200 group ${
-                      currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDED
-                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
-                        : 'text-darkBlueGray-400 hover:text-white hover:bg-red-500/20 hover:shadow-md active:bg-red-500/40'
-                    }`,
-                    independent: true,
-                  },
-                ]}
-              />
-
-              {/* 进度显示和状态标识 - 右上角区域 */}
-              <div className="absolute top-4 right-4 flex flex-col items-end gap-3 select-none">
-
-                {/* 进度统计 */}
-                <div
-                  id="preselect-progress-status"
-                  className="relative w-24 bg-darkBlueGray-800/70 backdrop-blur-sm rounded-md px-3 py-2 border border-white/5 shadow-md opacity-80"
-                  onMouseEnter={() => {
-                    if (hoverTimeoutRef.current) {
-                      clearTimeout(hoverTimeoutRef.current)
-                      hoverTimeoutRef.current = null
+            {/* 单图视图 */}
+            {
+              viewMode === 'single' && (
+                <div className="relative rounded-md shadow-2xl overflow-hidden border border-darkBlueGray-700/50 w-full h-full">
+                  <div className="w-full h-full bg-darkBlueGray-800 flex items-center justify-center">
+                    {
+                      currentPhoto?.mediumUrl
+                        ? (
+                            <img
+                              src={currentPhoto.mediumUrl}
+                              alt={currentPhoto.name}
+                              className="object-container max-h-full max-w-full"
+                            />
+                          )
+                        : (<Text className="text-darkBlueGray-400 text-lg">照片预览区域</Text>)
                     }
-                    setIsProgressHovered(true)
-                  }}
-                  onMouseLeave={() => {
-                    hoverTimeoutRef.current = setTimeout(() => {
-                      setIsProgressHovered(false)
-                      hoverTimeoutRef.current = null
-                    }, 200)
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="text-center">
-                      <Text className="text-blue-400 text-sm font-medium block leading-tight">{currentIndex + 1}</Text>
-                      <Text className="text-darkBlueGray-500 text-xs">当前</Text>
-                    </div>
-                    <div className="w-px h-5 bg-darkBlueGray-600"></div>
-                    <div className="text-center">
-                      <Text className="text-white text-sm font-medium block leading-tight">{preSelectPhotos.length}</Text>
-                      <Text className="text-darkBlueGray-500 text-xs">总数</Text>
+                  </div>
+
+                  {/* 照片信息覆盖层 - 左上角 */}
+                  <div className="absolute top-4 left-4 bg-darkBlueGray-800/80 backdrop-blur-md rounded-md px-4 py-2 select-none border border-darkBlueGray-600/50 shadow-lg">
+                    <Text className="text-white text-sm font-medium">{currentPhoto?.name ?? '暂无照片'}</Text>
+                  </div>
+
+                  {/* 进度显示和状态标识 - 右上角区域 */}
+                  <div className="absolute top-4 right-4 flex flex-col items-end gap-3 select-none">
+
+                    {/* 进度统计 */}
+                    <div
+                      id="preselect-progress-status"
+                      className="relative w-24 bg-darkBlueGray-800/70 backdrop-blur-sm rounded-md px-3 py-2 border border-white/5 shadow-md opacity-80"
+                      onMouseEnter={() => {
+                        if (hoverTimeoutRef.current) {
+                          clearTimeout(hoverTimeoutRef.current)
+                          hoverTimeoutRef.current = null
+                        }
+                        setIsProgressHovered(true)
+                      }}
+                      onMouseLeave={() => {
+                        hoverTimeoutRef.current = setTimeout(() => {
+                          setIsProgressHovered(false)
+                          hoverTimeoutRef.current = null
+                        }, 200)
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="text-center">
+                          <Text className="text-blue-400 text-sm font-medium block leading-tight">{currentIndex + 1}</Text>
+                          <Text className="text-darkBlueGray-500 text-xs">当前</Text>
+                        </div>
+                        <div className="w-px h-5 bg-darkBlueGray-600"></div>
+                        <div className="text-center">
+                          <Text className="text-white text-sm font-medium block leading-tight">{preSelectPhotos.length}</Text>
+                          <Text className="text-darkBlueGray-500 text-xs">总数</Text>
+                        </div>
+                      </div>
+
+                      {/* 筛选统计悬浮窗 */}
+                      <PreSelectStatsTooltip isProgressHovered={isProgressHovered} />
                     </div>
                   </div>
 
-                  {/* 筛选统计悬浮窗 */}
-                  <PreSelectStatsTooltip isProgressHovered={isProgressHovered} />
-                </div>
-              </div>
+                  {/* 大型中央状态指示器 */}
+                  {
+                    currentPhoto && (
+                      <PreSelectCentralIndicator status={currentPhoto.preSelectStatus} />
+                    )
+                  }
 
-              {/* 大型中央状态指示器 */}
+                </div>
+              )
+            }
+
+            {/* 多图比较视图 */}
+            <div className="h-full p-6">
               {
-                currentPhoto && (
-                  <PreSelectCentralIndicator status={currentPhoto.preSelectStatus} />
+                viewMode === 'compare' && (
+                  <div className="h-full flex items-center justify-center gap-6">
+                    {
+                      comparePhotos.map(photo => (
+                        <div key={photo.photoId} className="rounded border-2 border-transparent hover:border-blue-500 transition">
+                          <img
+                            src={photo.mediumUrl}
+                            alt={photo.name}
+                            className="object-contain h-full max-h-[calc(100vh-160px)] flex-1 min-w-full"
+                          />
+                        </div>
+                      ))
+                    }
+                  </div>
                 )
               }
-
             </div>
+
           </motion.div>
         </div>
+
+        {/* 缩略图栏 */}
+        <ThumbnailBar
+          visible={isThumbnailBarVisible}
+          photos={preSelectPhotos}
+          extra={renderExtra}
+          onClickThumbnail={(item, index) => {
+            setCurrentIndex(index)
+            setCurrentPhoto(item)
+          }}
+        />
       </Content>
 
-      {/* 缩略图栏 */}
-      <ThumbnailBar
-        photos={preSelectPhotos}
-        extra={renderExtra}
-        onClickThumbnail={(item, index) => {
-          setCurrentIndex(index)
-          setCurrentPhoto(item)
-        }}
-      />
+      {/* 底部操作栏 */}
+      <Footer className="flex items-center h-12 px-4 bg-darkBlueGray-900 border-t border-darkBlueGray-700 z-10">
+        <Space>
+          <Tooltip title="" placement="topRight" mouseEnterDelay={1}>
+            <Button
+              type="text"
+              icon={<GalleryThumbnailsIcon size={18} />}
+              onClick={() => { setIsThumbnailBarVisible(v => !v) }}
+            />
+          </Tooltip>
+          <Divider type="vertical" className="bg-darkBlueGray-600" />
+          <Button
+            type={viewMode === 'single' ? 'primary' : 'text'}
+            icon={<ImageIcon size={18} />}
+            onClick={() => {
+              setViewMode('single')
+              setComparePhotos([])
+            }}
+          />
+          <Button
+            type={viewMode === 'compare' ? 'primary' : 'text'}
+            icon={<SquareSplitHorizontalIcon size={18} />}
+            onClick={() => {
+              if (viewMode === 'compare')
+                return
+
+              if (!isThumbnailBarVisible) {
+                setIsThumbnailBarVisible(true)
+              }
+              setViewMode('compare')
+              setComparePhotos(currentPhoto ? [structuredClone(currentPhoto)] : [])
+            }}
+          />
+        </Space>
+      </Footer>
 
       {/* 预选确认弹窗 */}
       <PreSelectionConfirmModal

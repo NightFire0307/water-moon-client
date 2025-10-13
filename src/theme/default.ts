@@ -7,6 +7,7 @@ export const DarkBlueTheme: ThemeConfig = {
     colorPrimaryHover: '#334155', // darkBlueGray-700
     colorPrimaryActive: '#1e293b', // darkBlueGray-800
     colorBgElevated: '#334155',
+    colorBorder: '#475569',
     colorText: '#f8fafc',
     colorTextDisabled: '#64748b',
     colorTextDescription: '#94a3b8',
@@ -32,6 +33,9 @@ export const DarkBlueTheme: ThemeConfig = {
       textTextActiveColor: '#cbd5e1',
       textTextHoverColor: '#f8fafc',
     },
+    Checkbox: {
+      colorBgContainer: '#334155',
+    },
     Dropdown: {
       colorBgElevated: '#1e293b',
       colorText: '#f1f5f9',
@@ -41,6 +45,10 @@ export const DarkBlueTheme: ThemeConfig = {
     },
     Message: {
       contentBg: '#1e293b',
+    },
+    Layout: {
+      footerBg: '#0f172a',
+      footerPadding: '0',
     },
   },
 }
