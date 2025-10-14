@@ -18,6 +18,13 @@ export const DarkBlueTheme: ThemeConfig = {
       contentBg: '#1e293b',
     },
     Button: {
+      // Primary按钮
+      colorPrimary: '#10b981', // emerald-500
+      colorPrimaryHover: '#059669', // emerald-600
+      colorPrimaryActive: '#047857', // emerald-700
+      primaryColor: '#ffffff',
+      primaryShadow: '0 2px 0 rgba(5, 150, 105, 0.1)',
+      // Default按钮
       borderColorDisabled: '#475569',
       defaultBg: '#334155',
       defaultColor: '#e2e8f0',
@@ -28,6 +35,7 @@ export const DarkBlueTheme: ThemeConfig = {
       defaultHoverBg: '#475569',
       defaultHoverBorderColor: '#475569',
       defaultHoverColor: '#ffffff',
+      // Text按钮
       textTextColor: '#94a3b8',
       textHoverBg: '#475569',
       textTextActiveColor: '#cbd5e1',

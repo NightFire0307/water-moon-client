@@ -120,14 +120,14 @@ const PreSelectPage: FC = () => {
         <>
           {
             item.preSelectStatus === PreSelectStatus.SELECTED && (
-              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-green-500">
+              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-emerald-600 shadow-md">
                 <CheckIcon className="text-xs text-white" />
               </div>
             )
           }
           {
             item.preSelectStatus === PreSelectStatus.EXCLUDED && (
-              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-red-500">
+              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-amber-600 shadow-md">
                 <XIcon className="text-xs text-white" />
               </div>
             )
@@ -231,7 +231,9 @@ const PreSelectPage: FC = () => {
   }, [currentPhoto, preSelectPhotos, setCurrentPhoto])
 
   return (
-    <Layout className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}>
+    <Layout
+      className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}
+    >
       {/* 顶部标题栏 */}
       <motion.div
         initial={{ opacity: 0, y: -30 }}
@@ -240,13 +242,19 @@ const PreSelectPage: FC = () => {
           y: isFullscreen ? -50 : 0,
         }}
         transition={{ duration: 0.3 }}
-        className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/30"
+        className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/70"
       >
         <div
           className="flex items-center justify-between px-4 py-2"
         >
           <div className="flex items-center gap-4">
-            <Button icon={<LeftOutlined />} type="text" size="large" onClick={() => navigate('/order-info')} />
+            <Button
+              icon={<LeftOutlined />}
+              type="text"
+              size="large"
+              onClick={() => navigate('/order-info')}
+              className="text-darkBlueGray-200 hover:text-darkBlueGray-50 hover:bg-darkBlueGray-700/50"
+            />
             <StepHeader stepNumber={2} stepTitle="预选照片" stepDesc="Photo PreSelection" />
           </div>
 
@@ -327,8 +335,8 @@ const PreSelectPage: FC = () => {
                   </div>
 
                   {/* 照片信息覆盖层 - 左上角 */}
-                  <div className="absolute top-4 left-4 bg-darkBlueGray-800/80 backdrop-blur-md rounded-md px-4 py-2 select-none border border-darkBlueGray-600/50 shadow-lg">
-                    <Text className="text-white text-sm font-medium">{currentPhoto?.name ?? '暂无照片'}</Text>
+                  <div className="absolute top-4 left-4 bg-darkBlueGray-900/90 backdrop-blur-md rounded-md px-4 py-2 select-none border border-darkBlueGray-500/50 shadow-xl">
+                    <Text className="text-darkBlueGray-50 text-sm font-medium">{currentPhoto?.name ?? '暂无照片'}</Text>
                   </div>
 
                   {/* 进度显示和状态标识 - 右上角区域 */}
@@ -337,7 +345,7 @@ const PreSelectPage: FC = () => {
                     {/* 进度统计 */}
                     <div
                       id="preselect-progress-status"
-                      className="relative w-24 bg-darkBlueGray-800/70 backdrop-blur-sm rounded-md px-3 py-2 border border-white/5 shadow-md opacity-80"
+                      className="relative w-24 bg-darkBlueGray-900/85 backdrop-blur-sm rounded-md px-3 py-2 border border-darkBlueGray-500/50 shadow-xl"
                       onMouseEnter={() => {
                         if (hoverTimeoutRef.current) {
                           clearTimeout(hoverTimeoutRef.current)
@@ -354,13 +362,13 @@ const PreSelectPage: FC = () => {
                     >
                       <div className="flex items-center gap-2">
                         <div className="text-center">
-                          <Text className="text-blue-400 text-sm font-medium block leading-tight">{currentIndex + 1}</Text>
-                          <Text className="text-darkBlueGray-500 text-xs">当前</Text>
+                          <Text className="text-darkBlueGray-200 text-sm font-medium block leading-tight">{currentIndex + 1}</Text>
+                          <Text className="text-darkBlueGray-400 text-xs">当前</Text>
                         </div>
-                        <div className="w-px h-5 bg-darkBlueGray-600"></div>
+                        <div className="w-px h-5 bg-darkBlueGray-500"></div>
                         <div className="text-center">
-                          <Text className="text-white text-sm font-medium block leading-tight">{preSelectPhotos.length}</Text>
-                          <Text className="text-darkBlueGray-500 text-xs">总数</Text>
+                          <Text className="text-darkBlueGray-50 text-sm font-medium block leading-tight">{preSelectPhotos.length}</Text>
+                          <Text className="text-darkBlueGray-400 text-xs">总数</Text>
                         </div>
                       </div>
 
@@ -401,7 +409,7 @@ const PreSelectPage: FC = () => {
       </Content>
 
       {/* 底部操作栏 */}
-      <Footer className="flex items-center h-12 px-4 bg-darkBlueGray-900 border-t border-darkBlueGray-700 z-10">
+      <Footer className="flex items-center h-12 px-4 bg-darkBlueGray-900 border-t border-darkBlueGray-700/70 z-10">
         <Space>
           <Tooltip title="" placement="topRight" mouseEnterDelay={1}>
             <Button

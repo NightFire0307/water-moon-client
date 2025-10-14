@@ -8,7 +8,7 @@ export function StepHeader({ stepNumber, stepTitle, stepDesc }: StepHeaderProps)
   return (
     <div className="flex items-center space-x-4">
       {/* 步骤编号 */}
-      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-darkBlueGray-500 to-darkBlueGray-600 flex items-center justify-center shadow-lg">
         <span className="text-white text-lg font-bold">{stepNumber}</span>
       </div>
 

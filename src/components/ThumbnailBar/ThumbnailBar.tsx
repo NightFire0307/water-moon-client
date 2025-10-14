@@ -64,7 +64,7 @@ export const ThumbnailBar = forwardRef<HTMLDivElement, ThumbnailBarProps>(({ pho
       ref={ref}
     >
       <motion.div
-        animate={{ translateY: thumbnailVisible ? '0%' : '100%', opacity: thumbnailVisible ? 1 : 0 }}
+        animate={{ translateY: thumbnailVisible ? '0%' : '100%', opacity: thumbnailVisible ? 1 : 0, display: thumbnailVisible ? 'block' : 'none' }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className="px-2 h-full bg-darkBlueGray-900/60 backdrop-blur-md border-t border-darkBlueGray-700/30"
       >

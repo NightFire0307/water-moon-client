@@ -24,7 +24,7 @@ export function Thumbnail({ index, thumbnailUrl, isSelected, extra, thumbnailCli
       className={
         cs(
           'box-content relative flex justify-center flex-shrink-0 w-24 h-16 hover:bg-darkBlueGray-600 active:bg-darkBlueGray-500 transition-all rounded-md border-2  select-none',
-          isSelected ? ' border-blue-500 bg-darkBlueGray-700' : 'border-transparent bg-darkBlueGray-800',
+          isSelected ? ' border-darkBlueGray-400 bg-darkBlueGray-700' : 'border-transparent bg-darkBlueGray-800',
         )
       }
       onClick={handleClick}

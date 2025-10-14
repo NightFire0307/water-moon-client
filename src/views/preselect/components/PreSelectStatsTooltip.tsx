@@ -45,7 +45,7 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
             exit={{ opacity: 0 }}
             className="absolute top-14 right-0 z-50"
           >
-            <div className="bg-darkBlueGray-800/95 backdrop-blur-lg rounded-md border border-darkBlueGray-700/50 shadow-2xl p-4 min-w-[240px]">
+            <div className="bg-darkBlueGray-900/90 backdrop-blur-lg rounded-md border border-darkBlueGray-500/50 shadow-2xl p-4 min-w-[240px]">
               <div className="text-center pb-3 border-b border-darkBlueGray-700/50">
                 <Text className="text-darkBlueGray-300 text-xs font-medium tracking-wide uppercase">
                   筛选统计
@@ -65,11 +65,11 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
 
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/30"></div>
+                    <div className="w-3 h-3 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30"></div>
                     <Text className="text-darkBlueGray-300 text-sm font-medium">已排除</Text>
                   </div>
-                  <div className="px-3 py-1 bg-red-600/20 border border-red-600/30 rounded-lg">
-                    <Text className="text-red-400 font-bold text-sm">{excludedCount}</Text>
+                  <div className="px-3 py-1 bg-amber-600/20 border border-amber-600/30 rounded-lg">
+                    <Text className="text-amber-400 font-bold text-sm">{excludedCount}</Text>
                   </div>
                 </div>
 
