@@ -10,7 +10,7 @@ function ProgressDots({ currentStep, totalSteps }: ProgressDotsProps) {
       <div className="flex items-center space-x-1">
         {
           Array.from({ length: totalSteps }).map((_, idx) => (
-            <div className={`w-2 h-2 rounded-full ${currentStep - 1 === idx ? 'bg-blue-500' : 'bg-darkBlueGray-600'}`} key={`progress-dot-step-${idx + 1}`}></div>
+            <div className={`w-2 h-2 rounded-full ${currentStep - 1 === idx ? 'bg-emerald-500' : 'bg-darkBlueGray-600'}`} key={`progress-dot-step-${idx + 1}`}></div>
           ))
         }
       </div>
