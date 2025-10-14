@@ -16,6 +16,7 @@ import { motion } from 'framer-motion'
 import { CheckIcon, GalleryThumbnailsIcon, ImageIcon, SquareSplitHorizontalIcon, XIcon } from 'lucide-react'
 import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import ComparePhotoView from './components/ComparePhotoView'
 import { PreSelectCentralIndicator } from './components/PreSelectCentralIndicator'
 import PreSelectionConfirmModal from './components/PreSelectConfirmModal'
 import PreSelectStatsTooltip from './components/PreSelectStatsTooltip'
@@ -380,24 +381,8 @@ const PreSelectPage: FC = () => {
             }
 
             {/* 多图比较视图 */}
-            <div className="h-full p-6">
-              {
-                viewMode === 'compare' && (
-                  <div className="h-full flex items-center justify-center gap-6">
-                    {
-                      comparePhotos.map(photo => (
-                        <div key={photo.photoId} className="rounded border-2 border-transparent hover:border-blue-500 transition">
-                          <img
-                            src={photo.mediumUrl}
-                            alt={photo.name}
-                            className="object-contain h-full max-h-[calc(100vh-160px)] flex-1 min-w-full"
-                          />
-                        </div>
-                      ))
-                    }
-                  </div>
-                )
-              }
+            <div className="h-full px-6 bg-darkBlueGray-800">
+              { viewMode === 'compare' && <ComparePhotoView /> }
             </div>
 
           </motion.div>

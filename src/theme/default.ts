@@ -50,5 +50,15 @@ export const DarkBlueTheme: ThemeConfig = {
       footerBg: '#0f172a',
       footerPadding: '0',
     },
+    Radio: {
+      colorBgContainer: '#475569', // 未选中背景
+      colorBgBase: '#334155', // 选中背景
+      colorBorder: '#475569', // 未选中边框
+      colorPrimaryBorder: '#334155', // 选中边框
+      colorText: '#94a3b8', // 未选中文字
+      colorPrimary: '#f8fafc', // 选中文字
+      colorPrimaryHover: '#334155', // 悬浮/选中背景
+      borderRadius: 8,
+    },
   },
 }

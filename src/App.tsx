@@ -99,11 +99,11 @@ function App() {
       />
 
       {/* 浮动按钮 */}
-      <FloatButton
+      {/* <FloatButton
         icon={<LogoutOutlined />}
         className="right-8 bottom-24"
         onClick={() => setLogOutModalOpen(true)}
-      />
+      /> */}
 
       {/* 引导组件 */}
       <GuideManager />
