@@ -55,11 +55,11 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
               <div className="space-y-3 mt-3">
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30"></div>
+                    <div className="w-3 h-3 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/30"></div>
                     <Text className="text-darkBlueGray-300 text-sm font-medium">已选择</Text>
                   </div>
-                  <div className="px-3 py-1 bg-emerald-600/20 border border-emerald-600/30 rounded-lg">
-                    <Text className="text-emerald-400 font-bold text-sm">{selectedCount}</Text>
+                  <div className="px-3 py-1 bg-cyan-600/20 border border-cyan-600/30 rounded-lg">
+                    <Text className="text-cyan-400 font-bold text-sm">{selectedCount}</Text>
                   </div>
                 </div>
 

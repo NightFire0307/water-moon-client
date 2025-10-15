@@ -16,7 +16,7 @@ export const PreSelectCentralIndicator: FC<PreSelectCentralIndicatorProps> = ({ 
     'rounded-full p-8 backdrop-blur-sm border-4',
     {
       'bg-cyan-500/20 border-cyan-500/60': status === PreSelectStatus.SELECTED,
-      'bg-rose-500/20 border-rose-500/60': status === PreSelectStatus.EXCLUDED,
+      'bg-amber-500/20 border-amber-500/60': status === PreSelectStatus.EXCLUDED,
     },
   )
 
@@ -24,7 +24,7 @@ export const PreSelectCentralIndicator: FC<PreSelectCentralIndicatorProps> = ({ 
     'flex items-center justify-center shadow-2xl w-16 h-16 rounded-full',
     {
       'bg-cyan-500 shadow-cyan-500/30': status === PreSelectStatus.SELECTED,
-      'bg-rose-500 shadow-rose-500/30': status === PreSelectStatus.EXCLUDED,
+      'bg-amber-500 shadow-amber-500/30': status === PreSelectStatus.EXCLUDED,
     },
   )
 

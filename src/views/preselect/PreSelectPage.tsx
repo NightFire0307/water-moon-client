@@ -127,7 +127,7 @@ const PreSelectPage: FC = () => {
           }
           {
             item.preSelectStatus === PreSelectStatus.EXCLUDED && (
-              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-rose-500 shadow-md">
+              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-amber-500 shadow-md">
                 <XIcon className="text-xs text-white" />
               </div>
             )

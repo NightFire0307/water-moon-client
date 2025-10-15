@@ -90,202 +90,103 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
       onCancel={onCancel}
       onOk={handleConfirm}
     >
-      <div className="space-y-6">
-        {/* 状态提示卡片 */}
-        <div className={`relative overflow-hidden rounded-xl p-5 ${
-          selectionStatus === 'overSelected'
-            ? 'bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-orange-500/10 border border-amber-500/20'
-            : selectionStatus === 'underSelected'
-              ? 'bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-red-500/10 border border-orange-500/20'
-              : 'bg-gradient-to-br from-green-500/10 via-green-500/5 to-emerald-500/10 border border-green-500/20'
-        }`}
-        >
-          {/* 背景装饰 */}
-          <div className={`absolute top-0 right-0 w-32 h-32 opacity-10 ${
-            selectionStatus === 'overSelected'
-              ? 'bg-amber-400'
-              : selectionStatus === 'underSelected'
-                ? 'bg-orange-400'
-                : 'bg-green-400'
-          } rounded-full -translate-y-16 translate-x-16`}
-          />
-
-          <div className="relative">
-            <div className="flex items-start gap-4">
-              <div className={`text-base  ${
-                selectionStatus === 'overSelected'
+      <div className="space-y-5">
+        {/* 核心统计 - 简化版 */}
+        <div className="bg-darkBlueGray-800/50 rounded-xl p-5 border border-darkBlueGray-700/50">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-darkBlueGray-100 font-medium">预选进度</span>
+            <div className={`flex items-center gap-2 text-2xl font-bold ${
+              selectionStatus === 'overSelected'
+                ? 'text-amber-400'
+                : selectionStatus === 'underSelected'
                   ? 'text-amber-400'
-                  : selectionStatus === 'underSelected'
-                    ? 'text-orange-400'
-                    : 'text-green-400'
-              }`}
-              >
-                {selectionStatus === 'overSelected'
-                  ? <WarningOutlined />
-                  : selectionStatus === 'underSelected'
-                    ? <InfoCircleOutlined />
-                    : <CheckCircleOutlined />}
-              </div>
-              <div className="flex-1">
-                <h4 className={`font-semibold mb-2 text-base ${
-                  selectionStatus === 'overSelected'
-                    ? 'text-amber-300'
-                    : selectionStatus === 'underSelected'
-                      ? 'text-orange-300'
-                      : selectionStatus === 'exactSelectedWithPending'
-                        ? 'text-green-300'
-                        : 'text-green-300'
-                }`}
-                >
-                  {selectionStatus === 'overSelected'
-                    ? '费用说明'
-                    : selectionStatus === 'underSelected'
-                      ? '选择建议'
-                      : selectionStatus === 'exactSelectedWithPending'
-                        ? '完成提示'
-                        : '完成提示'}
-                </h4>
-                <p className={`text-sm leading-relaxed ${
-                  selectionStatus === 'overSelected'
-                    ? 'text-amber-200'
-                    : selectionStatus === 'underSelected'
-                      ? 'text-orange-200'
-                      : 'text-green-200'
-                }`}
-                >
-                  {selectionStatus === 'underSelected' && `您选择的照片距离套餐指定张数还差 ${orderSelectedStats.selectedDiff} 张，如果继续可能影响后续产品选择。`}
-                  {selectionStatus === 'exactSelected' && '您已完成照片预选，可以进入下一步进行产品选择。'}
-                  {selectionStatus === 'exactSelectedWithPending' && `您已选择了套餐要求的 ${selectedCount} 张照片。`}
-                  {selectionStatus === 'overSelected' && `您选择的照片超过了套餐规定数量，超出部分将产生额外费用。`}
-                </p>
-              </div>
+                  : 'text-emerald-400'
+            }`}
+            >
+              {packageProgress.current}
+              <span className="text-darkBlueGray-400 text-lg">/</span>
+              {packageProgress.target}
             </div>
+          </div>
+
+          {/* 进度条 */}
+          <div className="w-full h-2 bg-darkBlueGray-700 rounded-full overflow-hidden mb-3">
+            <div
+              className={`h-full transition-all duration-500 ${
+                selectionStatus === 'overSelected'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-400'
+                  : selectionStatus === 'underSelected'
+                    ? 'bg-gradient-to-r from-amber-500 to-amber-400'
+                    : 'bg-gradient-to-r from-emerald-500 to-emerald-400'
+              }`}
+              style={{ width: `${Math.min(packageProgress.percent, 100)}%` }}
+            />
+          </div>
+
+          {/* 状态提示 - 精简 */}
+          <div className={`flex items-center gap-2 text-sm ${
+            selectionStatus === 'overSelected'
+              ? 'text-amber-300'
+              : selectionStatus === 'underSelected'
+                ? 'text-amber-300'
+                : 'text-emerald-300'
+          }`}
+          >
+            {selectionStatus === 'overSelected'
+              ? <WarningOutlined />
+              : selectionStatus === 'underSelected'
+                ? <InfoCircleOutlined />
+                : <CheckCircleOutlined />}
+            <span>
+              {selectionStatus === 'underSelected' && `还需选择 ${orderSelectedStats.selectedDiff} 张`}
+              {selectionStatus === 'exactSelected' && '已完成套餐要求'}
+              {selectionStatus === 'exactSelectedWithPending' && '已达要求，有待处理照片'}
+              {selectionStatus === 'overSelected' && `超出 ${packageProgress.current - packageProgress.target} 张，需额外付费`}
+            </span>
           </div>
         </div>
 
-        {/* 待处理照片提醒 - 所有状态下只要有待处理照片都显示 */}
+        {/* 待处理照片选项 - 简化版 */}
         {pendingCount > 0 && (
-          <div className="relative overflow-hidden rounded-xl p-5 bg-gradient-to-br from-slate-500/10 via-slate-500/5 to-slate-600/10 border border-slate-500/20">
-            {/* 背景装饰 */}
-            <div className="absolute top-0 right-0 w-32 h-32 opacity-10 bg-slate-400 rounded-full -translate-y-16 translate-x-16" />
-
-            <div className="relative">
-              <div className="flex items-start gap-4">
-                <div className="text-base text-slate-400">
-                  <InfoCircleOutlined />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold mb-2 text-base text-slate-300">
-                    待处理照片提醒
-                  </h4>
-                  <p className="text-sm leading-relaxed text-slate-400">
-                    还有
-                    {' '}
-                    {pendingCount}
-                    {' '}
-                    张照片未处理，这些照片不会进入下一步产品选片环节。
-                  </p>
-
-                  <div className="mt-4 p-3 bg-slate-500/10 border border-slate-500/20 rounded-lg">
-                    <label className="flex items-center gap-3 cursor-pointer text-slate-300 hover:text-slate-200 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={autoSelectedPending}
-                        onChange={e => setAutoSelectedPending(e.target.checked)}
-                        className="w-4 h-4 text-slate-500 bg-slate-900/50 border-slate-400 rounded focus:ring-slate-500 focus:ring-2"
-                      />
-                      <span className="text-sm">
-                        自动将剩余
-                        {' '}
-                        {pendingCount}
-                        {' '}
-                        张待处理照片标记为"已选"
-                      </span>
-                    </label>
-                    <p className="text-xs text-slate-400/70 mt-2 ml-7">
-                      勾选此选项将自动处理所有待处理照片，确保没有照片遗漏
-                    </p>
-                  </div>
-
-                </div>
+          <div className="bg-darkBlueGray-800/50 border border-darkBlueGray-600 rounded-lg p-4">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={autoSelectedPending}
+                onChange={e => setAutoSelectedPending(e.target.checked)}
+                className="mt-0.5 w-4 h-4 text-cyan-500 bg-darkBlueGray-700 border-darkBlueGray-500 rounded focus:ring-cyan-500 focus:ring-2"
+              />
+              <div className="flex-1">
+                <span className="text-darkBlueGray-100 text-sm group-hover:text-white transition-colors">
+                  自动将
+                  {' '}
+                  {pendingCount}
+                  {' '}
+                  张待处理照片标记为"已选"
+                </span>
+                <p className="text-xs text-darkBlueGray-300 mt-1">
+                  未勾选则这些照片不会进入下一步
+                </p>
               </div>
-            </div>
+            </label>
           </div>
         )}
 
-        {/* 统计卡片 */}
-        <div className="grid grid-cols-3 gap-6 select-none">
-          <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-xl p-6 text-center hover:from-green-500/15 hover:to-green-600/15 transition-all duration-300">
-            <div className="flex flex-col items-center space-y-3">
-              <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                <div className="text-3xl font-bold text-green-400">{selectedCount}</div>
-              </div>
-              <div className="text-green-300 text-sm font-medium tracking-wide">已选择</div>
-            </div>
+        {/* 简化的统计 */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-darkBlueGray-800/50 border border-emerald-500/30 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-emerald-400 mb-1">{selectedCount}</div>
+            <div className="text-darkBlueGray-200 text-xs">已选择</div>
           </div>
-          <div className="bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/20 rounded-xl p-6 text-center hover:from-red-500/15 hover:to-red-600/15 transition-all duration-300">
-            <div className="flex flex-col items-center space-y-3">
-              <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
-                <div className="text-3xl font-bold text-red-400">{excludedCount}</div>
-              </div>
-              <div className="text-red-300 text-sm font-medium tracking-wide">已排除</div>
-            </div>
+          <div className="bg-darkBlueGray-800/50 border border-amber-500/30 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-amber-400 mb-1">{excludedCount}</div>
+            <div className="text-darkBlueGray-200 text-xs">已排除</div>
           </div>
-          <div className="bg-gradient-to-br from-slate-500/10 to-slate-600/10 border border-slate-500/20 rounded-xl p-6 text-center hover:from-slate-500/15 hover:to-slate-600/15 transition-all duration-300">
-            <div className="flex flex-col items-center space-y-3">
-              <div className="w-12 h-12 bg-slate-500/20 rounded-full flex items-center justify-center">
-                <div className="text-3xl font-bold text-slate-400">{pendingCount}</div>
-              </div>
-              <div className="text-slate-300 text-sm font-medium tracking-wide">待处理</div>
-            </div>
+          <div className="bg-darkBlueGray-800/50 border border-darkBlueGray-600 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-darkBlueGray-300 mb-1">{pendingCount}</div>
+            <div className="text-darkBlueGray-200 text-xs">待处理</div>
           </div>
         </div>
-
-        {/* 进度展示 */}
-        <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-slate-200 font-semibold">套餐精修进度</span>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-slate-100">
-                {packageProgress.current}
-                /
-                {packageProgress.target}
-              </span>
-              <div
-                className={
-                  selectionStatus === 'underSelected'
-                    ? 'w-3 h-3 rounded-full bg-gradient-to-r from-orange-400 to-orange-500'
-                    : selectionStatus === 'overSelected'
-                      ? 'w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-500'
-                      : 'w-3 h-3 rounded-full bg-gradient-to-r from-green-400 to-green-500'
-                }
-              />
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className={
-                  selectionStatus === 'underSelected'
-                    ? 'h-full transition-all duration-500 bg-gradient-to-r from-orange-400 to-orange-500'
-                    : selectionStatus === 'overSelected'
-                      ? 'h-full transition-all duration-500 bg-gradient-to-r from-amber-400 to-amber-500'
-                      : 'h-full transition-all duration-500 bg-gradient-to-r from-green-400 to-green-500'
-                }
-                style={{ width: `${packageProgress.percent}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 text-sm text-slate-400">
-            {selectionStatus === 'underSelected' && `还需选择 ${packageProgress.target - packageProgress.current} 张照片完成套餐要求`}
-            {selectionStatus === 'exactSelected' && '已完成套餐要求的照片选择'}
-            {selectionStatus === 'exactSelectedWithPending' && '已达到套餐要求，还有待处理照片'}
-            {selectionStatus === 'overSelected' && `已超出套餐 ${packageProgress.current - packageProgress.target} 张照片`}
-          </div>
-        </div>
-
       </div>
     </CustomModal>
   )
