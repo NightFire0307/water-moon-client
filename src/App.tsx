@@ -54,26 +54,6 @@ function App() {
     fetchOrderInfo()
   }, [accessToken])
 
-  useEffect(() => {
-    if (!orderInfo)
-      return
-
-    switch (orderInfo.status) {
-      case OrderStatus.PRE_SELECT:
-        navigate('/pre-select')
-        break
-      case OrderStatus.PRODUCT_SELECT:
-        navigate('/product-select')
-        break
-      case OrderStatus.SUBMITTED:
-        navigate('/preview')
-        break
-      default:
-        navigate('/order-info')
-        break
-    }
-  }, [orderInfo, navigate])
-
   return (
     <ConfigProvider
       locale={zhCN}

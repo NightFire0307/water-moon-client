@@ -14,9 +14,10 @@ interface ThumbnailBarProps {
   extra?: React.ReactNode | ((item: Photo, index: number) => React.ReactNode) // 额外内容，可以是 ReactNode 或函数
   onVisibleChange?: (visible: boolean) => void // 可见性变化回调
   onClickThumbnail?: (item: Photo, index: number,) => void // 缩略图Bar点击回调
+  isPhotoSelected?: (photo: Photo, index: number) => boolean // 自定义照片选中状态的函数
 }
 
-export const ThumbnailBar = forwardRef<HTMLDivElement, ThumbnailBarProps>(({ photos, visible, extra, onClickThumbnail }, ref) => {
+export const ThumbnailBar = forwardRef<HTMLDivElement, ThumbnailBarProps>(({ photos, visible, extra, onClickThumbnail, isPhotoSelected }, ref) => {
   const { isHover, handleMouseEnter, handleMouseLeave } = useMouseOver({ delay: 150 })
   const { currentIndex } = usePhotoViewerStore()
   const simpleBarRef = useRef<HTMLDivElement | null>(null)
@@ -82,7 +83,7 @@ export const ThumbnailBar = forwardRef<HTMLDivElement, ThumbnailBarProps>(({ pho
                       key={photo.photoId}
                       index={index}
                       extra={extraContent(photos[index], index)}
-                      isSelected={currentIndex === index}
+                      isSelected={isPhotoSelected ? isPhotoSelected(photo, index) : currentIndex === index}
                       thumbnailUrl={photos[index].thumbnailUrl}
                       thumbnailClick={() => handleThumbnailClick(photos[index], index)}
                     />

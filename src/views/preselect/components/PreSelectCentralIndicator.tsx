@@ -15,16 +15,16 @@ export const PreSelectCentralIndicator: FC<PreSelectCentralIndicatorProps> = ({ 
   const indicatorClasses = cs(
     'rounded-full p-8 backdrop-blur-sm border-4',
     {
-      'bg-green-600/20 border-green-500/60': status === PreSelectStatus.SELECTED,
-      'bg-red-600/20 border-red-500/60': status === PreSelectStatus.EXCLUDED,
+      'bg-cyan-500/20 border-cyan-500/60': status === PreSelectStatus.SELECTED,
+      'bg-rose-500/20 border-rose-500/60': status === PreSelectStatus.EXCLUDED,
     },
   )
 
   const indicatorTextClasses = cs(
     'flex items-center justify-center shadow-2xl w-16 h-16 rounded-full',
     {
-      'bg-green-500 shadow-green-500/40': status === PreSelectStatus.SELECTED,
-      'bg-red-500 shadow-red-500/40': status === PreSelectStatus.EXCLUDED,
+      'bg-cyan-500 shadow-cyan-500/30': status === PreSelectStatus.SELECTED,
+      'bg-rose-500 shadow-rose-500/30': status === PreSelectStatus.EXCLUDED,
     },
   )
 
@@ -39,8 +39,8 @@ export const PreSelectCentralIndicator: FC<PreSelectCentralIndicatorProps> = ({ 
         <div className={indicatorTextClasses}>
           {
             status === PreSelectStatus.SELECTED
-              ? <CheckOutlined className="text-2xl" />
-              : <CloseOutlined className="text-2xl" />
+              ? <CheckOutlined className="text-2xl text-white" />
+              : <CloseOutlined className="text-2xl text-white" />
           }
         </div>
       </div>

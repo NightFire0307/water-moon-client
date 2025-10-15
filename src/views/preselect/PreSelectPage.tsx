@@ -120,14 +120,14 @@ const PreSelectPage: FC = () => {
         <>
           {
             item.preSelectStatus === PreSelectStatus.SELECTED && (
-              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-emerald-600 shadow-md">
+              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-cyan-500 shadow-md">
                 <CheckIcon className="text-xs text-white" />
               </div>
             )
           }
           {
             item.preSelectStatus === PreSelectStatus.EXCLUDED && (
-              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-amber-600 shadow-md">
+              <div className="flex justify-center items-center w-4 h-4 rounded-full bg-rose-500 shadow-md">
                 <XIcon className="text-xs text-white" />
               </div>
             )
@@ -232,7 +232,7 @@ const PreSelectPage: FC = () => {
 
   return (
     <Layout
-      className={`h-screen relative bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}
+      className={`h-screen relative bg-darkBlueGray-900 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}
     >
       {/* 顶部标题栏 */}
       <motion.div
@@ -255,7 +255,7 @@ const PreSelectPage: FC = () => {
               onClick={() => navigate('/order-info')}
               className="text-darkBlueGray-200 hover:text-darkBlueGray-50 hover:bg-darkBlueGray-700/50"
             />
-            <StepHeader stepNumber={2} stepTitle="预选照片" stepDesc="Photo PreSelection" />
+            <StepHeader stepNumber={2} title="预选照片" subtitle="Photo PreSelection" />
           </div>
 
           {/* 快捷键提示 */}
@@ -335,7 +335,7 @@ const PreSelectPage: FC = () => {
                   </div>
 
                   {/* 照片信息覆盖层 - 左上角 */}
-                  <div className="absolute top-4 left-4 bg-darkBlueGray-900/90 backdrop-blur-md rounded-md px-4 py-2 select-none border border-darkBlueGray-500/50 shadow-xl">
+                  <div className="absolute top-4 left-4 bg-darkBlueGray-800/90 backdrop-blur-md rounded-md px-4 py-2 select-none border border-darkBlueGray-500/50 shadow-xl">
                     <Text className="text-darkBlueGray-50 text-sm font-medium">{currentPhoto?.name ?? '暂无照片'}</Text>
                   </div>
 
@@ -345,7 +345,7 @@ const PreSelectPage: FC = () => {
                     {/* 进度统计 */}
                     <div
                       id="preselect-progress-status"
-                      className="relative w-24 bg-darkBlueGray-900/85 backdrop-blur-sm rounded-md px-3 py-2 border border-darkBlueGray-500/50 shadow-xl"
+                      className="relative w-24 bg-darkBlueGray-800/90 backdrop-blur-sm rounded-md px-3 py-2 border border-darkBlueGray-500/50 shadow-xl"
                       onMouseEnter={() => {
                         if (hoverTimeoutRef.current) {
                           clearTimeout(hoverTimeoutRef.current)
@@ -404,6 +404,15 @@ const PreSelectPage: FC = () => {
           onClickThumbnail={(item, index) => {
             setCurrentIndex(index)
             setCurrentPhoto(item)
+          }}
+          isPhotoSelected={({ photoId }) => {
+            if (viewMode === 'compare') {
+              return comparePhotos.find(photo => photo.photoId === photoId) !== undefined
+            }
+            else if (viewMode === 'single') {
+              return currentPhoto?.photoId === photoId
+            }
+            return false
           }}
         />
       </Content>

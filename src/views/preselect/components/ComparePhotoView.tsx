@@ -4,6 +4,7 @@ import { PreSelectStatus } from '@/types/selection/preSelection'
 import { Typography } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { HeartIcon, XIcon } from 'lucide-react'
+import { useCallback } from 'react'
 
 const { Text } = Typography
 
@@ -14,7 +15,40 @@ interface ComparePhotoViewProps {
 }
 
 function ComparePhotoView() {
-  const { comparePhotos, setComparePhotos } = usePhotosStore()
+  const {
+    comparePhotos,
+    setComparePhotos,
+    preSelectedPhotos,
+    setPreSelectedPhotos,
+    currentPhoto,
+    setCurrentPhoto,
+  } = usePhotosStore()
+
+  const updatePhotoStatus = useCallback((photoId: number, status: PreSelectStatus) => {
+    // 更新 comparePhotos 中对应照片的预选状态
+    const updatedPhotos = comparePhotos.map((photo) => {
+      if (photo.photoId === photoId) {
+        return { ...photo, preSelectStatus: status }
+      }
+      return photo
+    })
+    setComparePhotos(updatedPhotos)
+
+    // 同步更新 preSelectedPhotos 列表
+    if (preSelectedPhotos.has(photoId)) {
+      const updatedPreSelected = new Map(preSelectedPhotos)
+      updatedPreSelected.set(photoId, {
+        ...updatedPreSelected.get(photoId),
+        preSelectStatus: status,
+      } as Photo)
+      setPreSelectedPhotos(updatedPreSelected)
+    }
+
+    // 同步 CurrentPhoto 的预选状态
+    if (currentPhoto?.photoId === photoId) {
+      setCurrentPhoto({ ...currentPhoto, preSelectStatus: status })
+    }
+  }, [comparePhotos, preSelectedPhotos, setComparePhotos, setPreSelectedPhotos, currentPhoto, setCurrentPhoto])
 
   return (
     <div className="h-full flex items-center justify-center gap-6">
@@ -22,20 +56,8 @@ function ComparePhotoView() {
         <PhotoViewItem
           key={photo.photoId}
           photo={photo}
-          onSelect={(photoId) => {
-            const updatePhoto = comparePhotos.find(p => p.photoId === photoId)
-            if (updatePhoto) {
-              updatePhoto.preSelectStatus = PreSelectStatus.SELECTED
-              setComparePhotos([...comparePhotos])
-            }
-          }}
-          onExclude={(photoId) => {
-            const updatePhoto = comparePhotos.find(p => p.photoId === photoId)
-            if (updatePhoto) {
-              updatePhoto.preSelectStatus = PreSelectStatus.EXCLUDED
-              setComparePhotos([...comparePhotos])
-            }
-          }}
+          onSelect={photoId => updatePhotoStatus(photoId, PreSelectStatus.SELECTED)}
+          onExclude={photoId => updatePhotoStatus(photoId, PreSelectStatus.EXCLUDED)}
         />
       ))}
     </div>

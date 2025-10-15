@@ -212,7 +212,7 @@ function ProductSelectPage() {
                     size="large"
                     onClick={() => setPreSelectConfirmOpen(true)} // 返回产品选择页面
                   />
-                  <StepHeader stepNumber={3} stepTitle="产品选片" stepDesc="Product Selection" />
+                  <StepHeader stepNumber={3} title="产品选片" subtitle="Product Selection" />
                 </div>
                 {
                   syncDate && (

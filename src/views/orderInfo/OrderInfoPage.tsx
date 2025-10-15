@@ -1,5 +1,6 @@
 import type { IOrderProduct } from '@/types/user/order'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
+import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { useOrderStore } from '@/stores/useOrderStore'
 import { OrderStatus } from '@/types/user/order'
 import {
@@ -29,36 +30,36 @@ const OrderInfoPage: FC = () => {
         return {
           text: '待开始',
           icon: <FlagOutlined />,
-          iconColor: 'text-yellow-400',
-          textColor: 'text-yellow-300',
+          iconColor: 'text-amber-400',
+          textColor: 'text-amber-300',
         }
       case OrderStatus.PRE_SELECT:
         return {
           text: '预选阶段',
           icon: <CheckCircleOutlined />,
-          iconColor: 'text-blue-400',
-          textColor: 'text-blue-300',
+          iconColor: 'text-cyan-400',
+          textColor: 'text-cyan-300',
         }
       case OrderStatus.PRODUCT_SELECT:
         return {
           text: '产品分片阶段',
           icon: <CheckCircleOutlined />,
-          iconColor: 'text-green-400',
-          textColor: 'text-green-300',
+          iconColor: 'text-emerald-400',
+          textColor: 'text-emerald-300',
         }
       case OrderStatus.SUBMITTED:
         return {
           text: '已提交',
           icon: <CheckCircleOutlined />,
-          iconColor: 'text-green-400',
-          textColor: 'text-green-300',
+          iconColor: 'text-emerald-400',
+          textColor: 'text-emerald-300',
         }
       default:
         return {
           text: '未知状态',
           icon: <ExclamationCircleOutlined />,
-          iconColor: 'text-gray-400',
-          textColor: 'text-gray-300',
+          iconColor: 'text-darkBlueGray-400',
+          textColor: 'text-darkBlueGray-300',
         }
     }
   }
@@ -75,28 +76,28 @@ const OrderInfoPage: FC = () => {
     if (selectedCount === 0) {
       return {
         text: '未开始',
-        bgColor: 'bg-yellow-600/20',
-        borderColor: 'border-yellow-500/30',
-        textColor: 'text-yellow-300',
-        dotColor: 'bg-yellow-400',
+        bgColor: 'bg-amber-500/20',
+        borderColor: 'border-amber-500/30',
+        textColor: 'text-amber-300',
+        dotColor: 'bg-amber-400',
       }
     }
     else if (selectedCount < requiredCount) {
       return {
         text: `已选 ${selectedCount}/${requiredCount}`,
-        bgColor: 'bg-blue-500/20',
-        borderColor: 'border-blue-500/30',
-        textColor: 'text-blue-300',
-        dotColor: 'bg-blue-400',
+        bgColor: 'bg-cyan-500/20',
+        borderColor: 'border-cyan-500/30',
+        textColor: 'text-cyan-300',
+        dotColor: 'bg-cyan-400',
       }
     }
     else {
       return {
         text: '已完成',
-        bgColor: 'bg-green-600/20',
-        borderColor: 'border-green-500/30',
-        textColor: 'text-green-300',
-        dotColor: 'bg-green-400',
+        bgColor: 'bg-emerald-500/20',
+        borderColor: 'border-emerald-500/30',
+        textColor: 'text-emerald-300',
+        dotColor: 'bg-emerald-400',
       }
     }
   }
@@ -112,19 +113,7 @@ const OrderInfoPage: FC = () => {
       >
         <div className="max-w-4xl mx-auto py-2">
           <div className="flex items-center justify-between">
-            {/* 左侧 - 当前步骤信息 */}
-            <div className="flex items-center space-x-4">
-              {/* 步骤编号 */}
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <span className="text-white text-lg font-bold">1</span>
-              </div>
-
-              {/* 步骤信息 */}
-              <div>
-                <h1 className="text-white text-lg font-bold my-0">确认您的订单信息</h1>
-                <p className="text-darkBlueGray-300 text-sm">Info Confirmation</p>
-              </div>
-            </div>
+            <StepHeader stepNumber={1} title="确认您的订单信息" subtitle="Info Confirmation" />
 
             {/* 右侧 - 进度和品牌 */}
             <div className="flex items-center space-x-6">
@@ -172,7 +161,7 @@ const OrderInfoPage: FC = () => {
               </div>
               <div className="text-center">
                 <p className="text-darkBlueGray-400 text-xs mb-2 uppercase tracking-wider">客户手机</p>
-                <span className="text-blue-300 text-xl md:text-2xl font-semibold tracking-wider">
+                <span className="text-cyan-300 text-xl md:text-2xl font-semibold tracking-wider">
                   {orderInfo?.customerPhone ?? '加载中...'}
                 </span>
               </div>
@@ -181,14 +170,14 @@ const OrderInfoPage: FC = () => {
             {/* 订单详情网格 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
-                <CalendarOutlined className="text-blue-400 text-2xl mb-3 block mx-auto" />
+                <CalendarOutlined className="text-cyan-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">创建日期</p>
-                <p className="text-blue-300 text-lg font-semibold">{dayjs(orderInfo?.createdAt).format('YYYY-MM-DD')}</p>
+                <p className="text-cyan-300 text-lg font-semibold">{dayjs(orderInfo?.createdAt).format('YYYY-MM-DD')}</p>
               </div>
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
-                <FieldTimeOutlined className="text-orange-400 text-2xl mb-3 block mx-auto" />
+                <FieldTimeOutlined className="text-amber-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">截止日期</p>
-                <p className="text-orange-300 text-lg font-semibold">
+                <p className="text-amber-300 text-lg font-semibold">
                   {
                     orderInfo?.isExpired ? '已过期' : dayjs(orderInfo?.validUntil).format('YYYY-MM-DD')
                   }
@@ -225,19 +214,19 @@ const OrderInfoPage: FC = () => {
                 // 根据进度确定颜色
                 const getProgressColor = () => {
                   if (progressPercent >= 100) {
-                    return { from: '#10b981', to: '#059669' } // 绿色
+                    return { from: '#10b981', to: '#34d399' } // emerald-500 到 emerald-400（完成）
                   }
-                  return { from: '#3b82f6', to: '#1d4ed8' } // 蓝色
+                  return { from: '#06b6d4', to: '#0891b2' } // cyan-500 到 cyan-600（进行中）
                 }
 
                 return (
                   <div
                     key={orderProduct.id}
-                    className="group bg-gradient-to-br from-darkBlueGray-800/40 to-darkBlueGray-900/40 backdrop-blur-sm rounded-2xl p-6 border border-darkBlueGray-700/50 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 transform hover:-translate-y-1"
+                    className="group bg-gradient-to-br from-darkBlueGray-800/40 to-darkBlueGray-900/40 backdrop-blur-sm rounded-2xl p-6 border border-darkBlueGray-700/50 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 transform hover:-translate-y-1"
                   >
                     {/* 顶部：产品类型标签 + 状态徽章 */}
                     <div className="flex items-center justify-between mb-4">
-                      <div className="inline-flex items-center px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-semibold rounded-full border border-blue-500/30">
+                      <div className="inline-flex items-center px-3 py-1 bg-cyan-500/20 text-cyan-300 text-xs font-semibold rounded-full border border-cyan-500/30">
                         {orderProduct.productType}
                       </div>
                       <motion.div
@@ -255,7 +244,7 @@ const OrderInfoPage: FC = () => {
 
                     {/* 产品名称 */}
                     <div className="mb-5">
-                      <h4 className="text-white text-xl font-bold mb-2 leading-tight group-hover:text-blue-300 transition-colors">
+                      <h4 className="text-white text-xl font-bold mb-2 leading-tight group-hover:text-cyan-300 transition-colors">
                         {orderProduct.productName}
                       </h4>
                     </div>
@@ -272,7 +261,7 @@ const OrderInfoPage: FC = () => {
                       {/* 照片需求 */}
                       <div className="text-center bg-darkBlueGray-700/30 rounded-xl p-3 border border-darkBlueGray-600/30">
                         <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">应选照片</p>
-                        <p className="text-blue-300 text-2xl font-bold">{orderProduct.photoLimit === 0 ? '∞' : orderProduct.photoLimit}</p>
+                        <p className="text-cyan-300 text-2xl font-bold">{orderProduct.photoLimit === 0 ? '∞' : orderProduct.photoLimit}</p>
                         <p className="text-darkBlueGray-300 text-xs">张</p>
                       </div>
                     </div>
@@ -300,7 +289,7 @@ const OrderInfoPage: FC = () => {
                       {/* 总计提示 */}
                       <div className="flex items-center justify-between text-xs pt-2 border-t border-darkBlueGray-600/30">
                         <span className="text-darkBlueGray-400">总计需要</span>
-                        <span className="text-blue-300 font-semibold">
+                        <span className="text-cyan-300 font-semibold">
                           {requiredPhotos === 0 ? '∞' : requiredPhotos}
                           {' '}
                           张照片
@@ -359,7 +348,7 @@ const OrderInfoPage: FC = () => {
                         whileTap={{ scale: 0.95 }}
                         className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
                           step.active
-                            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400 shadow-lg shadow-blue-500/40 ring-2 ring-blue-400/30'
+                            ? 'bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/40 ring-2 ring-cyan-400/30'
                             : 'bg-darkBlueGray-800 text-darkBlueGray-400 border-darkBlueGray-600 hover:border-darkBlueGray-500'
                         }`}
                       >
@@ -368,7 +357,7 @@ const OrderInfoPage: FC = () => {
 
                       {/* 步骤文字 */}
                       <div className="mt-3 text-center">
-                        <p className={`text-sm font-semibold mb-1 transition-colors duration-300 ${step.active ? 'text-blue-300' : 'text-darkBlueGray-400'}`}>
+                        <p className={`text-sm font-semibold mb-1 transition-colors duration-300 ${step.active ? 'text-cyan-300' : 'text-darkBlueGray-400'}`}>
                           {step.title}
                         </p>
                         <p className="text-xs text-darkBlueGray-500 tracking-wide">

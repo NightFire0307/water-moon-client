@@ -78,7 +78,7 @@ export default function PreviewMode() {
               onClick={() => navigate('/product-select')} // 返回产品选择页面
               disabled={orderInfo?.status === 'submitted'}
             />
-            <StepHeader stepNumber={4} stepTitle="选片结果预览" stepDesc="Selection Result Preview" />
+            <StepHeader stepNumber={4} title="选片结果预览" subtitle="Selection Result Preview" />
           </div>
 
           {/* 中间的成功提示区域 */}

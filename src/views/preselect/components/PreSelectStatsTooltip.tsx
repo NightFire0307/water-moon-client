@@ -45,9 +45,9 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
             exit={{ opacity: 0 }}
             className="absolute top-14 right-0 z-50"
           >
-            <div className="bg-darkBlueGray-900/90 backdrop-blur-lg rounded-md border border-darkBlueGray-500/50 shadow-2xl p-4 min-w-[240px]">
+            <div className="bg-darkBlueGray-800/90 backdrop-blur-lg rounded-md border border-darkBlueGray-500/50 shadow-2xl p-4 min-w-[240px]">
               <div className="text-center pb-3 border-b border-darkBlueGray-700/50">
-                <Text className="text-darkBlueGray-300 text-xs font-medium tracking-wide uppercase">
+                <Text className="text-darkBlueGray-300 text-base font-medium tracking-wide uppercase">
                   筛选统计
                 </Text>
               </div>
@@ -55,11 +55,11 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
               <div className="space-y-3 mt-3">
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/30"></div>
+                    <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30"></div>
                     <Text className="text-darkBlueGray-300 text-sm font-medium">已选择</Text>
                   </div>
-                  <div className="px-3 py-1 bg-green-600/20 border border-green-600/30 rounded-lg">
-                    <Text className="text-green-400 font-bold text-sm">{selectedCount}</Text>
+                  <div className="px-3 py-1 bg-emerald-600/20 border border-emerald-600/30 rounded-lg">
+                    <Text className="text-emerald-400 font-bold text-sm">{selectedCount}</Text>
                   </div>
                 </div>
 
@@ -95,7 +95,7 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
                   %
                 </Text>
               </div>
-              <Progress percent={percent} strokeColor={{ from: '#22c55e', to: '#4ade80' }} showInfo={false} />
+              <Progress percent={percent} strokeColor={{ from: '#10b981', to: '#34d399' }} showInfo={false} />
 
               <div className="pt-3 mt-3 border-t border-darkBlueGray-700/50" />
 

@@ -3,9 +3,9 @@ import type { ThemeConfig } from 'antd'
 
 export const DarkBlueTheme: ThemeConfig = {
   token: {
-    colorPrimary: '#475569',
-    colorPrimaryHover: '#334155', // darkBlueGray-700
-    colorPrimaryActive: '#1e293b', // darkBlueGray-800
+    colorPrimary: '#0891b2', // cyan-600（而不是 darkBlueGray-600）
+    colorPrimaryHover: '#0e7490', // cyan-700
+    colorPrimaryActive: '#155e75', // cyan-800
     colorBgElevated: '#334155',
     colorBorder: '#475569',
     colorText: '#f8fafc',
@@ -19,11 +19,11 @@ export const DarkBlueTheme: ThemeConfig = {
     },
     Button: {
       // Primary按钮
-      colorPrimary: '#10b981', // emerald-500
-      colorPrimaryHover: '#059669', // emerald-600
-      colorPrimaryActive: '#047857', // emerald-700
+      colorPrimary: '#0891b2', // cyan-600
+      colorPrimaryHover: '#0e7490', // cyan-700
+      colorPrimaryActive: '#155e75', // cyan-800
       primaryColor: '#ffffff',
-      primaryShadow: '0 2px 0 rgba(5, 150, 105, 0.1)',
+      primaryShadow: '0 2px 0 rgba(8, 145, 178, 0.15)',
       // Default按钮
       borderColorDisabled: '#475569',
       defaultBg: '#334155',

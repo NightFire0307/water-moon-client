@@ -1,10 +1,10 @@
 interface StepHeaderProps {
   stepNumber: number
-  stepTitle: string
-  stepDesc: string
+  title: string
+  subtitle: string
 }
 
-export function StepHeader({ stepNumber, stepTitle, stepDesc }: StepHeaderProps) {
+export function StepHeader({ stepNumber, title, subtitle }: StepHeaderProps) {
   return (
     <div className="flex items-center space-x-4">
       {/* 步骤编号 */}
@@ -14,8 +14,8 @@ export function StepHeader({ stepNumber, stepTitle, stepDesc }: StepHeaderProps)
 
       {/* 步骤信息 */}
       <div>
-        <h1 className="text-white text-lg font-bold my-0">{stepTitle}</h1>
-        <p className="text-darkBlueGray-300 text-sm">{stepDesc}</p>
+        <h1 className="text-white text-lg font-bold my-0">{title}</h1>
+        <p className="text-darkBlueGray-300 text-sm">{subtitle}</p>
       </div>
     </div>
   )
