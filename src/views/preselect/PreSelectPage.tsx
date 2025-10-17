@@ -297,7 +297,9 @@ const PreSelectPage: FC = () => {
             <Button
               id="preselect-next-step-button"
               type="primary"
-              onClick={() => setPreSelectConfirmModalOpen(true)}
+              onClick={() => {
+                setPreSelectConfirmModalOpen(true)
+              }}
             >
               下一步：选择产品
               <RightOutlined />

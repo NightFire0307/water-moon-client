@@ -8,11 +8,6 @@ export const guideSteps: Record<string, TourProps['steps']> = {
       target: () => document.getElementById('preselect-next-step-button')!,
     },
     {
-      title: '当前照片预选状态',
-      description: '这里会显示你当前照片预选进度',
-      target: () => document.getElementById('preselect-current-status')!,
-    },
-    {
       title: '预选进度',
       description: '这里会显示你当前总体预选进度',
       target: () => document.getElementById('preselect-progress-status')!,

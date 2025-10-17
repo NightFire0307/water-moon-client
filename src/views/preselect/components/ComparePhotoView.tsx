@@ -76,7 +76,7 @@ function PhotoViewItem({ photo, onSelect, onExclude }: ComparePhotoViewProps) {
       {/* 右上角预选状态角标 - 始终显示 */}
       <div className="absolute top-3 right-3">
         {photo.preSelectStatus === PreSelectStatus.SELECTED && (
-          <div className="w-9 h-9 rounded-full bg-emerald-600/90 backdrop-blur-sm shadow-lg shadow-emerald-500/40 flex items-center justify-center border-2 border-emerald-400/80 transition-all duration-200">
+          <div className="w-9 h-9 rounded-full bg-cyan-600/90 backdrop-blur-sm shadow-lg shadow-cyan-500/40 flex items-center justify-center border-2 border-cyan-400/80 transition-all duration-200">
             <HeartIcon size={18} fill="#fff" className="text-white" />
           </div>
         )}
@@ -116,8 +116,8 @@ function PhotoViewItem({ photo, onSelect, onExclude }: ComparePhotoViewProps) {
                   onClick={() => onSelect(photo.photoId)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 backdrop-blur-sm font-medium text-sm ${
                     photo.preSelectStatus === PreSelectStatus.SELECTED
-                      ? 'bg-emerald-600 text-white border-2 border-emerald-400'
-                      : 'bg-darkBlueGray-700/90 text-darkBlueGray-200 border-2 border-darkBlueGray-600 hover:bg-emerald-600/20 hover:border-emerald-500/50 hover:text-emerald-400'
+                      ? 'bg-cyan-600 text-white border-2 border-cyan-400'
+                      : 'bg-darkBlueGray-700/90 text-darkBlueGray-200 border-2 border-darkBlueGray-600 hover:bg-cyan-600/20 hover:border-cyan-500/50 hover:text-cyan-400'
                   }`}
                   aria-label="选择照片"
                 >
