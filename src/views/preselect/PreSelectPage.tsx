@@ -4,6 +4,7 @@ import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
 import { useAutoSync } from '@/hooks/useAutoSync'
+import { useHotkeys } from '@/hooks/useHotkeys'
 import { syncPreSelectedPhotos } from '@/services/photoSyncService'
 import { useOrderStore } from '@/stores/useOrderStore'
 import { type Photo, usePhotosStore } from '@/stores/usePhotosStore'
@@ -26,7 +27,6 @@ const { Text } = Typography
 
 const PreSelectPage: FC = () => {
   useAutoSync(syncPreSelectedPhotos, { delay: 30 })
-  const [isFullscreen, setIsFullscreen] = useState(false)
   const [isProgressHovered, setIsProgressHovered] = useState(false)
   const [preSelectConfirmModalOpen, setPreSelectConfirmModalOpen] = useState(false)
   const [isThumbnailBarVisible, setIsThumbnailBarVisible] = useState(false)
@@ -61,17 +61,60 @@ const PreSelectPage: FC = () => {
     return result
   }, [preSelectedPhotos])
 
-  // 全屏切换处理
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen()
-      setIsFullscreen(true)
-    }
-    else {
-      document.exitFullscreen()
-      setIsFullscreen(false)
-    }
-  }
+  // 页面快捷键
+  useHotkeys([
+    {
+      key: 'ArrowLeft',
+      cb: () => {
+        // 如果当前是第一张照片，则不切换
+        if (currentIndex !== 0) {
+          const previousPhoto = preSelectPhotos[currentIndex - 1]
+          setCurrentPhoto(previousPhoto)
+          previous()
+        }
+      },
+    },
+    {
+      key: 'ArrowRight',
+      cb: () => {
+        // 如果index不是最后一张则切换到下一张
+        if (currentIndex < preSelectPhotos.length - 1) {
+          // 如果当前照片为 pending 则自动标记 selected
+          if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
+            togglePreSelected(PreSelectStatus.SELECTED)
+          }
+
+          const nextPhoto = preSelectPhotos[currentIndex + 1]
+          setCurrentPhoto(nextPhoto)
+
+          next()
+        }
+      },
+    },
+    {
+      key: 'space',
+      cb: () => {
+        if (currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED) {
+          setCurrentPhoto({ ...currentPhoto, preSelectStatus: PreSelectStatus.EXCLUDED })
+          togglePreSelected(PreSelectStatus.EXCLUDED)
+        }
+        else if (currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDED) {
+          setCurrentPhoto({ ...currentPhoto, preSelectStatus: PreSelectStatus.SELECTED })
+          togglePreSelected(PreSelectStatus.SELECTED)
+        }
+        else if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
+          setCurrentPhoto({ ...currentPhoto, preSelectStatus: PreSelectStatus.EXCLUDED })
+          togglePreSelected(PreSelectStatus.EXCLUDED)
+        }
+
+        // if (currentIndex < preSelectPhotos.length - 1) {
+        //   const nextPhoto = preSelectPhotos[currentIndex + 1]
+        //   setCurrentPhoto(nextPhoto)
+        //   next()
+        // }
+      },
+    },
+  ])
 
   // 处理预选确认
   const handlePreSelectConfirm = async () => {
@@ -161,69 +204,6 @@ const PreSelectPage: FC = () => {
     return null
   }, [viewMode, comparePhotos, setComparePhotos])
 
-  // 键盘快捷键
-  const handleKeyPress = useCallback((e: KeyboardEvent) => {
-    switch (e.code) {
-      case 'F11':
-        e.preventDefault()
-        toggleFullscreen()
-        break
-      case 'ArrowLeft':
-        e.preventDefault()
-
-        // 如果当前是第一张照片，则不切换
-        if (currentIndex !== 0) {
-          const previousPhoto = preSelectPhotos[currentIndex - 1]
-          setCurrentPhoto(previousPhoto)
-          previous()
-        }
-        break
-      case 'ArrowRight':
-        e.preventDefault()
-
-        // 如果index不是最后一张则切换到下一张
-        if (currentIndex < preSelectPhotos.length - 1) {
-          // 如果当前照片为 pending 则自动标记 selected
-          if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
-            togglePreSelected(PreSelectStatus.SELECTED)
-          }
-
-          const nextPhoto = preSelectPhotos[currentIndex + 1]
-          setCurrentPhoto(nextPhoto)
-
-          next()
-        }
-
-        break
-      case 'Space':
-        e.preventDefault()
-        if (currentPhoto?.preSelectStatus === PreSelectStatus.SELECTED) {
-          togglePreSelected(PreSelectStatus.EXCLUDED)
-        }
-        else if (currentPhoto?.preSelectStatus === PreSelectStatus.EXCLUDED) {
-          togglePreSelected(PreSelectStatus.SELECTED)
-        }
-        else if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
-          togglePreSelected(PreSelectStatus.EXCLUDED)
-        }
-
-        if (currentIndex < preSelectPhotos.length - 1) {
-          const nextPhoto = preSelectPhotos[currentIndex + 1]
-          setCurrentPhoto(nextPhoto)
-          next()
-        }
-
-        break
-      default:
-        break
-    }
-  }, [currentPhoto, currentIndex, next, previous, preSelectPhotos, setCurrentPhoto, togglePreSelected])
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [handleKeyPress])
-
   useEffect(() => {
     if (currentPhoto === null && preSelectPhotos.length > 0) {
       setCurrentPhoto(preSelectPhotos[0])
@@ -232,16 +212,10 @@ const PreSelectPage: FC = () => {
 
   return (
     <Layout
-      className={`h-screen relative bg-darkBlueGray-900 overflow-hidden ${isFullscreen ? 'cursor-none' : ''}`}
+      className={`h-screen relative bg-darkBlueGray-900 overflow-hidden `}
     >
       {/* 顶部标题栏 */}
-      <motion.div
-        initial={{ opacity: 0, y: -30 }}
-        animate={{
-          opacity: isFullscreen ? 0 : 1,
-          y: isFullscreen ? -50 : 0,
-        }}
-        transition={{ duration: 0.3 }}
+      <div
         className="absolute top-0 left-0 right-0 z-30 bg-darkBlueGray-900/70 backdrop-blur-md border-b border-darkBlueGray-700/70"
       >
         <div
@@ -306,7 +280,7 @@ const PreSelectPage: FC = () => {
             </Button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* 主视图区域 */}
       <Content className="relative flex-1 mt-16">
