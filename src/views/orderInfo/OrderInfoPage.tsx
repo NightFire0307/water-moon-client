@@ -1,7 +1,11 @@
 import type { IOrderProduct } from '@/types/user/order'
+import { getOrderInfo } from '@/apis/order'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
+import { useAuthStore } from '@/stores/useAuthStore'
 import { useOrderStore } from '@/stores/useOrderStore'
+import { usePhotosStore } from '@/stores/usePhotosStore'
+import { useProductsStore } from '@/stores/useProductsStore'
 import { OrderStatus } from '@/types/user/order'
 import {
   ArrowRightOutlined,
@@ -14,14 +18,17 @@ import {
 import { Button, Layout, Progress } from 'antd'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
-import { type FC, useMemo } from 'react'
+import { type FC, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 
 const { Content } = Layout
 
 const OrderInfoPage: FC = () => {
   const navigate = useNavigate()
-  const { orderInfo } = useOrderStore()
+  const { setOrderInfo, orderInfo } = useOrderStore()
+  const { setProducts } = useProductsStore()
+  const { fetchPhotos } = usePhotosStore()
+  const { accessToken } = useAuthStore()
 
   // 获取选片状态显示信息
   const getSelectionStatusInfo = (status: OrderStatus) => {
@@ -101,6 +108,22 @@ const OrderInfoPage: FC = () => {
       }
     }
   }
+
+  // 获取订单信息
+  const fetchOrderInfo = async () => {
+    const { data } = await getOrderInfo()
+    setOrderInfo(data)
+    setProducts(data.orderProducts)
+
+    await fetchPhotos()
+  }
+
+  useEffect(() => {
+    if (!accessToken)
+      return
+
+    fetchOrderInfo()
+  }, [accessToken])
 
   return (
     <Layout className="min-h-screen bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950 flex flex-col text-base md:text-lg">

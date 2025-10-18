@@ -19,11 +19,11 @@
     "antd-style": "^3.7.1",
     "axios": "^1.7.9",
     "classnames": "^2.5.1",
-    "dayjs": "^1.11.13",
+    "dayjs": "^1.11.18",
     "framer-motion": "^12.23.6",
     "immer": "^10.1.1",
     "lodash-es": "^4.17.21",
-    "lucide-react": "^0.540.0",
+    "lucide-react": "^0.546.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
@@ -33,6 +33,7 @@
     "react-window": "^1.8.11",
     "react-zoom-pan-pinch": "^3.7.0",
     "simplebar-react": "^3.3.0",
+    "vite-plugin-compression2": "^2.3.0",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
