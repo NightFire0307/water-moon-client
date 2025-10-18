@@ -6,7 +6,7 @@ import { usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { useProductsStore } from '@/stores/useProductsStore'
 import { CheckOutlined, DownOutlined, LeftOutlined, MessageOutlined, PlusOutlined, RightOutlined, RotateLeftOutlined, RotateRightOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Dropdown, Form, Input, type MenuProps } from 'antd'
+import { Button, Dropdown, Form, Input, type MenuProps } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type FC, type RefObject, useEffect, useMemo, useState } from 'react'
 
@@ -100,115 +100,64 @@ export const ViewerControl: FC<ViewerControlProps> = ({ transformRef, next, prev
               >
 
                 {/* 产品选择按钮 */}
-                <ConfigProvider theme={{
-                  components: {
-                    Button: {
-                      defaultBg: 'linear-gradient(135deg, #10b981, #059669)',
-                      defaultColor: '#ffffff',
-                      defaultBorderColor: 'transparent',
-                      defaultHoverBg: 'linear-gradient(135deg, #059669, #047857)',
-                      defaultHoverBorderColor: 'transparent',
-                      defaultHoverColor: '#ffffff',
-                      defaultActiveBg: 'linear-gradient(135deg, #047857, #065f46)',
-                      defaultActiveBorderColor: 'transparent',
-                      defaultActiveColor: '#ffffff',
-                      borderRadius: 10,
-                    },
-                  },
-                }}
+                <Dropdown
+                  open={open}
+                  menu={{ items: menuItems, onClick: handleMenuClick }}
+                  onOpenChange={handleOpenChange}
+                  disabled={currentPhoto === null}
                 >
-                  <Dropdown
-                    open={open}
-                    menu={{ items: menuItems, onClick: handleMenuClick }}
-                    onOpenChange={handleOpenChange}
-                    disabled={currentPhoto === null}
+                  <Button
+                    type="primary"
+                    id="add-to-product-button"
+                    icon={<PlusOutlined />}
                   >
-                    <Button
-                      id="add-to-product-button"
-                      icon={<PlusOutlined />}
-                    >
-                      加入产品
-                      <DownOutlined className="ml-1" />
-                    </Button>
-                  </Dropdown>
-                </ConfigProvider>
+                    加入产品
+                    <DownOutlined className="ml-1" />
+                  </Button>
+                </Dropdown>
 
                 {/* 分隔线 */}
                 <div className="w-px h-8 bg-gradient-to-b from-transparent via-slate-500/50 to-transparent" />
 
                 {/* 功能按钮组 */}
                 <div className="flex items-center gap-2">
-                  <ConfigProvider theme={{
-                    components: {
-                      Button: {
-                        defaultBg: 'rgba(51, 65, 85, 0.8)',
-                        defaultColor: '#cbd5e1',
-                        defaultBorderColor: 'rgba(71, 85, 105, 0.5)',
-                        defaultHoverBg: 'rgba(71, 85, 105, 0.9)',
-                        defaultHoverBorderColor: 'rgba(100, 116, 139, 0.8)',
-                        defaultHoverColor: '#ffffff',
-                        defaultActiveBg: 'rgba(30, 41, 59, 0.9)',
-                        defaultActiveBorderColor: 'rgba(51, 65, 85, 0.8)',
-                        defaultActiveColor: '#f8fafc',
-                        borderRadius: 8,
-                      },
-                    },
-                  }}
-                  >
-                    <Button
-                      icon={<MessageOutlined />}
-                      onClick={handleRemark}
-                      title="添加备注"
-                      id="remark-button"
-                    />
-                  </ConfigProvider>
+
+                  <Button
+                    icon={<MessageOutlined />}
+                    onClick={handleRemark}
+                    title="添加备注"
+                    id="remark-button"
+                  />
 
                   <div className="w-px h-6 bg-slate-500/30" />
 
-                  <ConfigProvider theme={{
-                    components: {
-                      Button: {
-                        defaultBg: 'rgba(51, 65, 85, 0.8)',
-                        defaultColor: '#cbd5e1',
-                        defaultBorderColor: 'rgba(71, 85, 105, 0.5)',
-                        defaultHoverBg: 'rgba(71, 85, 105, 0.9)',
-                        defaultHoverBorderColor: 'rgba(100, 116, 139, 0.8)',
-                        defaultHoverColor: '#ffffff',
-                        defaultActiveBg: 'rgba(30, 41, 59, 0.9)',
-                        defaultActiveBorderColor: 'rgba(51, 65, 85, 0.8)',
-                        defaultActiveColor: '#f8fafc',
-                        borderRadius: 8,
-                      },
-                    },
-                  }}
-                  >
-                    <div id="action-bar" className="flex items-center gap-2">
-                      <Button
-                        icon={<ZoomInOutlined />}
-                        onClick={zoomIn}
-                        className="shadow-md hover:shadow-lg transition-all duration-200"
-                        title="放大"
-                      />
-                      <Button
-                        icon={<ZoomOutOutlined />}
-                        onClick={zoomOut}
-                        className="shadow-md hover:shadow-lg transition-all duration-200"
-                        title="缩小"
-                      />
-                      <Button
-                        icon={<RotateLeftOutlined />}
-                        onClick={() => rotateLeft()}
-                        className="shadow-md hover:shadow-lg transition-all duration-200"
-                        title="逆时针旋转"
-                      />
-                      <Button
-                        icon={<RotateRightOutlined />}
-                        onClick={() => rotateRight()}
-                        className=" shadow-md hover:shadow-lg transition-all duration-200"
-                        title="顺时针旋转"
-                      />
-                    </div>
-                  </ConfigProvider>
+                  <div id="action-bar" className="flex items-center gap-2">
+                    <Button
+                      icon={<ZoomInOutlined />}
+                      onClick={zoomIn}
+                      className="shadow-md hover:shadow-lg transition-all duration-200"
+                      title="放大"
+                    />
+                    <Button
+                      icon={<ZoomOutOutlined />}
+                      onClick={zoomOut}
+                      className="shadow-md hover:shadow-lg transition-all duration-200"
+                      title="缩小"
+                    />
+                    <Button
+                      icon={<RotateLeftOutlined />}
+                      onClick={() => rotateLeft()}
+                      className="shadow-md hover:shadow-lg transition-all duration-200"
+                      title="逆时针旋转"
+                    />
+                    <Button
+                      icon={<RotateRightOutlined />}
+                      onClick={() => rotateRight()}
+                      className=" shadow-md hover:shadow-lg transition-all duration-200"
+                      title="顺时针旋转"
+                    />
+                  </div>
+
                 </div>
               </div>
 

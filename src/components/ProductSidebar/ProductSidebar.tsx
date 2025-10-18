@@ -98,12 +98,12 @@ function ProductSidebar() {
           <div className="w-1 h-5 bg-gradient-to-b from-blue-400 to-cyan-400 rounded-full"></div>
           <h3 className="text-lg font-bold text-white">产品选择</h3>
         </div>
-        <p className="text-darkBlueGray-400 text-sm">为照片选择合适的产品</p>
+        <p className="text-darkBlueGray-300 text-sm">为照片选择合适的产品</p>
       </motion.div>
 
       {/* 滚动内容区域 */}
       <div className="flex-1 overflow-hidden">
-        <SimpleBar style={{ maxHeight: '100%', height: '500px' }}>
+        <SimpleBar style={{ maxHeight: '100%', height: '100%' }}>
           <div className="space-y-3">
             {/* 筛选按钮组 */}
             <div id="photo-filter-bar" className="flex flex-col gap-3">
@@ -119,7 +119,7 @@ function ProductSidebar() {
                     size="large"
                     className={`w-full !h-auto !p-0 !text-left !border-0 rounded-xl transition-all duration-300 overflow-hidden ${
                       activeFilterType === option.filterType && selectedType === 'filter'
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25'
+                        ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 text-white shadow-lg shadow-cyan-500/30'
                         : 'bg-darkBlueGray-800/60 hover:bg-darkBlueGray-700/80 text-darkBlueGray-200 hover:border-darkBlueGray-600/50'
                     }`}
                     onClick={() => handleFixedOptionClick(option.filterType)}
@@ -186,7 +186,7 @@ function ProductSidebar() {
                       size="large"
                       className={`w-full !h-auto !p-0 !text-left !border-0 rounded-xl transition-all duration-300 overflow-hidden ${
                         selectedProductId === product.productId && selectedType === 'product'
-                          ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25'
+                          ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25'
                           : 'bg-darkBlueGray-800/60 hover:bg-darkBlueGray-700/80 text-darkBlueGray-200 hover:border-darkBlueGray-600/50'
                       }`}
                       onClick={() => handleProductClick(product.productId)}
@@ -236,7 +236,7 @@ function ProductSidebar() {
                                 <div
                                   className={`w-2 h-2 rounded-full ${
                                     product.selectedPhotoIds.length >= product.photoLimit && product.photoLimit > 0
-                                      ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50'
+                                      ? 'bg-green-400 shadow-sm shadow-green-400/50'
                                       : 'bg-blue-400 animate-pulse shadow-sm shadow-blue-400/50'
                                   }`}
                                 />

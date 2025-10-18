@@ -254,7 +254,9 @@ function ProductSelectPage() {
               previous={handlePreviousPhoto}
             />
             <MainViewer transformRef={transformRef} />
+
             <ThumbnailBar
+              visible
               photos={filteredPhotos}
               currentIndex={currentIndex}
               onClickThumbnail={(item, index) => {
