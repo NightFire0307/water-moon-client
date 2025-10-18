@@ -110,7 +110,7 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
     persist((set, get) => ({
       ...initialState,
       fetchPhotos: async (params) => {
-        const orderInfo = useOrderStore.getState().orderInfo
+        const orderInfo = useOrderStore.getState().order
         const photoToOrderProducts = new Map<number, number[]>()
 
         //  按照照片ID建立和产品ID的映射关系

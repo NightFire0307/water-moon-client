@@ -1,11 +1,9 @@
 import type { IOrderProduct } from '@/types/user/order'
-import { getOrderInfo } from '@/apis/order'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useOrderStore } from '@/stores/useOrderStore'
 import { usePhotosStore } from '@/stores/usePhotosStore'
-import { useProductsStore } from '@/stores/useProductsStore'
 import { OrderStatus } from '@/types/user/order'
 import {
   ArrowRightOutlined,
@@ -25,8 +23,7 @@ const { Content } = Layout
 
 const OrderInfoPage: FC = () => {
   const navigate = useNavigate()
-  const { setOrderInfo, orderInfo } = useOrderStore()
-  const { setProducts } = useProductsStore()
+  const { order, fetchOrder } = useOrderStore()
   const { fetchPhotos } = usePhotosStore()
   const { accessToken } = useAuthStore()
 
@@ -72,8 +69,8 @@ const OrderInfoPage: FC = () => {
   }
 
   const statusInfo = useMemo(() => {
-    return getSelectionStatusInfo(orderInfo?.status || OrderStatus.UNKNOWN)
-  }, [orderInfo?.status])
+    return getSelectionStatusInfo(order?.status || OrderStatus.UNKNOWN)
+  }, [order?.status])
 
   // 获取产品选择状态
   const getProductSelectionStatus = (orderProduct: IOrderProduct) => {
@@ -111,10 +108,7 @@ const OrderInfoPage: FC = () => {
 
   // 获取订单信息
   const fetchOrderInfo = async () => {
-    const { data } = await getOrderInfo()
-    setOrderInfo(data)
-    setProducts(data.orderProducts)
-
+    await fetchOrder()
     await fetchPhotos()
   }
 
@@ -169,7 +163,7 @@ const OrderInfoPage: FC = () => {
               <p className="text-darkBlueGray-300 mb-3 font-medium tracking-wide">订单编号</p>
               <div className="inline-block px-8 py-4 bg-gradient-to-r from-darkBlueGray-800 to-darkBlueGray-700 rounded-2xl border border-darkBlueGray-600 shadow-2xl">
                 <span className="text-white text-3xl md:text-4xl font-bold tracking-[0.2em] drop-shadow-sm ml-[0.2em]">
-                  {orderInfo?.orderNumber ?? '加载中...'}
+                  {order?.orderNumber ?? '加载中...'}
                 </span>
               </div>
             </div>
@@ -179,13 +173,13 @@ const OrderInfoPage: FC = () => {
               <div className="text-center">
                 <p className="text-darkBlueGray-400 text-xs mb-2 uppercase tracking-wider">客户姓名</p>
                 <span className="text-white text-2xl md:text-3xl font-bold tracking-wide">
-                  {orderInfo?.customerName ?? '加载中...'}
+                  {order?.customerName ?? '加载中...'}
                 </span>
               </div>
               <div className="text-center">
                 <p className="text-darkBlueGray-400 text-xs mb-2 uppercase tracking-wider">客户手机</p>
                 <span className="text-cyan-300 text-xl md:text-2xl font-semibold tracking-wider">
-                  {orderInfo?.customerPhone ?? '加载中...'}
+                  {order?.customerPhone ?? '加载中...'}
                 </span>
               </div>
             </div>
@@ -195,14 +189,14 @@ const OrderInfoPage: FC = () => {
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                 <CalendarOutlined className="text-cyan-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">创建日期</p>
-                <p className="text-cyan-300 text-lg font-semibold">{dayjs(orderInfo?.createdAt).format('YYYY-MM-DD')}</p>
+                <p className="text-cyan-300 text-lg font-semibold">{dayjs(order?.createdAt).format('YYYY-MM-DD')}</p>
               </div>
               <div className="bg-darkBlueGray-800/50 rounded-xl p-6 border border-darkBlueGray-700/50">
                 <FieldTimeOutlined className="text-amber-400 text-2xl mb-3 block mx-auto" />
                 <p className="text-darkBlueGray-400 text-xs mb-1 uppercase tracking-wider">截止日期</p>
                 <p className="text-amber-300 text-lg font-semibold">
                   {
-                    orderInfo?.isExpired ? '已过期' : dayjs(orderInfo?.validUntil).format('YYYY-MM-DD')
+                    order?.isExpired ? '已过期' : dayjs(order?.validUntil).format('YYYY-MM-DD')
                   }
                 </p>
               </div>
@@ -224,7 +218,7 @@ const OrderInfoPage: FC = () => {
               产品列表
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              {orderInfo?.orderProducts.map((orderProduct) => {
+              {order?.orderProducts.map((orderProduct) => {
                 const selectionStatus = getProductSelectionStatus(orderProduct)
                 const requiredPhotos = orderProduct.photoLimit * orderProduct.count
                 const selectedPhotos = orderProduct.selectedPhotos.length
@@ -416,7 +410,7 @@ const OrderInfoPage: FC = () => {
                 icon={<ArrowRightOutlined />}
                 iconPosition="end"
                 onClick={() => navigate('/pre-select')}
-                disabled={orderInfo?.isExpired}
+                disabled={order?.isExpired}
               >
                 开始挑选美照
               </Button>

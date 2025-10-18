@@ -1,24 +1,51 @@
 import type { IOrder } from '@/types/user/order'
+import { getOrderInfo } from '@/apis/order'
 import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
+import { useProductsStore } from './useProductsStore'
 
 interface UseOrderState {
-  orderInfo: IOrder | null
+  order: IOrder | null
+  lastFetch: number | null
   isLoading: boolean
 }
 
 interface UseOrderActions {
-  setOrderInfo: (order: IOrder | null) => void
-  setLoading: (loading: boolean) => void
-  resetOrder: () => void
+  fetchOrder: () => Promise<void>
+  clearOrder: () => void
 }
 
 export const useOrderStore = create<UseOrderState & UseOrderActions>()(
-  devtools(set => ({
-    orderInfo: null,
+  persist((set, get) => ({
+    order: null,
+    lastFetch: null,
     isLoading: false,
-    setOrderInfo: orderInfo => set({ orderInfo }),
-    setLoading: isLoading => set({ isLoading }),
-    resetOrder: () => set({ orderInfo: null, isLoading: false }),
-  }), { name: 'order-store' }),
+    clearOrder: () => set({ order: null, lastFetch: null }),
+    fetchOrder: async () => {
+      const { setProducts } = useProductsStore.getState()
+      const { lastFetch, order } = get()
+      const now = Date.now()
+
+      // 5分钟内如果有缓存则不重新请求
+      if (order && lastFetch && now - lastFetch < 5 * 60 * 1000) {
+        return
+      }
+
+      try {
+        set({ isLoading: true })
+        const { data } = await getOrderInfo()
+        setProducts(data.orderProducts)
+        set({ order: data, lastFetch: now, isLoading: false })
+      }
+      catch (err) {
+        set({ isLoading: false })
+      }
+    },
+  }), {
+    name: 'order-store',
+    partialize: state => ({
+      order: state.order,
+      lastFetch: state.lastFetch,
+    }),
+  }),
 )

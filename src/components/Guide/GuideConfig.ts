@@ -12,6 +12,21 @@ export const guideSteps: Record<string, TourProps['steps']> = {
       description: '这里会显示你当前总体预选进度',
       target: () => document.getElementById('preselect-progress-status')!,
     },
+    {
+      title: '缩略图栏切换',
+      description: '点击此按钮可显示或隐藏缩略图栏，方便你更好地浏览和选择照片',
+      target: () => document.getElementById('toggle-thumbnail-bar-button')!,
+    },
+    {
+      title: '单张视图按钮',
+      description: '点击此按钮可切换到单张视图模式，专注查看每张照片的细节',
+      target: () => document.getElementById('single-view-button')!,
+    },
+    {
+      title: '多图对比视图按钮',
+      description: '点击此按钮可切换到对比视图模式，最多同时查看4张照片，便于比较和选择',
+      target: () => document.getElementById('compare-view-button')!,
+    },
   ],
   'product-select': [
     {

@@ -50,8 +50,8 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
 
             <div className="flex items-center gap-4">
               {/* 照片数量徽章 */}
-              <div className="rounded-lg border border-blue-500/30 bg-blue-600/20 px-4 py-2">
-                <span className="font-semibold text-blue-200">
+              <div className="rounded-lg border border-cyan-500/30 bg-cyan-600/20 px-4 py-2">
+                <span className="font-semibold text-cyan-200">
                   {items.length}
                   {' '}
                   张
@@ -126,7 +126,7 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
                           {photo.selectedProducts.length > 1 && (
                             <div className="absolute left-2 top-2">
                               <div className="group/tooltip relative">
-                                <div className="flex cursor-help items-center gap-1 rounded-md border border-blue-500/50 bg-blue-600/90 px-2 py-1 backdrop-blur-sm transition-colors duration-200 hover:bg-blue-500/90">
+                                <div className="flex cursor-help items-center gap-1 rounded-md border border-cyan-500/50 bg-cyan-600/90 px-2 py-1 backdrop-blur-sm transition-colors duration-200 hover:bg-cyan-500/90">
                                   <ShareAltOutlined />
                                   <span className="text-xs font-semibold text-white">
                                     {photo.selectedProducts.length}
@@ -142,7 +142,7 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
                                   <div className="space-y-1">
                                     {photo.selectedProducts.map(selectedProduct => (
                                       <div key={selectedProduct.productId} className="flex items-center gap-2 text-xs">
-                                        <div className="h-2 w-2 rounded-full bg-blue-400"></div>
+                                        <div className="h-2 w-2 rounded-full bg-cyan-400"></div>
                                         <span className="text-darkBlueGray-300">{selectedProduct.name}</span>
                                         <span className="text-darkBlueGray-400">
                                           {selectedProduct.type}
@@ -162,7 +162,7 @@ function ProductGroup({ position, name, type, items }: ProductGroupProps) {
                             <div className="absolute right-2 top-2">
                               <div className="group/remark relative">
                                 {/* 备注图标 */}
-                                <div className="flex h-6 w-6 cursor-help items-center justify-center rounded-full border border-blue-400/40 bg-gradient-to-br from-blue-500/80 to-blue-600/90 shadow-md backdrop-blur-sm transition-all duration-200 hover:border-blue-300/60 hover:shadow-blue-400/20 hover:shadow-lg hover:scale-105">
+                                <div className="flex h-6 w-6 cursor-help items-center justify-center rounded-full border border-cyan-400/40 bg-gradient-to-br from-cyan-500/80 to-cyan-600/90 shadow-md backdrop-blur-sm transition-all duration-200 hover:border-cyan-300/60 hover:shadow-cyan-400/20 hover:shadow-lg hover:scale-105">
                                   <InfoCircleOutlined className="text-xs text-white drop-shadow-sm" />
                                 </div>
 

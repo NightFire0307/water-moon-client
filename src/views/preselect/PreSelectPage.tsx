@@ -43,7 +43,7 @@ const PreSelectPage: FC = () => {
     comparePhotos,
   } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
-  const { setOrderInfo } = useOrderStore()
+  const { fetchOrder } = useOrderStore()
   const { showLoading, hideLoading } = useFullScreenLoading()
   const navigate = useNavigate()
   const { syncNow } = useAutoSync(syncPreSelectedPhotos, { delay: 30, manualSync: true })
@@ -142,8 +142,7 @@ const PreSelectPage: FC = () => {
       ])
 
       // 获取最新订单信息
-      const { data } = await getOrderInfo()
-      setOrderInfo(data)
+      await fetchOrder()
 
       navigate('/product-select')
     }
@@ -398,6 +397,7 @@ const PreSelectPage: FC = () => {
         <Space>
           <Tooltip title="" placement="topRight" mouseEnterDelay={1}>
             <Button
+              id="toggle-thumbnail-bar-button"
               type="text"
               icon={<GalleryThumbnailsIcon size={18} />}
               onClick={() => { setIsThumbnailBarVisible(v => !v) }}
@@ -405,6 +405,7 @@ const PreSelectPage: FC = () => {
           </Tooltip>
           <Divider type="vertical" className="bg-darkBlueGray-600" />
           <Button
+            id="single-view-button"
             type={viewMode === 'single' ? 'primary' : 'text'}
             icon={<ImageIcon size={18} />}
             onClick={() => {
@@ -413,6 +414,7 @@ const PreSelectPage: FC = () => {
             }}
           />
           <Button
+            id="compare-view-button"
             type={viewMode === 'compare' ? 'primary' : 'text'}
             icon={<SquareSplitHorizontalIcon size={18} />}
             onClick={() => {

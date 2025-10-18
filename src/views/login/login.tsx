@@ -34,15 +34,15 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       
       &:hover {
-        border-color: rgba(59, 130, 246, 0.7);
+        border-color: rgba(6, 182, 212, 0.7);
         background: rgba(30, 41, 59, 0.9);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
       }
       
       &:focus {
-        border-color: #3b82f6;
+        border-color: #06b6d4;
         background: rgba(30, 41, 59, 1);
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.15);
+        box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.2), 0 4px 12px rgba(6, 182, 212, 0.15);
       }
       
       &::placeholder {
@@ -59,15 +59,15 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       
       &:hover {
-        border-color: rgba(59, 130, 246, 0.7);
+        border-color: rgba(6, 182, 212, 0.7);
         background: rgba(30, 41, 59, 0.9);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
       }
       
       &.${prefixCls}-input-affix-wrapper-focused {
-        border-color: #3b82f6;
+        border-color: #06b6d4;
         background: rgba(30, 41, 59, 1);
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.15);
+        box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.2), 0 4px 12px rgba(6, 182, 212, 0.15);
       }
       
       input {
@@ -90,23 +90,23 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
   `,
   primaryButton: css`
     &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
       border: none;
       border-radius: 16px;
       height: 48px;
       font-size: 16px;
       font-weight: 600;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
       transition: all 0.2s ease;
       
       &:hover {
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+        background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+        box-shadow: 0 6px 16px rgba(6, 182, 212, 0.35);
       }
       
       &:active {
         transform: translateY(1px);
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
       }
     }
   `,
@@ -195,7 +195,7 @@ export function Login() {
                 colorTextPlaceholder: '#94a3b8',
                 colorBgContainer: 'rgba(30, 41, 59, 0.8)',
                 colorBorder: 'rgba(71, 85, 105, 0.6)',
-                colorPrimaryHover: 'rgba(59, 130, 246, 0.7)',
+                colorPrimaryHover: 'rgba(6, 182, 212, 0.7)',
                 controlHeight: 56,
                 borderRadius: 16,
               },

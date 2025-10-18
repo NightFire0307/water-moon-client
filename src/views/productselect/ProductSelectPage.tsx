@@ -5,7 +5,6 @@ import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import { MainViewer } from '@/components/MainViewer/MainViewer'
-import ProductSidebar from '@/components/ProductSidebar/ProductSidebar'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
@@ -13,9 +12,11 @@ import { ViewerControl } from '@/components/ViewerControl/ViewerControl'
 import { PhotoViewerContext } from '@/contexts/PhotoViewerContext'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { syncProductPhotos } from '@/services/photoSyncService'
+import { useOrderStore } from '@/stores/useOrderStore'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { OrderStatus } from '@/types/user/order'
+import ProductSidebar from '@/views/productselect/components/ProductSidebar'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout } from 'antd'
 import { Header } from 'antd/es/layout/layout'
@@ -39,6 +40,8 @@ function ProductSelectPage() {
   })
   const [preSelectConfirmOpen, setPreSelectConfirmOpen] = useState(false) // 返回预选确认框
   const transformRef = useRef<ReactZoomPanPinchRef>(null)
+  const { fetchOrder } = useOrderStore()
+  const { fetchPhotos } = usePhotosStore()
   const { filter, setCurrentPhoto, currentPhoto, productSelectedPhotos } = usePhotosStore()
   const { next, previous, currentIndex, setCurrentIndex } = usePhotoViewerStore()
   const navigate = useNavigate()
@@ -159,7 +162,6 @@ function ProductSelectPage() {
     hideLoading()
   }
 
-  // 全局按键事件
   useEffect(() => {
     window.addEventListener('keydown', handleKeydown)
 
@@ -167,6 +169,11 @@ function ProductSelectPage() {
       window.removeEventListener('keydown', handleKeydown)
     }
   }, [handleKeydown])
+
+  useEffect(() => {
+    fetchOrder()
+    fetchPhotos()
+  }, [])
 
   const photoViewerContextValue = useMemo(() => ({
     thumbnailVisible,

@@ -19,15 +19,16 @@ function Segmented({ options, onChange }: SegmentedProps) {
     if (item) {
       setSliderStyle({
         left: item.offsetLeft - 4,
-        width: item.offsetWidth
+        width: item.offsetWidth,
       })
     }
   }, [isSelected, options])
 
   return (
-    <div 
-      ref={containerRef} 
-      className="relative p-1 h-10 inline-flex items-center bg-darkBlueGray-800/80 backdrop-blur-sm rounded-xl border border-darkBlueGray-700/60 shadow-lg select-none">
+    <div
+      ref={containerRef}
+      className="relative p-1 h-10 inline-flex items-center bg-darkBlueGray-800/80 backdrop-blur-sm rounded-xl border border-darkBlueGray-700/60 shadow-lg select-none"
+    >
       {
         options.map((option, idx) => (
           <div
@@ -50,7 +51,7 @@ function Segmented({ options, onChange }: SegmentedProps) {
         initial={{ translateX: sliderStyle.left, width: sliderStyle.width }}
         animate={{ translateX: sliderStyle.left, width: sliderStyle.width }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-        className="absolute top-1 bottom-1 rounded-md bg-gradient-to-r from-blue-500/30 to-blue-600/30 border border-blue-500/40 shadow-lg shadow-blue-500/20 -z-10"
+        className="absolute top-1 bottom-1 rounded-md bg-gradient-to-r from-cyan-500/30 to-cyan-600/30 border border-cyan-500/40 shadow-lg shadow-cyan-500/20 -z-10"
       />
     </div>
   )

@@ -13,17 +13,17 @@ interface PreSelectionConfirmModalProps {
 
 function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionConfirmModalProps) {
   const { getPreSelectedStats, setAllPendingToSelected } = usePhotosStore()
-  const { orderInfo } = useOrderStore()
+  const { order } = useOrderStore()
   const { selectedCount, excludedCount, pendingCount } = getPreSelectedStats()
   const [autoSelectedPending, setAutoSelectedPending] = useState(false) // 是否自动排除待处理照片
 
   // 计算预选状态
   const selectionStatus = useMemo(() => {
-    if (!orderInfo) {
+    if (!order) {
       return 'underSelected'
     }
 
-    const maxSelectPhotos = orderInfo.maxSelectPhotos
+    const maxSelectPhotos = order.maxSelectPhotos
 
     // 如果选择数量少于套餐数量
     if (selectedCount < maxSelectPhotos) {
@@ -41,7 +41,7 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
     else {
       return 'overSelected'
     }
-  }, [selectedCount, pendingCount, orderInfo])
+  }, [selectedCount, pendingCount, order])
 
   // 处理确认按钮点击
   const handleConfirm = () => {
@@ -55,27 +55,27 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
 
   // 计算选中和套餐差值
   const orderSelectedStats = useMemo(() => {
-    if (orderInfo === null)
+    if (order === null)
       return {}
     return {
-      selectedDiff: orderInfo.maxSelectPhotos - selectedCount,
-      overSelectedAmount: selectedCount - orderInfo.maxSelectPhotos > 0
-        ? (selectedCount - orderInfo.maxSelectPhotos) * orderInfo.extraPhotoPrice
+      selectedDiff: order.maxSelectPhotos - selectedCount,
+      overSelectedAmount: selectedCount - order.maxSelectPhotos > 0
+        ? (selectedCount - order.maxSelectPhotos) * order.extraPhotoPrice
         : 0,
     }
-  }, [orderInfo, selectedCount])
+  }, [order, selectedCount])
 
   // 计算套餐精修进度
   const packageProgress = useMemo(() => {
-    if (!orderInfo)
+    if (!order)
       return { percent: 0, current: 0, target: 0 }
 
-    const target = orderInfo.maxSelectPhotos
+    const target = order.maxSelectPhotos
     const current = selectedCount
     const percent = Math.min(Math.round((current / target) * 100), 100)
 
     return { percent, current, target }
-  }, [orderInfo, selectedCount])
+  }, [order, selectedCount])
 
   return (
     <CustomModal

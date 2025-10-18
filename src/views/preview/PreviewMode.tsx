@@ -1,4 +1,4 @@
-import { getOrderInfo, updateOrderStatus } from '@/apis/order'
+import { updateOrderStatus } from '@/apis/order'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { useOrderStore } from '@/stores/useOrderStore'
@@ -20,7 +20,7 @@ export default function PreviewMode() {
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const { products } = useProductsStore()
   const { getProductSelectedPhotos } = usePhotosStore()
-  const { orderInfo, setOrderInfo } = useOrderStore()
+  const { order, fetchOrder } = useOrderStore()
   const navigate = useNavigate()
   const productSelectedPhotos = getProductSelectedPhotos()
 
@@ -55,8 +55,7 @@ export default function PreviewMode() {
   // 处理提交选片结果
   const handleConfirmSubmit = async () => {
     await updateOrderStatus(OrderStatus.SUBMITTED)
-    const { data } = await getOrderInfo()
-    setOrderInfo(data)
+    await fetchOrder()
     setShowSubmitModal(false)
   }
 
@@ -76,7 +75,7 @@ export default function PreviewMode() {
               icon={<LeftOutlined />}
               size="large"
               onClick={() => navigate('/product-select')} // 返回产品选择页面
-              disabled={orderInfo?.status === 'submitted'}
+              disabled={order?.status === 'submitted'}
             />
             <StepHeader stepNumber={4} title="选片结果预览" subtitle="Selection Result Preview" />
           </div>
@@ -85,7 +84,7 @@ export default function PreviewMode() {
           <div
             className="flex-1 flex justify-center"
           >
-            {orderInfo?.status === 'submitted' && (
+            {order?.status === 'submitted' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -94,8 +93,8 @@ export default function PreviewMode() {
                 className="bg-darkBlueGray-800/60 backdrop-blur-sm text-darkBlueGray-100 px-4 py-2 rounded-lg border border-darkBlueGray-600/30"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <CheckOutlined className="text-green-400 text-xs" />
+                  <div className="w-5 h-5 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                    <CheckOutlined className="text-cyan-400 text-xs" />
                   </div>
                   <div className="text-sm">
                     <span className="font-medium text-white">选片结果已提交，当前为预览模式</span>
@@ -115,10 +114,9 @@ export default function PreviewMode() {
             <Button
               type="primary"
               onClick={() => setShowSubmitModal(true)}
-              className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800 font-medium text-white"
-              disabled={orderInfo?.status === 'submitted'}
+              disabled={order?.status === 'submitted'}
             >
-              { orderInfo?.status === 'submitted' ? '已提交' : '下一步：提交选片结果' }
+              { order?.status === 'submitted' ? '已提交' : '下一步：提交选片结果' }
               <RightOutlined />
             </Button>
           </motion.div>
@@ -131,7 +129,6 @@ export default function PreviewMode() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-
         >
           <SimpleBar style={{ maxHeight: 'calc(100vh - 64px)' }}>
             <div className="p-4 flex flex-col gap-4">
