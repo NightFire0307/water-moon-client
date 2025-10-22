@@ -14,15 +14,15 @@ function withOrderStatusGuard<T extends object>(
   WrappedComponent: ComponentType<T>,
 ) {
   const ComponentWithGuard = (props: T) => {
-    const orderInfo = useOrderStore(state => state.orderInfo)
+    const order = useOrderStore(state => state.order)
     const navigate = useNavigate()
     const location = useLocation()
 
     useEffect(() => {
-      if (!orderInfo || whiteList.includes(location.pathname))
+      if (!order || whiteList.includes(location.pathname))
         return
 
-      switch (orderInfo.status) {
+      switch (order.status) {
         case OrderStatus.PRE_SELECT:
           if (location.pathname !== '/pre-select') {
             navigate('/pre-select', { replace: true })
@@ -41,7 +41,7 @@ function withOrderStatusGuard<T extends object>(
         default:
           break
       }
-    }, [orderInfo?.status, navigate, location.pathname])
+    }, [order?.status, navigate, location.pathname])
 
     return <WrappedComponent {...props} />
   }

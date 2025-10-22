@@ -12,7 +12,7 @@ interface PreSelectStatsTooltipProps {
 
 function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps) {
   const { getPreSelectedStats } = usePhotosStore()
-  const { orderInfo } = useOrderStore()
+  const { order } = useOrderStore()
   const { selectedCount, excludedCount, pendingCount } = getPreSelectedStats()
 
   // 计算总进度百分比
@@ -22,17 +22,17 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
 
   // 加片信息统计
   const extraInfo = useMemo(() => {
-    if (!orderInfo)
+    if (!order)
       return { extraCount: 0, extraAmount: 0 }
 
-    const extraCount = Math.max(0, selectedCount - orderInfo.maxSelectPhotos)
-    const extraAmount = extraCount * orderInfo.extraPhotoPrice
+    const extraCount = Math.max(0, selectedCount - order.maxSelectPhotos)
+    const extraAmount = extraCount * order.extraPhotoPrice
 
     return {
       extraCount,
       extraAmount,
     }
-  }, [orderInfo, selectedCount])
+  }, [order, selectedCount])
 
   return (
     <AnimatePresence>
@@ -56,7 +56,7 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/30"></div>
-                    <Text className="text-darkBlueGray-300 text-sm font-medium">已选择</Text>
+                    <Text className="text-darkBlueGray-300 text-sm font-medium">保留</Text>
                   </div>
                   <div className="px-3 py-1 bg-cyan-600/20 border border-cyan-600/30 rounded-lg">
                     <Text className="text-cyan-400 font-bold text-sm">{selectedCount}</Text>
@@ -66,7 +66,7 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30"></div>
-                    <Text className="text-darkBlueGray-300 text-sm font-medium">已排除</Text>
+                    <Text className="text-darkBlueGray-300 text-sm font-medium">排除</Text>
                   </div>
                   <div className="px-3 py-1 bg-amber-600/20 border border-amber-600/30 rounded-lg">
                     <Text className="text-amber-400 font-bold text-sm">{excludedCount}</Text>
@@ -76,7 +76,7 @@ function PreSelectStatsTooltip({ isProgressHovered }: PreSelectStatsTooltipProps
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-darkBlueGray-500 shadow-lg shadow-darkBlueGray-500/30"></div>
-                    <Text className="text-darkBlueGray-300 text-sm font-medium">待处理</Text>
+                    <Text className="text-darkBlueGray-300 text-sm font-medium">总共</Text>
                   </div>
                   <div className="px-3 py-1 bg-darkBlueGray-600/20 border border-darkBlueGray-600/30 rounded-lg">
                     <Text className="text-darkBlueGray-400 font-bold text-sm">{pendingCount}</Text>

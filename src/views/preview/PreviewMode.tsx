@@ -8,7 +8,7 @@ import { OrderStatus } from '@/types/user/order'
 import { CheckOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button, Layout } from 'antd'
 import { motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import SimpleBar from 'simplebar-react'
 import ConfirmSelResModal from './components/ConfirmSelResModal'
@@ -20,7 +20,7 @@ export default function PreviewMode() {
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const { products } = useProductsStore()
   const { getProductSelectedPhotos } = usePhotosStore()
-  const { order, fetchOrder } = useOrderStore()
+  const { order, fetchOrder, clearOrder } = useOrderStore()
   const navigate = useNavigate()
   const productSelectedPhotos = getProductSelectedPhotos()
 
@@ -55,9 +55,16 @@ export default function PreviewMode() {
   // 处理提交选片结果
   const handleConfirmSubmit = async () => {
     await updateOrderStatus(OrderStatus.SUBMITTED)
+    clearOrder()
     await fetchOrder()
     setShowSubmitModal(false)
   }
+
+  useEffect(() => {
+    if (!order) {
+      fetchOrder()
+    }
+  }, [order])
 
   return (
     <Layout className="h-screen bg-gradient-to-br from-darkBlueGray-950 via-darkBlueGray-900 to-darkBlueGray-950">
