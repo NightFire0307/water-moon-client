@@ -154,6 +154,19 @@ function ProductSelectPage() {
     [handleNextPhoto, handlePreviousPhoto],
   )
 
+  // 处理返回预选页面操作
+  const handleBackToPreSelect = async () => {
+    showLoading('正在返回预选页面...')
+
+    try {
+      await updateOrderStatus(OrderStatus.PRE_SELECT)
+      await fetchOrder(true)
+    }
+    finally {
+      hideLoading()
+    }
+  }
+
   // 处理提交事件
   const handleConfirm = async () => {
     showLoading('正在同步产品选片...')
@@ -171,7 +184,6 @@ function ProductSelectPage() {
   }, [handleKeydown])
 
   useEffect(() => {
-    fetchOrder()
     fetchPhotos()
   }, [])
 
@@ -280,10 +292,7 @@ function ProductSelectPage() {
       <CustomModal
         title="确认返回预选页面吗？"
         desc="注：返回预选页面后，当前产品选片的修改将会被保存。"
-        onOk={async () => {
-          await updateOrderStatus(OrderStatus.PRE_SELECT)
-          navigate('/pre-select')
-        }}
+        onOk={handleBackToPreSelect}
         onCancel={() => setPreSelectConfirmOpen(false)}
         open={preSelectConfirmOpen}
         centered

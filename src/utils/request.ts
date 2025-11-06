@@ -51,6 +51,7 @@ service.interceptors.response.use(
           message.error('登录已过期，请重新登录')
           return Promise.reject(error)
         case 401:
+          useAuthStore.getState().setShouldRedirectLogin(true)
           return Promise.reject(error)
         case (400):
           message.error(error.response.data.msg || '请求错误，请稍后再试')

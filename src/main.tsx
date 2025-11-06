@@ -1,10 +1,9 @@
 import App from '@/App.tsx'
 import AuthLayout from '@/Layout/AuthLayout.tsx'
 import Error404Page from '@/views/errorPage/404.tsx'
-import { createElement, lazy, Suspense } from 'react'
+import { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
-import { EnhancedComponent } from './hocs'
 import './index.css'
 import './assets/normal.css'
 import 'simplebar-react/dist/simplebar.min.css'
@@ -23,7 +22,7 @@ createRoot(document.getElementById('root')!).render(
           <Route index element={<Login />} />
         </Route>
 
-        <Route path="/" element={createElement(EnhancedComponent(App))}>
+        <Route path="/" element={<App />}>
           <Route path="order-info" element={<OrderInfoPage />} />
           <Route path="pre-select" element={<PreSelectPage />} />
           <Route path="product-select" element={<ProductSelectPage />} />

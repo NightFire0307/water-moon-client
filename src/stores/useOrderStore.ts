@@ -11,7 +11,7 @@ interface UseOrderState {
 }
 
 interface UseOrderActions {
-  fetchOrder: () => Promise<void>
+  fetchOrder: (forceRefresh?: boolean) => Promise<void>
   clearOrder: () => void
 }
 
@@ -21,13 +21,13 @@ export const useOrderStore = create<UseOrderState & UseOrderActions>()(
     lastFetch: null,
     isLoading: false,
     clearOrder: () => set({ order: null, lastFetch: null }),
-    fetchOrder: async () => {
+    fetchOrder: async (forceRefresh = false) => {
       const { setProducts } = useProductsStore.getState()
       const { lastFetch, order } = get()
       const now = Date.now()
 
       // 5分钟内如果有缓存则不重新请求
-      if (order && lastFetch && now - lastFetch < 5 * 60 * 1000) {
+      if (!forceRefresh && order && lastFetch && now - lastFetch < 5 * 60 * 1000) {
         return
       }
 

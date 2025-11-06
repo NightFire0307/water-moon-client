@@ -1,4 +1,4 @@
-import { getOrderInfo, updateOrderStatus } from '@/apis/order'
+import { updateOrderStatus } from '@/apis/order'
 import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
@@ -127,12 +127,6 @@ const PreSelectPage: FC = () => {
       ),
     )
 
-    // 设置当前索引为 null
-    setCurrentPhoto(null)
-
-    // 重置当前索引
-    setCurrentIndex(0)
-
     try {
       await Promise.all([
         // 同步预选照片
@@ -141,10 +135,7 @@ const PreSelectPage: FC = () => {
         updateOrderStatus(OrderStatus.PRODUCT_SELECT),
       ])
 
-      // 获取最新订单信息
-      await fetchOrder()
-
-      navigate('/product-select')
+      await fetchOrder(true)
     }
     catch (err) {
       console.error(err)

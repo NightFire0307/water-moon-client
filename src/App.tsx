@@ -3,12 +3,13 @@ import MessageHandle from '@/components/MessageHandle/MessageHandle.tsx'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { AlertTriangleIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 import { logout } from './apis/login'
 import FullScreenLoading from './components/FullScreenLoading/FullScreenLoading'
 import GuideManager from './components/Guide/GuideManager'
 import { useHotkeys } from './hooks/useHotkeys'
+import useOrderGuard from './hooks/useOrderStatusRedirect'
 import { useAuthStore } from './stores/useAuthStore'
 import { useOrderStore } from './stores/useOrderStore'
 import { usePhotosStore } from './stores/usePhotosStore'
@@ -19,9 +20,10 @@ import './App.css'
 function App() {
   const [logOutModalOpen, setLogOutModalOpen] = useState(false)
   const { clearOrder } = useOrderStore()
-  const { clearAccessToken } = useAuthStore()
+  const { clearAccessToken, shouldRedirectLogin, setShouldRedirectLogin } = useAuthStore()
   const { resetProducts } = useProductsStore()
   const { resetPhotos } = usePhotosStore()
+  useOrderGuard()
   const navigate = useNavigate()
   useHotkeys([
     {
@@ -44,6 +46,13 @@ function App() {
       console.error('Logout failed:', err)
     }
   }
+
+  useEffect(() => {
+    if (shouldRedirectLogin) {
+      setShouldRedirectLogin(false)
+      navigate('/login')
+    }
+  }, [shouldRedirectLogin, navigate, setShouldRedirectLogin])
 
   return (
     <ConfigProvider
