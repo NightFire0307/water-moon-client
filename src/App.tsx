@@ -1,6 +1,6 @@
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
 import MessageHandle from '@/components/MessageHandle/MessageHandle.tsx'
-import { ConfigProvider } from 'antd'
+import { Button, ConfigProvider, Space } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { AlertTriangleIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -70,6 +70,12 @@ function App() {
             <AlertTriangleIcon className="text-amber-500" />
             <span>确定要退出选片流程？</span>
           </div>
+        )}
+        footer={(
+          <Space className="flex justify-center">
+            <Button onClick={() => setLogOutModalOpen(false)}>取消</Button>
+            <Button type="primary" onClick={handleLogOut}>退出</Button>
+          </Space>
         )}
         centered
         open={logOutModalOpen}

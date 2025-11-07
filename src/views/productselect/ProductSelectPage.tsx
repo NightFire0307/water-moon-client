@@ -161,6 +161,7 @@ function ProductSelectPage() {
     try {
       await updateOrderStatus(OrderStatus.PRE_SELECT)
       await fetchOrder(true)
+      navigate('/pre-select')
     }
     finally {
       hideLoading()

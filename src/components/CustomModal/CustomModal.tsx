@@ -1,15 +1,16 @@
 import type { ModalProps } from 'antd'
-import type { FC, PropsWithChildren, ReactElement } from 'react'
+import type { FC, PropsWithChildren, ReactElement, ReactNode } from 'react'
 import { CloseOutlined } from '@ant-design/icons'
 import { Button, Modal } from 'antd'
 
-interface CustomModalProps extends PropsWithChildren, ModalProps {
+interface CustomModalProps extends PropsWithChildren, Omit<ModalProps, 'footer'> {
   desc?: string
   icon?: ReactElement
   onOk?: () => void
   onCancel?: () => void
   disabledOk?: boolean
   okIcon?: ReactElement
+  footer?: ReactNode
 }
 
 const customModal: FC<CustomModalProps> = (props) => {
@@ -57,17 +58,23 @@ const customModal: FC<CustomModalProps> = (props) => {
 
       {children}
 
-      <div className="flex justify-end gap-2 mt-4">
-        <Button onClick={onCancel}>{cancelText}</Button>
-        <Button
-          type="primary"
-          onClick={() => onOk && onOk()}
-          disabled={disabledOk ?? false}
-          icon={okIcon}
-        >
-          { okText || '确定'}
-        </Button>
-      </div>
+      {
+        footer !== undefined
+          ? footer
+          : (
+              <div className="flex justify-end gap-2 mt-4">
+                <Button onClick={onCancel}>{cancelText}</Button>
+                <Button
+                  type="primary"
+                  onClick={() => onOk && onOk()}
+                  disabled={disabledOk ?? false}
+                  icon={okIcon}
+                >
+                  { okText || '确定'}
+                </Button>
+              </div>
+            )
+      }
 
     </Modal>
   )

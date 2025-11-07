@@ -103,15 +103,9 @@ const PreSelectPage: FC = () => {
           togglePreSelected(PreSelectStatus.SELECTED)
         }
         else if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
-          setCurrentPhoto({ ...currentPhoto, preSelectStatus: PreSelectStatus.EXCLUDED })
-          togglePreSelected(PreSelectStatus.EXCLUDED)
+          setCurrentPhoto({ ...currentPhoto, preSelectStatus: PreSelectStatus.SELECTED })
+          togglePreSelected(PreSelectStatus.SELECTED)
         }
-
-        // if (currentIndex < preSelectPhotos.length - 1) {
-        //   const nextPhoto = preSelectPhotos[currentIndex + 1]
-        //   setCurrentPhoto(nextPhoto)
-        //   next()
-        // }
       },
     },
   ])
