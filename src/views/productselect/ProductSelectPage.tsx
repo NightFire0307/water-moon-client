@@ -1,5 +1,12 @@
-import type { Photo } from '@/stores/usePhotosStore'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import type { Photo } from '@/stores/usePhotosStore'
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Button, Layout } from 'antd'
+import { Header } from 'antd/es/layout/layout'
+import Sider from 'antd/es/layout/Sider'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { updateOrderStatus } from '@/apis/order'
 import { ConditionTip } from '@/components/ConditionTip/ConditionTip'
 import CustomModal from '@/components/CustomModal/CustomModal.tsx'
@@ -16,14 +23,7 @@ import { useOrderStore } from '@/stores/useOrderStore'
 import { FILTER_TYPE, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { OrderStatus } from '@/types/user/order'
-import ProductSidebar from '@/views/productselect/components/ProductSidebar'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Layout } from 'antd'
-import { Header } from 'antd/es/layout/layout'
-import Sider from 'antd/es/layout/Sider'
-import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import ProductSidebar from '@/views/productSelect/components/ProductSidebar'
 import ProductSelectConfirmModal from './components/productSelectConfirmModal'
 
 const { Content } = Layout
@@ -292,7 +292,7 @@ function ProductSelectPage() {
       {/* 返回预选确认框 */}
       <CustomModal
         title="确认返回预选页面吗？"
-        desc="注：返回预选页面后，当前产品选片的修改将会被保存。"
+        desc="注：返回预选阶段时，当前产品照片备注会被保存。"
         onOk={handleBackToPreSelect}
         onCancel={() => setPreSelectConfirmOpen(false)}
         open={preSelectConfirmOpen}

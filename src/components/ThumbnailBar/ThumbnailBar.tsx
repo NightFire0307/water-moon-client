@@ -1,9 +1,9 @@
 import type { Photo } from '@/stores/usePhotosStore'
-import useMouseOver from '@/hooks/useMouseOver'
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { motion } from 'framer-motion'
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type WheelEvent } from 'react'
 import SimpleBar from 'simplebar-react'
+import useMouseOver from '@/hooks/useMouseOver'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 import { Thumbnail } from './Thumbnail'
 import 'simplebar-react/dist/simplebar.min.css'
 

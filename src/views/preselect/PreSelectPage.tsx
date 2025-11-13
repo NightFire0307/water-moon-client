@@ -1,8 +1,15 @@
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Button, Checkbox, Divider, Layout, message, Space, Tooltip, Typography } from 'antd'
+import { motion } from 'framer-motion'
+import { CheckIcon, GalleryThumbnailsIcon, ImageIcon, SquareSplitHorizontalIcon, XIcon } from 'lucide-react'
+import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { updateOrderStatus } from '@/apis/order'
 import { useFullScreenLoading } from '@/components/FullScreenLoading/useFullScreenLoading'
 import ProgressDots from '@/components/ProgressDots/ProgressDots'
 import { StepHeader } from '@/components/StepHeader/StepHeader'
 import { ThumbnailBar } from '@/components/ThumbnailBar/ThumbnailBar'
+import { HorizontalList } from '@/components/ThumbnailBar/VirtualThumbnail'
 import { useAutoSync } from '@/hooks/useAutoSync'
 import { useHotkeys } from '@/hooks/useHotkeys'
 import { syncPreSelectedPhotos } from '@/services/photoSyncService'
@@ -11,12 +18,6 @@ import { type Photo, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { PreSelectStatus } from '@/types/selection/preSelection'
 import { OrderStatus } from '@/types/user/order'
-import { LeftOutlined, ReloadOutlined, RightOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Divider, Layout, message, Space, Tooltip, Typography } from 'antd'
-import { motion } from 'framer-motion'
-import { CheckIcon, GalleryThumbnailsIcon, ImageIcon, SquareSplitHorizontalIcon, XIcon } from 'lucide-react'
-import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
 import ComparePhotoView from './components/ComparePhotoView'
 import { PreSelectCentralIndicator } from './components/PreSelectCentralIndicator'
 import PreSelectionConfirmModal from './components/PreSelectConfirmModal'
@@ -80,9 +81,9 @@ const PreSelectPage: FC = () => {
         // 如果index不是最后一张则切换到下一张
         if (currentIndex < preSelectPhotos.length - 1) {
           // 如果当前照片为 pending 则自动标记 selected
-          if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
-            togglePreSelected(PreSelectStatus.SELECTED)
-          }
+          // if (currentPhoto?.preSelectStatus === PreSelectStatus.PENDING) {
+          //   togglePreSelected(PreSelectStatus.SELECTED)
+          // }
 
           const nextPhoto = preSelectPhotos[currentIndex + 1]
           setCurrentPhoto(nextPhoto)
@@ -243,14 +244,6 @@ const PreSelectPage: FC = () => {
           <div className="flex items-center gap-4">
             <ProgressDots currentStep={2} totalSteps={4} />
 
-            {/* 重置按钮 */}
-            <Button
-
-              icon={<ReloadOutlined />}
-            >
-              重置预选
-            </Button>
-
             {/* 下一步选产品 */}
             <Button
               id="preselect-next-step-button"
@@ -356,11 +349,10 @@ const PreSelectPage: FC = () => {
           </motion.div>
         </div>
 
-        {/* 缩略图栏 */}
-        <ThumbnailBar
+        <HorizontalList
           visible={isThumbnailBarVisible}
           photos={preSelectPhotos}
-          extra={renderExtra}
+          renderExtra={renderExtra}
           onClickThumbnail={(item, index) => {
             setCurrentIndex(index)
             setCurrentPhoto(item)

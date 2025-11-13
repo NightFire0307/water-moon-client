@@ -140,7 +140,7 @@ function PreSelectionConfirmModal({ open, onConfirm, onCancel }: PreSelectionCon
             <span>
               {selectionStatus === 'underSelected' && `还需选择 ${orderSelectedStats.selectedDiff} 张`}
               {selectionStatus === 'exactSelected' && '已完成套餐要求'}
-              {selectionStatus === 'exactSelectedWithPending' && '已达要求，有待处理照片'}
+              {selectionStatus === 'exactSelectedWithPending' && '已完成预选，点击确认进入下一步'}
               {selectionStatus === 'overSelected' && `超出指定张数 ${packageProgress.current - packageProgress.target} 张`}
             </span>
           </div>

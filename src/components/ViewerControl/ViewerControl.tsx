@@ -192,7 +192,6 @@ export const ViewerControl: FC<ViewerControlProps> = ({ transformRef, next, prev
           setKeyboardDisabled(false)
           form.resetFields()
         }}
-        footer={null}
       >
         <Form form={form}>
           <Form.Item name="remark">
