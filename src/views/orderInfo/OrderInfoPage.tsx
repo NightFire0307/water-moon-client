@@ -1,10 +1,4 @@
 import type { IOrderProduct } from '@/types/user/order'
-import ProgressDots from '@/components/ProgressDots/ProgressDots'
-import { StepHeader } from '@/components/StepHeader/StepHeader'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { useOrderStore } from '@/stores/useOrderStore'
-import { usePhotosStore } from '@/stores/usePhotosStore'
-import { OrderStatus } from '@/types/user/order'
 import {
   ArrowRightOutlined,
   CalendarOutlined,
@@ -18,13 +12,17 @@ import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
 import { type FC, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router'
+import ProgressDots from '@/components/ProgressDots/ProgressDots'
+import { StepHeader } from '@/components/StepHeader/StepHeader'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useOrderStore } from '@/stores/useOrderStore'
+import { OrderStatus } from '@/types/user/order'
 
 const { Content } = Layout
 
 const OrderInfoPage: FC = () => {
   const navigate = useNavigate()
   const { order, fetchOrder } = useOrderStore()
-  const { fetchPhotos } = usePhotosStore()
   const { accessToken } = useAuthStore()
 
   // 获取选片状态显示信息
@@ -109,7 +107,6 @@ const OrderInfoPage: FC = () => {
   // 获取订单信息
   const fetchOrderInfo = async () => {
     await fetchOrder()
-    await fetchPhotos()
   }
 
   useEffect(() => {

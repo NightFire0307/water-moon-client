@@ -1,9 +1,9 @@
 import type { CellComponentProps } from 'react-window'
-import type { Photo } from '@/stores/usePhotosStore'
 import { motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useState, type WheelEventHandler } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type WheelEventHandler } from 'react'
 import { Grid, useGridRef } from 'react-window'
 import useMouseOver from '@/hooks/useMouseOver'
+import { type Photo, usePhotosStore } from '@/stores/usePhotosStore'
 import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore'
 import { Thumbnail } from './Thumbnail'
 import 'simplebar-react/dist/simplebar.min.css'
@@ -54,6 +54,10 @@ export function HorizontalList(props: HorizontalListProps) {
   const { isHover, handleMouseEnter, handleMouseLeave } = useMouseOver({ delay: 150 })
   const [initialVisible, setInitialVisible] = useState(false)
   const gridRef = useGridRef(null)
+  const isLoading = useRef(false)
+  const hasMoreRef = useRef(true)
+  const nextPageRef = useRef(null)
+  const { fetchPhotos } = usePhotosStore()
 
   // 判断是否为受控组件
   const isControlled = visible !== undefined
@@ -83,6 +87,35 @@ export function HorizontalList(props: HorizontalListProps) {
       return
     grid.element.scrollLeft += e.deltaY
   }
+
+  const handleOnScroll = async (e) => {
+    const threshold = 108 * 10 // 设置一个阈值用于加载下一批数据
+
+    if (e.target.scrollLeft + e.target.clientWidth >= e.target.scrollWidth - threshold && !isLoading.current && hasMoreRef.current) {
+      console.log('接近右侧，加载下一批数据')
+      isLoading.current = true
+      try {
+        const result = await nextPageRef.current()
+        hasMoreRef.current = result.hasMore
+        console.log('加载完成，hasMore:', result.hasMore)
+      }
+      catch (error) {
+        console.error('加载失败:', error)
+      }
+      finally {
+        isLoading.current = false
+      }
+    }
+  }
+
+  useEffect(() => {
+    const initLoad = async () => {
+      const result = await fetchPhotos()
+      nextPageRef.current = result.nextPage
+      hasMoreRef.current = result.hasMore
+    }
+    initLoad()
+  }, [fetchPhotos])
 
   useEffect(() => {
     setInitialVisible(isHover)
@@ -118,6 +151,7 @@ export function HorizontalList(props: HorizontalListProps) {
             scrollbarWidth: 'thin',
             scrollbarColor: 'rgba(255, 255, 255, 0.5) transparent',
           }}
+          onScroll={handleOnScroll}
           onWheel={handleOnWheel}
         />
 

@@ -1,8 +1,8 @@
 import type { PaginationParams } from '@/types/common/pagination'
-import { getOrderPhotos } from '@/apis/order.ts'
-import { PreSelectStatus } from '@/types/selection/preSelection'
 import { create } from 'zustand'
 import { createJSONStorage, devtools, persist } from 'zustand/middleware'
+import { getOrderPhotos } from '@/apis/order.ts'
+import { PreSelectStatus } from '@/types/selection/preSelection'
 import { useOrderStore } from './useOrderStore'
 
 export interface Photo {
@@ -68,23 +68,33 @@ function mergePhotosFromCache(
   cache?: Map<number, Omit<Photo, 'photoId'>>,
 ) {
   if (!cache || cache.size === 0)
-    return base // 如果没有缓存，直接返回
+    return base
 
   const mergedPhotos = new Map<number, Omit<Photo, 'photoId'>>()
+
+  // 先处理 base 中的所有照片
   for (const [id, baseVal] of base.entries()) {
     const c = cache.get(id)
-
     if (c) {
+      // 如果 cache 中有，使用 cache 的状态（用户修改过的）
       mergedPhotos.set(id, {
         ...baseVal,
-        preSelectStatus: c.preSelectStatus || baseVal.preSelectStatus,
-        selectedProducts: c.selectedProducts || baseVal.selectedProducts,
-        remark: c.remark || baseVal.remark,
-        dirty: c.dirty || baseVal.dirty,
+        preSelectStatus: c.preSelectStatus,
+        selectedProducts: c.selectedProducts,
+        remark: c.remark,
+        dirty: c.dirty,
       })
     }
     else {
+      // 如果 cache 中没有，使用 base 的默认状态
       mergedPhotos.set(id, baseVal)
+    }
+  }
+
+  // 保留 cache 中存在但 base 中不存在的照片（已被删除但本地还有缓存的照片）
+  for (const [id, cacheVal] of cache.entries()) {
+    if (!mergedPhotos.has(id)) {
+      mergedPhotos.set(id, cacheVal)
     }
   }
 
@@ -110,10 +120,15 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
     persist((set, get) => ({
       ...initialState,
       fetchPhotos: async (params) => {
+        const state = get()
+
+        // 防止重复请求
+        if (state.isLoading)
+          return { hasMore: false }
+
         const orderInfo = useOrderStore.getState().order
         const photoToOrderProducts = new Map<number, number[]>()
 
-        //  按照照片ID建立和产品ID的映射关系
         if (orderInfo) {
           for (const orderProduct of orderInfo.orderProducts) {
             orderProduct.selectedPhotos.forEach(({ photoId }) => {
@@ -127,14 +142,16 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
           }
         }
 
-        // 设置加载状态
         set({ isLoading: true })
 
-        const loadBatch = async (params?: PaginationParams) => {
-          const { data } = await getOrderPhotos(params)
+        let currentPage = params?.current || 1
+
+        const loadBatch = async (batchParams?: PaginationParams) => {
+          const { data } = await getOrderPhotos(batchParams)
 
           set((state) => {
-            const newPhotos = new Map<number, Omit<Photo, 'photoId'>>()
+            const newPhotos = new Map(state.originalPhotos) // 保留旧数据
+
             data.list.forEach((photo) => {
               newPhotos.set(photo.id, {
                 thumbnailUrl: photo.ossUrlThumbnail,
@@ -148,39 +165,44 @@ export const usePhotosStore = create<UsePhotosState & UsePhotosAction>()(
               })
             })
 
-            // 合并预选照片
             const mergedPreSelected = mergePhotosFromCache(
               newPhotos,
               state.preSelectedPhotos,
             )
 
-            // 合并产品选片照片
-            // 只合并那些已经被预选的照片
             const mergedProductSelected = mergePhotosFromCache(
               new Map([...mergedPreSelected].filter(([_, photo]) => photo.preSelectStatus === PreSelectStatus.SELECTED)),
               state.productSelectedPhotos,
             )
 
             return {
-              originalPhotos: newPhotos,
+              originalPhotos: newPhotos, // 现在是追加而非覆盖
               preSelectedPhotos: mergedPreSelected,
               productSelectedPhotos: mergedProductSelected,
             }
           })
 
+          currentPage = data.current + 1
+
           return {
             hasMore: data.current * data.pageSize < data.total,
-            page: data.current + 1,
           }
         }
 
-        const { hasMore, page } = await loadBatch({ pageSize: 50, ...params })
+        const { hasMore } = await loadBatch({ pageSize: 50, ...params })
 
         set({ isLoading: false })
 
         return {
           hasMore,
-          nextPage: () => loadBatch({ current: page }),
+          nextPage: async () => {
+            if (get().isLoading)
+              return { hasMore: false }
+            set({ isLoading: true })
+            const result = await loadBatch({ current: currentPage, pageSize: 50 })
+            set({ isLoading: false })
+            return result
+          },
         }
       },
       setPhotoSelectedProducts: (photoId, productIds) => (
