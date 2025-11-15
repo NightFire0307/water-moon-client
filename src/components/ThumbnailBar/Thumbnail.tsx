@@ -1,6 +1,5 @@
-import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
-
 import cs from 'classnames'
+import { usePhotoViewerStore } from '@/stores/usePhotoViewerStore.ts'
 
 interface ThumbnailProps {
   index: number

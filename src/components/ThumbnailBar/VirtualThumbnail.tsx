@@ -56,8 +56,10 @@ export function HorizontalList(props: HorizontalListProps) {
   const gridRef = useGridRef(null)
   const isLoading = useRef(false)
   const hasMoreRef = useRef(true)
-  const nextPageRef = useRef(null)
+  const nextPageRef = useRef<() => Promise<{ hasMore: boolean }>>(null)
+  const columnWidth = useRef(108)
   const { fetchPhotos } = usePhotosStore()
+  const { currentIndex } = usePhotoViewerStore()
 
   // 判断是否为受控组件
   const isControlled = visible !== undefined
@@ -89,15 +91,17 @@ export function HorizontalList(props: HorizontalListProps) {
   }
 
   const handleOnScroll = async (e) => {
-    const threshold = 108 * 10 // 设置一个阈值用于加载下一批数据
+    const threshold = columnWidth.current * 10 // 设置一个阈值用于加载下一批数据
 
-    if (e.target.scrollLeft + e.target.clientWidth >= e.target.scrollWidth - threshold && !isLoading.current && hasMoreRef.current) {
-      console.log('接近右侧，加载下一批数据')
+    if (e.target.scrollLeft + e.target.clientWidth >= e.target.scrollWidth - threshold
+      && !isLoading.current
+      && hasMoreRef.current
+      && nextPageRef.current
+    ) {
       isLoading.current = true
       try {
         const result = await nextPageRef.current()
         hasMoreRef.current = result.hasMore
-        console.log('加载完成，hasMore:', result.hasMore)
       }
       catch (error) {
         console.error('加载失败:', error)
@@ -109,6 +113,9 @@ export function HorizontalList(props: HorizontalListProps) {
   }
 
   useEffect(() => {
+    if (isLoading.current)
+      return
+
     const initLoad = async () => {
       const result = await fetchPhotos()
       nextPageRef.current = result.nextPage
@@ -120,6 +127,30 @@ export function HorizontalList(props: HorizontalListProps) {
   useEffect(() => {
     setInitialVisible(isHover)
   }, [isHover, setInitialVisible])
+
+  useEffect(() => {
+    if (
+      typeof currentIndex === 'number'
+      && gridRef.current
+      && gridRef.current.element
+      && photos.length > 0
+    ) {
+      const gridEl = gridRef.current.element
+      const itemLeft = currentIndex * 108
+      const itemRight = itemLeft + 108
+      const visibleLeft = gridEl.scrollLeft
+      const visibleRight = gridEl.scrollLeft + gridEl.clientWidth
+
+      // 只有当当前缩略图不在可视区域时才滚动
+      if (itemLeft < visibleLeft || itemRight > visibleRight) {
+        gridRef.current.scrollToColumn({
+          behavior: 'smooth',
+          index: currentIndex,
+          align: itemLeft < visibleLeft ? 'start' : 'end',
+        })
+      }
+    }
+  }, [currentIndex, photos.length, gridRef])
 
   return (
     <div
@@ -142,7 +173,7 @@ export function HorizontalList(props: HorizontalListProps) {
             isPhotoSelected,
           }}
           columnCount={photos.length}
-          columnWidth={108}
+          columnWidth={columnWidth.current}
           rowCount={1}
           rowHeight={76}
           style={{
